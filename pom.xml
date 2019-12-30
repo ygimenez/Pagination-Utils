@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.kuuhaku</groupId>
+    <artifactId>PaginationUtils</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <name>Pagination Utils</name>
+    <description>A collection of methods to make message pagination with JDA easier.</description>
+    <url>https://github.com/OtagamerZ/PaginationUtils</url>
+
+    <developers>
+        <developer>
+            <name>Yago Gimenez</name>
+            <email>yagogimenez1@hotmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/OtagamerZ/PaginationUtils</url>
+        <connection>scm:git:git@github.com:OtagamerZ/PaginationUtils.git</connection>
+        <developerConnection>scm:git:git@github.com:OtagamerZ/PaginationUtils.git</developerConnection>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>bintray</name>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>4.0.0_45</version>
+        </dependency>
+    </dependencies>
+</project>
