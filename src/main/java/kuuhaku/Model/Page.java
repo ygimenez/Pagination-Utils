@@ -1,15 +1,16 @@
 package kuuhaku.Model;
 
-import com.sun.istack.internal.NotNull;
 import kuuhaku.Enum.PageType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+
+import javax.annotation.Nonnull;
 
 public class Page {
 	private final PageType type;
 	private final Object content;
 
-	public Page(@NotNull PageType type, @NotNull Object content) {
+	public Page(@Nonnull PageType type, @Nonnull Object content) {
 		this.type = type;
 		this.content = content;
 	}
