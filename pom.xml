@@ -10,7 +10,7 @@
 
     <name>Pagination Utils</name>
     <description>A collection of methods to make message pagination with JDA easier.</description>
-    <url>https://github.com/OtagamerZ/PaginationUtils</url>
+    <url>https://github.com/ygimenez/PaginationUtils</url>
 
     <developers>
         <developer>
@@ -20,9 +20,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/OtagamerZ/PaginationUtils</url>
-        <connection>scm:git:git@github.com:OtagamerZ/PaginationUtils.git</connection>
-        <developerConnection>scm:git:git@github.com:OtagamerZ/PaginationUtils.git</developerConnection>
+        <url>https://github.com/ygimenez/PaginationUtils</url>
+        <connection>scm:git:git@github.com:ygimenez/PaginationUtils.git</connection>
+        <developerConnection>scm:git:git@github.com:ygimenez/PaginationUtils.git</developerConnection>
     </scm>
 
     <licenses>
@@ -38,6 +38,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
                 <configuration>
                     <source>8</source>
                     <target>8</target>
