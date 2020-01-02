@@ -82,7 +82,7 @@ public class Pages {
 	/**
 	 * @param api The bot's instantiated object.
 	 * @param msg The message sent which will be categorized.
-	 * @param categories The categories to be shown. The categories are defined by a Map containing emote ASCII codes as keys and Pages as values.
+	 * @param categories The categories to be shown. The categories are defined by a Map containing emote unicodes as keys and Pages as values.
 	 * @param time The time before the listener automatically stop listening for further events. (Recommended: 60)
 	 * @param unit The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 */

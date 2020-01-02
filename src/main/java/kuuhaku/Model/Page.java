@@ -10,6 +10,10 @@ public class Page {
 	private final PageType type;
 	private final Object content;
 
+	/**
+	 * @param type The type of the content (PageType.TEXT or PageType.EMBED)
+	 * @param content The Message/MessageEmbed object to be used as pages
+	 */
 	public Page(@Nonnull PageType type, @Nonnull Object content) {
 		this.type = type;
 		this.content = content;
