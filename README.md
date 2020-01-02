@@ -147,7 +147,7 @@ Maven:
 </dependency>
 ```
 
-* Replace `VERSION` with the version shown here: ![Version](https://jitpack.io/v/ygimenez/PaginationUtils.svg)
+* Replace `VERSION` with the one shown here: ![Version](https://jitpack.io/v/ygimenez/PaginationUtils.svg)
 * Done!
 
 ## Feedback
