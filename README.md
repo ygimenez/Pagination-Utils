@@ -82,7 +82,7 @@ Then just call the `Pages.categorize()` method just like you did with `Pages.pag
 
 ```java
 //SAME ARGUMENTS, EXCEPT THE THIRD THAT MUST EXTEND Map CLASS
-exampleChannel.sendMessage((Message) pages.get(0).getContent()).queue(success -> {
+exampleChannel.sendMessage("This is a menu message").queue(success -> {
     Pages.categorize(bot, success, pages, 60, TimeUnit.SECONDS);
 });
 ```
