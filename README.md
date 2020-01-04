@@ -14,7 +14,7 @@ Have you been using a bot and came across one of those two GIFs and thought: "Th
 
 ## How do I paginate?
 
-It's as easier than it seems, all you just need to do is create a `Page` object containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
+It's easier than it seems, all you need to do is create a `Page` object containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
 
 Example:
 
@@ -33,7 +33,7 @@ eb.setDescription("Hello World!");
 Page embedPage = new Page(PageType.EMBED, eb.build());
 ```
 
-That said, you'll need to create an `ArrayList` of pages to use the pagination, since a single `Page` does not need to be paginated after all:
+That said, you'll need to create an `ArrayList` of pages to use the pagination, since a single `Page` does not need to be paginated at all:
 
 ```java
 ArrayList<Page> pages = new ArrayList<>();
@@ -65,7 +65,7 @@ That's everything you have to do, the library will automatically add the navigat
 
 ## How do I categorize?
 
-To categorize it's almost the same process as paginating, however, the tipe of collection is `HashMap` instead of `ArrayList`:
+To categorize it's almost the same process as paginating, however, the type of collection is `HashMap` instead of `ArrayList`:
 
 ```java
 HashMap<String, Page> pages = new HashMap<>();
