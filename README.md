@@ -1,4 +1,15 @@
-![Version](https://jitpack.io/v/ygimenez/PaginationUtils.svg)
+[version]: https://github.com/ygimenez/PaginationUtils/releases
+[jitpack]: https://jitpack.io/#ygimenez/PaginationUtils
+[license]: https://github.com/ygimenez/PaginationUtils/blob/master/LICENSE
+[issue]: https://github.com/ygimenez/PaginationUtils/issues
+[version-shield]: https://img.shields.io/github/v/release/ygimenez/PaginationUtils?include_prereleases&label=Version
+[jitpack-shield]: https://img.shields.io/badge/Download-Jitpack-success
+[license-shield]: https://img.shields.io/github/license/ygimenez/PaginationUtils?color=lightgrey&label=License
+[issue-shield]: https://img.shields.io/github/issues/ygimenez/PaginationUtils?label=Issues
+[ ![version-shield][] ][version]
+[ ![jitpack-shield][] ][jitpack]
+[ ![license-shield][] ][license]
+[ ![issue-shield][] ][issue]
 
 # Pagination Utils - JDA Pagination made easier!
 
@@ -151,7 +162,7 @@ Maven:
 </dependency>
 ```
 
-* Replace `VERSION` with the one shown here: ![Version](https://jitpack.io/v/ygimenez/PaginationUtils.svg)
+* Replace `VERSION` with the one shown here: [ ![version-shield][] ][version]
 * Done!
 
 ## Feedback
