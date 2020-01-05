@@ -11,7 +11,7 @@
 [ ![license-shield][] ][license]
 [ ![issue-shield][] ][issue]
 
-<img align="right" src="https://i.imgur.com/ptJkj6t.png">
+<img align="right" src="https://i.imgur.com/ptJkj6t.png" height=225 width=225>
 
 # Pagination Utils - JDA Pagination made easier!
 
