@@ -11,6 +11,8 @@
 [ ![license-shield][] ][license]
 [ ![issue-shield][] ][issue]
 
+<img align="right" src="https://i.imgur.com/ptJkj6t.png" height="200" width="200">
+
 # Pagination Utils - JDA Pagination made easier!
 
 With this library you will be using pages and categories in your bot commands in no time!
