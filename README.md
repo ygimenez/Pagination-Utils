@@ -167,7 +167,7 @@ Maven:
 </dependency>
 ```
 
-* Replace `VERSION` with the one shown here: [ ![version-shield][] ][version]
+* Replace `VERSION` with the one shown here: [ ![bintray-shield][] ][bintray]
 * Done!
 
 ## Feedback
