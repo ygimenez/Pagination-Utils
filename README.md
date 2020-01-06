@@ -4,7 +4,7 @@
 [license]: https://github.com/ygimenez/PaginationUtils/blob/master/LICENSE
 [issue]: https://github.com/ygimenez/PaginationUtils/issues
 [version-shield]: https://img.shields.io/github/v/release/ygimenez/PaginationUtils?include_prereleases&label=Version
-[build-shield]: https://img.shields.io/github/workflow/status/ygimenez/PaginationUtils/Java CI?label=Build
+[build-shield]: https://img.shields.io/github/workflow/status/ygimenez/PaginationUtils/Java%20CI?label=Build
 [jitpack-shield]: https://img.shields.io/badge/Download-Jitpack-success
 [license-shield]: https://img.shields.io/github/license/ygimenez/PaginationUtils?color=lightgrey&label=License
 [issue-shield]: https://img.shields.io/github/issues/ygimenez/PaginationUtils?label=Issues
