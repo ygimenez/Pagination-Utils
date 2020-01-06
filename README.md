@@ -5,7 +5,7 @@
 [issue]: https://github.com/ygimenez/PaginationUtils/issues
 [build-shield]: https://img.shields.io/github/workflow/status/ygimenez/PaginationUtils/Java%20CI?label=Build
 [jitpack-shield]: https://img.shields.io/badge/Download-Jitpack-success
-[bintray-shield]: https://api.bintray.com/packages/ygimenez/KuuHaKu/PaginationUtils/images/download.svg
+[bintray-shield]: https://api.bintray.com/packages/ygimenez/maven/PaginationUtils/images/download.svg
 [license-shield]: https://img.shields.io/github/license/ygimenez/PaginationUtils?color=lightgrey&label=License
 [issue-shield]: https://img.shields.io/github/issues/ygimenez/PaginationUtils?label=Issues
 [ ![bintray-shield][] ][bintray]
