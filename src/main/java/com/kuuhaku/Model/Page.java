@@ -1,6 +1,6 @@
-package kuuhaku.Model;
+package com.kuuhaku.Model;
 
-import kuuhaku.Enum.PageType;
+import com.kuuhaku.Enum.PageType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -11,7 +11,10 @@ public class Page {
 	private final Object content;
 
 	/**
-	 * @param type The type of the content (PageType.TEXT or PageType.EMBED)
+	 * A Page object to be used in this library's methods. Currently only Message
+	 * and MessageEmbed types are supported.
+	 * 
+	 * @param type    The type of the content (PageType.TEXT or PageType.EMBED)
 	 * @param content The Message/MessageEmbed object to be used as pages
 	 */
 	public Page(@Nonnull PageType type, @Nonnull Object content) {

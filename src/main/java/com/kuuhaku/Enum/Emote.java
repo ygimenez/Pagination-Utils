@@ -1,4 +1,4 @@
-package kuuhaku.Enum;
+package com.kuuhaku.Enum;
 
 public enum Emote {
 	NEXT("\u25B6"), PREVIOUS("\u25C0"), ACCEPT("\u2705"), CANCEL("\u274E");

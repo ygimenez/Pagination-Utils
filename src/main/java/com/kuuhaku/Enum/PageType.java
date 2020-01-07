@@ -1,4 +1,4 @@
-package kuuhaku.Enum;
+package com.kuuhaku.Enum;
 
 public enum PageType {
 	TEXT, EMBED
