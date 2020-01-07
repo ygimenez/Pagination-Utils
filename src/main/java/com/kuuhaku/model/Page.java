@@ -1,6 +1,6 @@
-package com.kuuhaku.Model;
+package com.kuuhaku.model;
 
-import com.kuuhaku.Enum.PageType;
+import com.kuuhaku.type.PageType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 

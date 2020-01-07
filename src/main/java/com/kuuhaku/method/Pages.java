@@ -1,8 +1,9 @@
-package com.kuuhaku.Method;
+package com.kuuhaku.method;
 
-import com.kuuhaku.Enum.PageType;
-import com.kuuhaku.Listener.MessageListener;
-import com.kuuhaku.Model.Page;
+import com.kuuhaku.exception.EmptyPageCollectionException;
+import com.kuuhaku.type.PageType;
+import com.kuuhaku.listener.MessageListener;
+import com.kuuhaku.model.Page;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static com.kuuhaku.Enum.Emote.*;
+import static com.kuuhaku.type.Emote.*;
 
 public class Pages {
 
@@ -247,6 +248,7 @@ public class Pages {
 	}
 
 	private static void updatePage(Message msg, Page p) {
+		if (p == null) throw new EmptyPageCollectionException();
 		if (p.getType() == PageType.TEXT) {
 			msg.editMessage((Message) p.getContent()).queue();
 		} else {
@@ -256,6 +258,7 @@ public class Pages {
 
 	private static String updateCategory(GenericMessageReactionEvent event, Message msg, Page p) {
 		AtomicReference<String> out = new AtomicReference<>("");
+		if (p == null) throw new EmptyPageCollectionException();
 
 		if (p.getType() == PageType.TEXT) {
 			msg.editMessage((Message) p.getContent()).queue(s -> out.set(event.getReactionEmote().getName()));
