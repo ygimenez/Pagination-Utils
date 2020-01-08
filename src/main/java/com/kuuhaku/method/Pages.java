@@ -30,7 +30,7 @@ public class Pages {
 	 * navigate through a given List of pages. You must specify how long the
 	 * listener will stay active before shutting down itself after a no-activity
 	 * interval.
-	 * 
+	 *
 	 * @param api   The bot's instantiated object.
 	 * @param msg   The message sent which will be paginated.
 	 * @param pages The pages to be shown. The order of the array will define the
@@ -38,7 +38,6 @@ public class Pages {
 	 * @param time  The time before the listener automatically stop listening for
 	 *              further events. (Recommended: 60)
 	 * @param unit  The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * 
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
@@ -98,7 +97,7 @@ public class Pages {
 	 * adding another button with an existing unicode will ovewrite the current
 	 * button's Page. You must specify how long the listener will stay active before
 	 * shutting down itself after a no-activity interval.
-	 * 
+	 *
 	 * @param api        The bot's instantiated object.
 	 * @param msg        The message sent which will be categorized.
 	 * @param categories The categories to be shown. The categories are defined by a
@@ -106,7 +105,6 @@ public class Pages {
 	 * @param time       The time before the listener automatically stop listening
 	 *                   for further events. (Recommended: 60)
 	 * @param unit       The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * 
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
@@ -154,13 +152,12 @@ public class Pages {
 	 * Adds buttons to the specified Message/MessageEmbed, with each executing a
 	 * specific task on click. Each button's unicode must be unique, adding another
 	 * button with an existing unicode will ovewrite the current button's Runnable.
-	 * 
+	 *
 	 * @param api     The bot's instantiated object.
 	 * @param msg     The message sent which will be buttoned.
 	 * @param buttons The bottons to be shown. The buttons are defined by a Map
 	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
 	 *                desired behavior as value.
-	 *
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
@@ -175,7 +172,11 @@ public class Pages {
 				if (event.getUser().isBot())
 					return;
 
-				buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+				try {
+					buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+				} catch (NullPointerException ignore) {
+
+				}
 
 				if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(s -> api.removeEventListener(this));
@@ -197,7 +198,7 @@ public class Pages {
 	 * button with an existing unicode will ovewrite the current button's Runnable.
 	 * You can specify the time in which the listener will automatically stop itself
 	 * after a no-activity interval.
-	 * 
+	 *
 	 * @param api     The bot's instantiated object.
 	 * @param msg     The message sent which will be buttoned.
 	 * @param buttons The bottons to be shown. The buttons are defined by a Map
@@ -206,7 +207,6 @@ public class Pages {
 	 * @param time    The time before the listener automatically stop listening for
 	 *                further events. (Recommended: 60)
 	 * @param unit    The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 *
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
@@ -227,7 +227,11 @@ public class Pages {
 				if (event.getUser().isBot())
 					return;
 
-				buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+				try {
+					buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+				} catch (NullPointerException ignore) {
+
+				}
 
 				if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(s -> api.removeEventListener(this));
