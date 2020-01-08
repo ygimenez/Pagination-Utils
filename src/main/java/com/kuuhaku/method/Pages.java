@@ -158,8 +158,8 @@ public class Pages {
 	 * @param api     The bot's instantiated object.
 	 * @param msg     The message sent which will be buttoned.
 	 * @param buttons The bottons to be shown. The buttons are defined by a Map
-	 *                containing emote unicodes as keys and Runnables containing
-	 *                desired behavior as values.
+	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
+	 *                desired behavior as value.
 	 *
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
@@ -201,8 +201,8 @@ public class Pages {
 	 * @param api     The bot's instantiated object.
 	 * @param msg     The message sent which will be buttoned.
 	 * @param buttons The bottons to be shown. The buttons are defined by a Map
-	 *                containing emote unicodes as keys and Runnables containing
-	 *                desired behavior as values.
+	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
+	 *                desired behavior as value.
 	 * @param time    The time before the listener automatically stop listening for
 	 *                further events. (Recommended: 60)
 	 * @param unit    The time's time unit. (Recommended: TimeUnit.SECONDS)
