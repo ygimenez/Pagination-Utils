@@ -166,20 +166,19 @@ public class Pages {
 	 */
 	public static void buttonfy(JDA api, Message msg, Map<String, Consumer<Member>> buttons) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
-		msg.addReaction(CANCEL.getCode()).queue();
+		if (!buttons.containsKey(CANCEL.getCode())) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 
 			@Override
 			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
 				if (event.getUser().isBot())
 					return;
-				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(s -> api.removeEventListener(this));
-					return;
-				}
 
 				buttons.get(event.getReactionEmote().getName()).accept(event.getMember());
-				;
+
+				if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					msg.clearReactions().queue(s -> api.removeEventListener(this));
+				}
 			}
 
 			@Override
@@ -206,7 +205,7 @@ public class Pages {
 	 * @param time    The time before the listener automatically stop listening for
 	 *                further events. (Recommended: 60)
 	 * @param unit    The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * 
+	 *
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
@@ -214,7 +213,7 @@ public class Pages {
 	public static void buttonfy(JDA api, Message msg, Map<String, Consumer<Member>> buttons, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
-		msg.addReaction(CANCEL.getCode()).queue();
+		if (!buttons.containsKey(CANCEL.getCode())) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
@@ -226,16 +225,17 @@ public class Pages {
 
 				if (event.getUser().isBot())
 					return;
-				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+
+				buttons.get(event.getReactionEmote().getName()).accept(event.getMember());
+
+				if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(s -> api.removeEventListener(this));
-					return;
 				}
 
 				timeout.cancel(true);
 				timeout = msg.clearReactions().queueAfter(time, unit, success);
 
 				buttons.get(event.getReactionEmote().getName()).accept(event.getMember());
-				;
 			}
 
 			@Override
