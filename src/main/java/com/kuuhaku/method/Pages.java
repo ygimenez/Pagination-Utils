@@ -163,7 +163,7 @@ public class Pages {
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 */
-	public static void buttoned(JDA api, Message msg, Map<String, Runnable> buttons) throws ErrorResponseException {
+	public static void buttonfy(JDA api, Message msg, Map<String, Runnable> buttons) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
 		msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
@@ -210,7 +210,7 @@ public class Pages {
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 */
-	public static void buttoned(JDA api, Message msg, Map<String, Runnable> buttons, int time, TimeUnit unit)
+	public static void buttonfy(JDA api, Message msg, Map<String, Runnable> buttons, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
 		msg.addReaction(CANCEL.getCode()).queue();

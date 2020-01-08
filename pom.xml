@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kuuhaku</groupId>
     <artifactId>PaginationUtils</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
     <packaging>jar</packaging>
 
     <name>Pagination Utils</name>
@@ -24,7 +24,7 @@
         <connection>scm:git:git@github.com:ygimenez/PaginationUtils.git</connection>
         <developerConnection>scm:git:git@github.com:ygimenez/PaginationUtils.git</developerConnection>
     </scm>
-         
+
     <distributionManagement>
         <repository>
             <id>github</id>
