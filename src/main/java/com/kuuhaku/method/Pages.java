@@ -5,6 +5,7 @@ import com.kuuhaku.type.PageType;
 import com.kuuhaku.listener.MessageListener;
 import com.kuuhaku.model.Page;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
@@ -163,7 +164,7 @@ public class Pages {
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 */
-	public static void buttonfy(JDA api, Message msg, Map<String, Runnable> buttons) throws ErrorResponseException {
+	public static void buttonfy(JDA api, Message msg, Map<String, Consumer<Member>> buttons) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
 		msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
@@ -177,7 +178,7 @@ public class Pages {
 					return;
 				}
 
-				buttons.get(event.getReactionEmote().getName()).run();
+				buttons.get(event.getReactionEmote().getName()).accept(event.getMember());
 				;
 			}
 
@@ -210,7 +211,7 @@ public class Pages {
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 */
-	public static void buttonfy(JDA api, Message msg, Map<String, Runnable> buttons, int time, TimeUnit unit)
+	public static void buttonfy(JDA api, Message msg, Map<String, Consumer<Member>> buttons, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
 		msg.addReaction(CANCEL.getCode()).queue();
@@ -233,7 +234,7 @@ public class Pages {
 				timeout.cancel(true);
 				timeout = msg.clearReactions().queueAfter(time, unit, success);
 
-				buttons.get(event.getReactionEmote().getName()).run();
+				buttons.get(event.getReactionEmote().getName()).accept(event.getMember());
 				;
 			}
 
