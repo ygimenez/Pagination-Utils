@@ -158,13 +158,14 @@ public class Pages {
 	 * @param buttons The bottons to be shown. The buttons are defined by a Map
 	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
 	 *                desired behavior as value.
+	 * @param showCancelButton Should the cancel button be created automatically?
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 */
-	public static void buttonfy(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons) throws ErrorResponseException {
+	public static void buttonfy(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
-		if (!buttons.containsKey(CANCEL.getCode())) msg.addReaction(CANCEL.getCode()).queue();
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 
 			@Override
@@ -204,6 +205,7 @@ public class Pages {
 	 * @param buttons The bottons to be shown. The buttons are defined by a Map
 	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
 	 *                desired behavior as value.
+	 * @param showCancelButton Should the cancel button be created automatically?
 	 * @param time    The time before the listener automatically stop listening for
 	 *                further events. (Recommended: 60)
 	 * @param unit    The time's time unit. (Recommended: TimeUnit.SECONDS)
@@ -211,10 +213,10 @@ public class Pages {
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 */
-	public static void buttonfy(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, int time, TimeUnit unit)
+	public static void buttonfy(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
-		if (!buttons.containsKey(CANCEL.getCode())) msg.addReaction(CANCEL.getCode()).queue();
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
