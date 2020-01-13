@@ -4,6 +4,7 @@ import com.github.ygimenez.exception.EmptyPageCollectionException;
 import com.github.ygimenez.type.PageType;
 import com.github.ygimenez.listener.MessageListener;
 import com.github.ygimenez.model.Page;
+import emoji4j.EmojiUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,7 +59,7 @@ public class Pages {
 			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
-				if (event.getUser().isBot())
+				if (Objects.requireNonNull(event.getUser()).isBot())
 					return;
 
 				timeout.cancel(true);
@@ -111,7 +113,10 @@ public class Pages {
 	 */
 	public static void categorize(JDA api, Message msg, Map<String, Page> categories, int time, TimeUnit unit)
 			throws ErrorResponseException {
-		categories.keySet().forEach(k -> msg.addReaction(k).queue());
+		categories.keySet().forEach(k -> {
+			if (EmojiUtils.isEmoji(k)) msg.addReaction(k).queue();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+		});
 		msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 			private String currCat = "";
@@ -123,7 +128,7 @@ public class Pages {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
 
-				if (event.getUser().isBot() || event.getReactionEmote().getName().equals(currCat))
+				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat))
 					return;
 				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(s -> api.removeEventListener(this));
@@ -164,13 +169,16 @@ public class Pages {
 	 *                                GenericMessageReactionEvent
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
-		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
+		buttons.keySet().forEach(k -> {
+			if (EmojiUtils.isEmoji(k)) msg.addReaction(k).queue();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 
 			@Override
 			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
-				if (event.getUser().isBot())
+				if (Objects.requireNonNull(event.getUser()).isBot())
 					return;
 
 				try {
@@ -215,7 +223,10 @@ public class Pages {
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
 			throws ErrorResponseException {
-		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
+		buttons.keySet().forEach(k -> {
+			if (EmojiUtils.isEmoji(k)) msg.addReaction(k).queue();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 			private Future<?> timeout;
@@ -226,7 +237,7 @@ public class Pages {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
 
-				if (event.getUser().isBot())
+				if (Objects.requireNonNull(event.getUser()).isBot())
 					return;
 
 				try {
