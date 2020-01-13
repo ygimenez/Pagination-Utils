@@ -1,6 +1,6 @@
-package com.kuuhaku.model;
+package com.github.ygimenez.model;
 
-import com.kuuhaku.type.PageType;
+import com.github.ygimenez.type.PageType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 

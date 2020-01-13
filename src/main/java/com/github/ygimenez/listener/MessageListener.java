@@ -1,4 +1,4 @@
-package com.kuuhaku.listener;
+package com.github.ygimenez.listener;
 
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;

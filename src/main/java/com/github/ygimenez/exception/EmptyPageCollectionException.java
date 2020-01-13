@@ -1,4 +1,4 @@
-package com.kuuhaku.exception;
+package com.github.ygimenez.exception;
 
 public class EmptyPageCollectionException extends RuntimeException {
     public EmptyPageCollectionException() {

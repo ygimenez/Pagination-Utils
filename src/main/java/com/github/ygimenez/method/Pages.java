@@ -1,9 +1,9 @@
-package com.kuuhaku.method;
+package com.github.ygimenez.method;
 
-import com.kuuhaku.exception.EmptyPageCollectionException;
-import com.kuuhaku.type.PageType;
-import com.kuuhaku.listener.MessageListener;
-import com.kuuhaku.model.Page;
+import com.github.ygimenez.exception.EmptyPageCollectionException;
+import com.github.ygimenez.type.PageType;
+import com.github.ygimenez.listener.MessageListener;
+import com.github.ygimenez.model.Page;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static com.kuuhaku.type.Emote.*;
+import static com.github.ygimenez.type.Emote.*;
 
 public class Pages {
 
@@ -94,7 +94,7 @@ public class Pages {
 	/**
 	 * Adds menu-like buttons to the specified Message/MessageEmbed which will
 	 * browse through a given Map of pages. You may specify one Page per button,
-	 * adding another button with an existing unicode will ovewrite the current
+	 * adding another button with an existing unicode will overwrite the current
 	 * button's Page. You must specify how long the listener will stay active before
 	 * shutting down itself after a no-activity interval.
 	 *
@@ -151,11 +151,11 @@ public class Pages {
 	/**
 	 * Adds buttons to the specified Message/MessageEmbed, with each executing a
 	 * specific task on click. Each button's unicode must be unique, adding another
-	 * button with an existing unicode will ovewrite the current button's Runnable.
+	 * button with an existing unicode will overwrite the current button's Runnable.
 	 *
 	 * @param api     The bot's instantiated object.
 	 * @param msg     The message sent which will be buttoned.
-	 * @param buttons The bottons to be shown. The buttons are defined by a Map
+	 * @param buttons The buttons to be shown. The buttons are defined by a Map
 	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
 	 *                desired behavior as value.
 	 * @param showCancelButton Should the cancel button be created automatically?
@@ -163,7 +163,7 @@ public class Pages {
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 */
-	public static void buttonfy(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
+	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
@@ -196,13 +196,13 @@ public class Pages {
 	/**
 	 * Adds buttons to the specified Message/MessageEmbed, with each executing a
 	 * specific task on click. Each button's unicode must be unique, adding another
-	 * button with an existing unicode will ovewrite the current button's Runnable.
+	 * button with an existing unicode will overwrite the current button's Runnable.
 	 * You can specify the time in which the listener will automatically stop itself
 	 * after a no-activity interval.
 	 *
 	 * @param api     The bot's instantiated object.
 	 * @param msg     The message sent which will be buttoned.
-	 * @param buttons The bottons to be shown. The buttons are defined by a Map
+	 * @param buttons The buttons to be shown. The buttons are defined by a Map
 	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
 	 *                desired behavior as value.
 	 * @param showCancelButton Should the cancel button be created automatically?
@@ -213,7 +213,7 @@ public class Pages {
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 */
-	public static void buttonfy(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
+	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		buttons.keySet().forEach(k -> msg.addReaction(k).queue());
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
