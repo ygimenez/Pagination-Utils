@@ -61,6 +61,10 @@
             <name>jcenter-bintray</name>
             <url>https://jcenter.bintray.com</url>
         </repository>
+	<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+	</repository>
     </repositories>
 
     <dependencies>
@@ -74,5 +78,10 @@
             <artifactId>emoji4j</artifactId>
             <version>5.0</version>
         </dependency>
+	<dependency>
+	    <groupId>com.github.liheyuan</groupId>
+	    <artifactId>simple-emoji-4j</artifactId>
+	    <version>f26d3b39be</version>
+	</dependency>
     </dependencies>
 </project>
