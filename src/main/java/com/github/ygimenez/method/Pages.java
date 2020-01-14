@@ -4,7 +4,7 @@ import com.github.ygimenez.exception.EmptyPageCollectionException;
 import com.github.ygimenez.type.PageType;
 import com.github.ygimenez.listener.MessageListener;
 import com.github.ygimenez.model.Page;
-import emoji4j.EmojiUtils;
+import com.coder4.emoji.EmojiUtils; 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -114,7 +114,7 @@ public class Pages {
 	public static void categorize(JDA api, Message msg, Map<String, Page> categories, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		categories.keySet().forEach(k -> {
-			if (EmojiUtils.isEmoji(k)) msg.addReaction(k).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
 		});
 		msg.addReaction(CANCEL.getCode()).queue();
@@ -170,7 +170,7 @@ public class Pages {
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.isEmoji(k)) msg.addReaction(k).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
@@ -224,7 +224,7 @@ public class Pages {
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.isEmoji(k)) msg.addReaction(k).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
