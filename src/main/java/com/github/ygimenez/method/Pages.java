@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveAllEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 
 import javax.annotation.Nonnull;
@@ -59,7 +60,7 @@ public class Pages {
 			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
-				if (Objects.requireNonNull(event.getUser()).isBot())
+				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
 
 				timeout.cancel(true);
@@ -128,10 +129,10 @@ public class Pages {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
 
-				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat))
+				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 					return;
 				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(s -> api.removeEventListener(this));
+					msg.clearReactions().queue();
 					return;
 				}
 
@@ -158,11 +159,11 @@ public class Pages {
 	 * specific task on click. Each button's unicode must be unique, adding another
 	 * button with an existing unicode will overwrite the current button's Runnable.
 	 *
-	 * @param api     The bot's instantiated object.
-	 * @param msg     The message sent which will be buttoned.
-	 * @param buttons The buttons to be shown. The buttons are defined by a Map
-	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
-	 *                desired behavior as value.
+	 * @param api              The bot's instantiated object.
+	 * @param msg              The message sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a Map
+	 *                         containing emote unicodes as keys and BiConsumer<Member, Message> containing
+	 *                         desired behavior as value.
 	 * @param showCancelButton Should the cancel button be created automatically?
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
@@ -178,7 +179,7 @@ public class Pages {
 
 			@Override
 			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
-				if (Objects.requireNonNull(event.getUser()).isBot())
+				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
 
 				try {
@@ -188,12 +189,19 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(s -> api.removeEventListener(this));
+					msg.clearReactions().queue();
 				}
 			}
 
 			@Override
 			public void onMessageDelete(@Nonnull MessageDeleteEvent event) {
+				if (event.getMessageId().equals(msg.getId())) {
+					api.removeEventListener(this);
+				}
+			}
+
+			@Override
+			public void onMessageReactionRemoveAll(@Nonnull MessageReactionRemoveAllEvent event) {
 				if (event.getMessageId().equals(msg.getId())) {
 					api.removeEventListener(this);
 				}
@@ -208,15 +216,15 @@ public class Pages {
 	 * You can specify the time in which the listener will automatically stop itself
 	 * after a no-activity interval.
 	 *
-	 * @param api     The bot's instantiated object.
-	 * @param msg     The message sent which will be buttoned.
-	 * @param buttons The buttons to be shown. The buttons are defined by a Map
-	 *                containing emote unicodes as keys and BiConsumer<Member, Message> containing
-	 *                desired behavior as value.
+	 * @param api              The bot's instantiated object.
+	 * @param msg              The message sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a Map
+	 *                         containing emote unicodes as keys and BiConsumer<Member, Message> containing
+	 *                         desired behavior as value.
 	 * @param showCancelButton Should the cancel button be created automatically?
-	 * @param time    The time before the listener automatically stop listening for
-	 *                further events. (Recommended: 60)
-	 * @param unit    The time's time unit. (Recommended: TimeUnit.SECONDS)
+	 * @param time             The time before the listener automatically stop listening for
+	 *                         further events. (Recommended: 60)
+	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
@@ -237,7 +245,7 @@ public class Pages {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
 
-				if (Objects.requireNonNull(event.getUser()).isBot())
+				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
 
 				try {
@@ -247,7 +255,7 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(s -> api.removeEventListener(this));
+					msg.clearReactions().queue();
 				}
 
 				timeout.cancel(true);
@@ -257,6 +265,15 @@ public class Pages {
 			@Override
 			public void onMessageDelete(@Nonnull MessageDeleteEvent event) {
 				if (event.getMessageId().equals(msg.getId())) {
+					timeout.cancel(true);
+					timeout = null;
+				}
+			}
+
+			@Override
+			public void onMessageReactionRemoveAll(@Nonnull MessageReactionRemoveAllEvent event) {
+				if (event.getMessageId().equals(msg.getId())) {
+					api.removeEventListener(this);
 					timeout.cancel(true);
 					timeout = null;
 				}
