@@ -4,7 +4,7 @@ import com.github.ygimenez.exception.EmptyPageCollectionException;
 import com.github.ygimenez.type.PageType;
 import com.github.ygimenez.listener.MessageListener;
 import com.github.ygimenez.model.Page;
-import com.coder4.emoji.EmojiUtils; 
+import com.coder4.emoji.EmojiUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -187,7 +187,7 @@ public class Pages {
 
 				}
 
-				if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(s -> api.removeEventListener(this));
 				}
 			}
@@ -246,7 +246,7 @@ public class Pages {
 
 				}
 
-				if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(s -> api.removeEventListener(this));
 				}
 
