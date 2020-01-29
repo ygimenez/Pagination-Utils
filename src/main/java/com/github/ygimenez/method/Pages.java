@@ -199,13 +199,6 @@ public class Pages {
 					api.removeEventListener(this);
 				}
 			}
-
-			@Override
-			public void onMessageReactionRemoveAll(@Nonnull MessageReactionRemoveAllEvent event) {
-				if (event.getMessageId().equals(msg.getId())) {
-					api.removeEventListener(this);
-				}
-			}
 		});
 	}
 
@@ -265,15 +258,6 @@ public class Pages {
 			@Override
 			public void onMessageDelete(@Nonnull MessageDeleteEvent event) {
 				if (event.getMessageId().equals(msg.getId())) {
-					timeout.cancel(true);
-					timeout = null;
-				}
-			}
-
-			@Override
-			public void onMessageReactionRemoveAll(@Nonnull MessageReactionRemoveAllEvent event) {
-				if (event.getMessageId().equals(msg.getId())) {
-					api.removeEventListener(this);
 					timeout.cancel(true);
 					timeout = null;
 				}
