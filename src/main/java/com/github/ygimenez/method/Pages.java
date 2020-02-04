@@ -82,6 +82,7 @@ public class Pages {
 				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(success);
 				}
+				event.getReaction().removeReaction().queue();
 			}
 
 			@Override
@@ -142,6 +143,7 @@ public class Pages {
 				Page pg = categories.get(event.getReactionEmote().getName());
 
 				currCat = updateCategory(event, msg, pg);
+				event.getReaction().removeReaction().queue();
 			}
 
 			@Override
@@ -185,12 +187,13 @@ public class Pages {
 				try {
 					buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
 				} catch (NullPointerException ignore) {
-
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue();
 				}
+
+				event.getReaction().removeReaction().queue();
 			}
 
 			@Override
@@ -253,6 +256,7 @@ public class Pages {
 
 				timeout.cancel(true);
 				timeout = msg.clearReactions().queueAfter(time, unit, success);
+				event.getReaction().removeReaction().queue();
 			}
 
 			@Override
