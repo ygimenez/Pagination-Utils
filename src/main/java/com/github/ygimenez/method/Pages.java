@@ -140,7 +140,7 @@ public class Pages {
 				timeout.cancel(true);
 				timeout = msg.clearReactions().queueAfter(time, unit, success);
 
-				Page pg = categories.get(event.getReactionEmote().getName());
+				Page pg = categories.get(EmojiUtils.containsEmoji(event.getReactionEmote().getName()) ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
 				currCat = updateCategory(event, msg, pg);
 				event.getReaction().removeReaction().queue();
@@ -185,7 +185,8 @@ public class Pages {
 					return;
 
 				try {
-					buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+					if (EmojiUtils.containsEmoji(event.getReactionEmote().getName())) buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
 				} catch (NullPointerException ignore) {
 				}
 
@@ -245,7 +246,8 @@ public class Pages {
 					return;
 
 				try {
-					buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+					if (EmojiUtils.containsEmoji(event.getReactionEmote().getName())) buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
 				} catch (NullPointerException ignore) {
 
 				}
