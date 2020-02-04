@@ -1,17 +1,17 @@
 package com.github.ygimenez.method;
 
+import com.coder4.emoji.EmojiUtils;
 import com.github.ygimenez.exception.EmptyPageCollectionException;
-import com.github.ygimenez.type.PageType;
 import com.github.ygimenez.listener.MessageListener;
 import com.github.ygimenez.model.Page;
-import com.coder4.emoji.EmojiUtils;
+import com.github.ygimenez.type.PageType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveAllEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 
 import javax.annotation.Nonnull;
@@ -57,7 +57,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
 
 			@Override
-			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
+			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
@@ -126,7 +126,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
 
 			@Override
-			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
+			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
 
@@ -180,12 +180,13 @@ public class Pages {
 		api.addEventListener(new MessageListener() {
 
 			@Override
-			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
+			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
 
 				try {
-					if (event.getReactionEmote().isEmoji()) buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+					if (event.getReactionEmote().isEmoji())
+						buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
 					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
 				} catch (NullPointerException ignore) {
 				}
@@ -238,7 +239,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
 
 			@Override
-			public void onGenericMessageReaction(@Nonnull GenericMessageReactionEvent event) {
+			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
 					timeout = msg.clearReactions().queueAfter(time, unit, success);
 
@@ -246,7 +247,8 @@ public class Pages {
 					return;
 
 				try {
-					if (event.getReactionEmote().isEmoji()) buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+					if (event.getReactionEmote().isEmoji())
+						buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
 					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
 				} catch (NullPointerException ignore) {
 
