@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -44,6 +45,7 @@ public class Pages {
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 */
 	public static void paginate(JDA api, Message msg, List<Page> pages, int time, TimeUnit unit)
 			throws ErrorResponseException {
@@ -112,6 +114,7 @@ public class Pages {
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 */
 	public static void categorize(JDA api, Message msg, Map<String, Page> categories, int time, TimeUnit unit)
 			throws ErrorResponseException {
@@ -170,6 +173,7 @@ public class Pages {
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> {
@@ -226,6 +230,7 @@ public class Pages {
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
 			throws ErrorResponseException {
