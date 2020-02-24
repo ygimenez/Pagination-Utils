@@ -48,7 +48,7 @@ public class Pages {
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 */
 	public static void paginate(JDA api, Message msg, List<Page> pages, int time, TimeUnit unit)
-			throws ErrorResponseException {
+			throws ErrorResponseException, PermissionException {
 		msg.addReaction(PREVIOUS.getCode()).queue();
 		msg.addReaction(CANCEL.getCode()).queue();
 		msg.addReaction(NEXT.getCode()).queue();
@@ -117,7 +117,7 @@ public class Pages {
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 */
 	public static void categorize(JDA api, Message msg, Map<String, Page> categories, int time, TimeUnit unit)
-			throws ErrorResponseException {
+			throws ErrorResponseException, PermissionException {
 		categories.keySet().forEach(k -> {
 			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
@@ -175,7 +175,7 @@ public class Pages {
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 */
-	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
+	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, PermissionException {
 		buttons.keySet().forEach(k -> {
 			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
@@ -233,7 +233,7 @@ public class Pages {
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
-			throws ErrorResponseException {
+			throws ErrorResponseException, PermissionException {
 		buttons.keySet().forEach(k -> {
 			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
