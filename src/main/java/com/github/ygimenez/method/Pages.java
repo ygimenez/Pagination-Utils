@@ -47,9 +47,9 @@ public class Pages {
 	 */
 	public static void paginate(JDA api, Message msg, List<Page> pages, int time, TimeUnit unit)
 			throws ErrorResponseException {
-		msg.addReaction(PREVIOUS.getCode()).queue(null, ex -> nothing());
-		msg.addReaction(CANCEL.getCode()).queue(null, ex -> nothing());
-		msg.addReaction(NEXT.getCode()).queue(null, ex -> nothing());
+		msg.addReaction(PREVIOUS.getCode()).queue();
+		msg.addReaction(CANCEL.getCode()).queue();
+		msg.addReaction(NEXT.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 			private final int maxP = pages.size() - 1;
 			private int p = 0;
@@ -82,7 +82,7 @@ public class Pages {
 				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(success);
 				}
-				event.getReaction().removeReaction(event.getUser()).queue(null, ex -> nothing());
+				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
 			@Override
@@ -116,10 +116,10 @@ public class Pages {
 	public static void categorize(JDA api, Message msg, Map<String, Page> categories, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		categories.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, ex -> nothing());
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, ex -> nothing());
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
 		});
-		msg.addReaction(CANCEL.getCode()).queue(null, ex -> nothing());
+		msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 			private String currCat = "";
 			private Future<?> timeout;
@@ -133,7 +133,7 @@ public class Pages {
 				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 					return;
 				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(null, ex -> nothing());
+					msg.clearReactions().queue();
 					return;
 				}
 
@@ -143,7 +143,7 @@ public class Pages {
 				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
 				currCat = updateCategory(event, msg, pg);
-				event.getReaction().removeReaction(event.getUser()).queue(null, ex -> nothing());
+				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
 			@Override
@@ -173,10 +173,10 @@ public class Pages {
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, ex -> nothing());
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, ex -> nothing());
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
 		});
-		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue(null, ex -> nothing());
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 
 			@Override
@@ -192,10 +192,10 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(null, ex -> nothing());
+					msg.clearReactions().queue();
 				}
 
-				event.getReaction().removeReaction(event.getUser()).queue(null, ex -> nothing());
+				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
 			@Override
@@ -230,10 +230,10 @@ public class Pages {
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, ex -> nothing());
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, ex -> nothing());
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
 		});
-		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue(null, ex -> nothing());
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
 		api.addEventListener(new MessageListener() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
@@ -255,12 +255,13 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(null, ex -> nothing());
+					msg.clearReactions().queue();
 				}
+
 
 				timeout.cancel(true);
 				timeout = msg.clearReactions().queueAfter(time, unit, success);
-				event.getReaction().removeReaction(event.getUser()).queue(null, ex -> nothing());
+				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
 			@Override
@@ -276,9 +277,9 @@ public class Pages {
 	private static void updatePage(Message msg, Page p) {
 		if (p == null) throw new EmptyPageCollectionException();
 		if (p.getType() == PageType.TEXT) {
-			msg.editMessage((Message) p.getContent()).queue(null, ex -> nothing());
+			msg.editMessage((Message) p.getContent()).queue();
 		} else {
-			msg.editMessage((MessageEmbed) p.getContent()).queue(null, ex -> nothing());
+			msg.editMessage((MessageEmbed) p.getContent()).queue();
 		}
 	}
 
@@ -293,9 +294,5 @@ public class Pages {
 		}
 
 		return out.get();
-	}
-
-	private static void nothing() {
-
 	}
 }
