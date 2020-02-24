@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -44,12 +45,13 @@ public class Pages {
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
+	 *                                * @throws PermissionException Thrown if this library is unable to edit or remove reactions from message due to permission reasons
 	 */
 	public static void paginate(JDA api, Message msg, List<Page> pages, int time, TimeUnit unit)
 			throws ErrorResponseException {
-		msg.addReaction(PREVIOUS.getCode()).queue();
-		msg.addReaction(CANCEL.getCode()).queue();
-		msg.addReaction(NEXT.getCode()).queue();
+		msg.addReaction(PREVIOUS.getCode()).complete();
+		msg.addReaction(CANCEL.getCode()).complete();
+		msg.addReaction(NEXT.getCode()).complete();
 		api.addEventListener(new MessageListener() {
 			private final int maxP = pages.size() - 1;
 			private int p = 0;
@@ -82,7 +84,7 @@ public class Pages {
 				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(success);
 				}
-				event.getReaction().removeReaction(event.getUser()).queue();
+				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
 			@Override
@@ -112,14 +114,16 @@ public class Pages {
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library is unable to edit or
+	 *                                remove reactions from message due to permission reasons
 	 */
 	public static void categorize(JDA api, Message msg, Map<String, Page> categories, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		categories.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).complete();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).complete();
 		});
-		msg.addReaction(CANCEL.getCode()).queue();
+		msg.addReaction(CANCEL.getCode()).complete();
 		api.addEventListener(new MessageListener() {
 			private String currCat = "";
 			private Future<?> timeout;
@@ -133,7 +137,7 @@ public class Pages {
 				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 					return;
 				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue();
+					msg.clearReactions().complete();
 					return;
 				}
 
@@ -143,7 +147,7 @@ public class Pages {
 				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
 				currCat = updateCategory(event, msg, pg);
-				event.getReaction().removeReaction(event.getUser()).queue();
+				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
 			@Override
@@ -170,13 +174,15 @@ public class Pages {
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library is unable to edit or
+	 *                                remove reactions from message due to permission reasons
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException {
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).complete();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).complete();
 		});
-		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).complete();
 		api.addEventListener(new MessageListener() {
 
 			@Override
@@ -192,10 +198,10 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue();
+					msg.clearReactions().complete();
 				}
 
-				event.getReaction().removeReaction(event.getUser()).queue();
+				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
 			@Override
@@ -226,14 +232,16 @@ public class Pages {
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library is unable to edit or
+	 *                                remove reactions from message due to permission reasons
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
 			throws ErrorResponseException {
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).complete();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).complete();
 		});
-		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).complete();
 		api.addEventListener(new MessageListener() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
@@ -255,12 +263,12 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue();
+					msg.clearReactions().complete();
 				}
 
 				timeout.cancel(true);
 				timeout = msg.clearReactions().queueAfter(time, unit, success);
-				event.getReaction().removeReaction(event.getUser()).queue();
+				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
 			@Override
@@ -276,9 +284,9 @@ public class Pages {
 	private static void updatePage(Message msg, Page p) {
 		if (p == null) throw new EmptyPageCollectionException();
 		if (p.getType() == PageType.TEXT) {
-			msg.editMessage((Message) p.getContent()).queue();
+			msg.editMessage((Message) p.getContent()).complete();
 		} else {
-			msg.editMessage((MessageEmbed) p.getContent()).queue();
+			msg.editMessage((MessageEmbed) p.getContent()).complete();
 		}
 	}
 
