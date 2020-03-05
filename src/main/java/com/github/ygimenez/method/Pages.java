@@ -61,12 +61,12 @@ public class Pages {
 			@Override
 			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
-					timeout = msg.clearReactions().queueAfter(time, unit, success);
+					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
 
 				timeout.cancel(true);
-				timeout = msg.clearReactions().queueAfter(time, unit, success);
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 				if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
 					if (p > 0) {
 						p--;
@@ -131,7 +131,7 @@ public class Pages {
 			@Override
 			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
-					timeout = msg.clearReactions().queueAfter(time, unit, success);
+					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 
 				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 					return;
@@ -141,7 +141,7 @@ public class Pages {
 				}
 
 				timeout.cancel(true);
-				timeout = msg.clearReactions().queueAfter(time, unit, success);
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 
 				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
@@ -246,7 +246,7 @@ public class Pages {
 			@Override
 			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
-					timeout = msg.clearReactions().queueAfter(time, unit, success);
+					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
@@ -265,7 +265,7 @@ public class Pages {
 
 
 				timeout.cancel(true);
-				timeout = msg.clearReactions().queueAfter(time, unit, success);
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 				event.getReaction().removeReaction(event.getUser()).complete();
 			}
 
@@ -299,5 +299,12 @@ public class Pages {
 		}
 
 		return out.get();
+	}
+	
+	private static void doNothing(Throwable t) {
+		try {
+			throw t;
+		} catch (Throwable ignore) {
+		}
 	}
 }
