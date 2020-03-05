@@ -119,10 +119,10 @@ public class Pages {
 	public static void categorize(JDA api, Message msg, Map<String, Page> categories, int time, TimeUnit unit)
 			throws ErrorResponseException, PermissionException {
 		categories.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
 		});
-		msg.addReaction(CANCEL.getCode()).queue();
+		msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
 		api.addEventListener(new MessageListener() {
 			private String currCat = "";
 			private Future<?> timeout;
@@ -136,7 +136,7 @@ public class Pages {
 				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 					return;
 				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue();
+					msg.clearReactions().queue(null, Pages::doNothing);
 					return;
 				}
 
@@ -177,10 +177,10 @@ public class Pages {
 	 */
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, PermissionException {
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
 		});
-		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
 		api.addEventListener(new MessageListener() {
 
 			@Override
@@ -196,7 +196,7 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue();
+					msg.clearReactions().queue(null, Pages::doNothing);
 				}
 
 				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
@@ -235,10 +235,10 @@ public class Pages {
 	public static void buttonize(JDA api, Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit)
 			throws ErrorResponseException, PermissionException {
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue();
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
 		});
-		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue();
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
 		api.addEventListener(new MessageListener() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
@@ -260,7 +260,7 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue();
+					msg.clearReactions().queue(null, Pages::doNothing);
 				}
 
 
@@ -282,9 +282,9 @@ public class Pages {
 	private static void updatePage(Message msg, Page p) {
 		if (p == null) throw new EmptyPageCollectionException();
 		if (p.getType() == PageType.TEXT) {
-			msg.editMessage((Message) p.getContent()).queue();
+			msg.editMessage((Message) p.getContent()).queue(null, Pages::doNothing);
 		} else {
-			msg.editMessage((MessageEmbed) p.getContent()).queue();
+			msg.editMessage((MessageEmbed) p.getContent()).queue(null, Pages::doNothing);
 		}
 	}
 
