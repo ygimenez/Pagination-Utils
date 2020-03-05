@@ -84,7 +84,7 @@ public class Pages {
 				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(success);
 				}
-				event.getReaction().removeReaction(event.getUser()).complete();
+				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 			}
 
 			@Override
@@ -146,7 +146,7 @@ public class Pages {
 				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
 				currCat = updateCategory(event, msg, pg);
-				event.getReaction().removeReaction(event.getUser()).complete();
+				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 			}
 
 			@Override
@@ -199,7 +199,7 @@ public class Pages {
 					msg.clearReactions().queue();
 				}
 
-				event.getReaction().removeReaction(event.getUser()).complete();
+				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 			}
 
 			@Override
@@ -266,7 +266,7 @@ public class Pages {
 
 				timeout.cancel(true);
 				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				event.getReaction().removeReaction(event.getUser()).complete();
+				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 			}
 
 			@Override
