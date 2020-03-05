@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import javax.annotation.Nonnull;
@@ -61,12 +62,18 @@ public class Pages {
 			@Override
 			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					try {
+						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					} catch (InsufficientPermissionException ignore) {
+					}
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
 
 				timeout.cancel(true);
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				try {
+					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				} catch (InsufficientPermissionException ignore) {
+				}
 				if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
 					if (p > 0) {
 						p--;
@@ -89,7 +96,7 @@ public class Pages {
 
 			@Override
 			public void onMessageDelete(@Nonnull MessageDeleteEvent event) {
-				if (event.getMessageId().equals(msg.getId())) {
+				if (event.getMessageId().equals(msg.getId()) && timeout != null) {
 					timeout.cancel(true);
 					timeout = null;
 				}
@@ -131,7 +138,10 @@ public class Pages {
 			@Override
 			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					try {
+						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					} catch (InsufficientPermissionException ignore) {
+					}
 
 				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 					return;
@@ -141,7 +151,10 @@ public class Pages {
 				}
 
 				timeout.cancel(true);
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				try {
+					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				} catch (InsufficientPermissionException ignore) {
+				}
 
 				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
@@ -151,7 +164,7 @@ public class Pages {
 
 			@Override
 			public void onMessageDelete(@Nonnull MessageDeleteEvent event) {
-				if (event.getMessageId().equals(msg.getId())) {
+				if (event.getMessageId().equals(msg.getId()) && timeout != null) {
 					timeout.cancel(true);
 					timeout = null;
 				}
@@ -180,7 +193,8 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
 		});
-		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
+			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
 		api.addEventListener(new MessageListener() {
 
 			@Override
@@ -238,7 +252,8 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
 		});
-		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton) msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
+			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
 		api.addEventListener(new MessageListener() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> api.removeEventListener(this);
@@ -246,7 +261,10 @@ public class Pages {
 			@Override
 			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					try {
+						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					} catch (InsufficientPermissionException ignore) {
+					}
 
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
@@ -265,13 +283,16 @@ public class Pages {
 
 
 				timeout.cancel(true);
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				try {
+					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				} catch (InsufficientPermissionException ignore) {
+				}
 				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 			}
 
 			@Override
 			public void onMessageDelete(@Nonnull MessageDeleteEvent event) {
-				if (event.getMessageId().equals(msg.getId())) {
+				if (event.getMessageId().equals(msg.getId()) && timeout != null) {
 					timeout.cancel(true);
 					timeout = null;
 				}
@@ -300,7 +321,7 @@ public class Pages {
 
 		return out.get();
 	}
-	
+
 	private static void doNothing(Throwable t) {
 		try {
 			throw t;
