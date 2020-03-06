@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -89,11 +90,40 @@ public class Pages {
 						updatePage(msg, pg);
 					}
 				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(success);
+					try {
+						msg.clearReactions().queue(success, Pages::doNothing);
+					} catch (InsufficientPermissionException e) {
+						msg.getReactions().forEach(r -> {
+							if (r.isSelf()) r.removeReaction().complete();
+						});
+						success.accept(null);
+					}
 				}
 				try {
 					event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 				} catch (InsufficientPermissionException ignore) {
+				}
+			}
+
+			@Override
+			public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent event) {
+				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+					if (p > 0) {
+						p--;
+						Page pg = pages.get(p);
+
+						updatePage(msg, pg);
+					}
+				} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+					if (p < maxP) {
+						p++;
+						Page pg = pages.get(p);
+
+						updatePage(msg, pg);
+					}
 				}
 			}
 
@@ -150,11 +180,12 @@ public class Pages {
 					return;
 				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
-						msg.clearReactions().queue(null, Pages::doNothing);
+						msg.clearReactions().queue(success, Pages::doNothing);
 					} catch (InsufficientPermissionException e) {
 						msg.getReactions().forEach(r -> {
 							if (r.isSelf()) r.removeReaction().complete();
 						});
+						success.accept(null);
 					}
 					return;
 				}
@@ -172,6 +203,16 @@ public class Pages {
 					event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 				} catch (InsufficientPermissionException ignore) {
 				}
+			}
+
+			@Override
+			public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent event) {
+				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
+
+				currCat = updateCategory(event, msg, pg);
 			}
 
 			@Override
@@ -208,6 +249,7 @@ public class Pages {
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
 			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
 		api.addEventListener(new MessageListener() {
+			private final Consumer<Void> success = s -> api.removeEventListener(this);
 
 			@Override
 			public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
@@ -223,17 +265,31 @@ public class Pages {
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
-						msg.clearReactions().queue(null, Pages::doNothing);
+						msg.clearReactions().queue(success, Pages::doNothing);
 					} catch (InsufficientPermissionException e) {
 						msg.getReactions().forEach(r -> {
 							if (r.isSelf()) r.removeReaction().complete();
 						});
+						success.accept(null);
 					}
 				}
 
 				try {
 					event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 				} catch (InsufficientPermissionException ignore) {
+				}
+			}
+
+			@Override
+			public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent event) {
+				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				try {
+					if (event.getReactionEmote().isEmoji())
+						buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+				} catch (NullPointerException ignore) {
 				}
 			}
 
@@ -300,11 +356,12 @@ public class Pages {
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
-						msg.clearReactions().queue(null, Pages::doNothing);
+						msg.clearReactions().queue(success, Pages::doNothing);
 					} catch (InsufficientPermissionException e) {
 						msg.getReactions().forEach(r -> {
 							if (r.isSelf()) r.removeReaction().complete();
 						});
+						success.accept(null);
 					}
 				}
 
@@ -317,6 +374,19 @@ public class Pages {
 				try {
 					event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
 				} catch (InsufficientPermissionException ignore) {
+				}
+			}
+
+			@Override
+			public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent event) {
+				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				try {
+					if (event.getReactionEmote().isEmoji())
+						buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+				} catch (NullPointerException ignore) {
 				}
 			}
 
