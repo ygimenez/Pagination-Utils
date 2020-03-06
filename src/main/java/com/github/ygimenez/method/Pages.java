@@ -92,11 +92,11 @@ public class Pages {
 				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
 						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
+							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						});
 					} catch (InsufficientPermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
+						msg.getReactions().forEach(r -> r.removeReaction().queue());
 						success.accept(null);
 					}
 				}
@@ -182,11 +182,11 @@ public class Pages {
 				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
 						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
+							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						});
 					} catch (InsufficientPermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
+						msg.getReactions().forEach(r -> r.removeReaction().queue());
 						success.accept(null);
 					}
 					return;
@@ -268,11 +268,11 @@ public class Pages {
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
 						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
+							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						});
 					} catch (InsufficientPermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
+						msg.getReactions().forEach(r -> r.removeReaction().queue());
 						success.accept(null);
 					}
 				}
@@ -360,11 +360,11 @@ public class Pages {
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
 						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
+							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						});
 					} catch (InsufficientPermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
+						msg.getReactions().forEach(r -> r.removeReaction().queue());
 						success.accept(null);
 					}
 				}
