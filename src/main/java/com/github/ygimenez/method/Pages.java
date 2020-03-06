@@ -69,7 +69,7 @@ public class Pages {
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
 
-				timeout.cancel(true);
+				if (timeout != null) timeout.cancel(true);
 				try {
 					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 				} catch (InsufficientPermissionException ignore) {
@@ -150,7 +150,7 @@ public class Pages {
 					return;
 				}
 
-				timeout.cancel(true);
+				if (timeout != null) timeout.cancel(true);
 				try {
 					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 				} catch (InsufficientPermissionException ignore) {
@@ -282,7 +282,7 @@ public class Pages {
 				}
 
 
-				timeout.cancel(true);
+				if (timeout != null) timeout.cancel(true);
 				try {
 					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 				} catch (InsufficientPermissionException ignore) {
