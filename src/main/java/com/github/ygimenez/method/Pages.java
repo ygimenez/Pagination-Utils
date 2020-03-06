@@ -91,7 +91,10 @@ public class Pages {
 				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					msg.clearReactions().queue(success);
 				}
-				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
+				try {
+					event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
+				} catch (InsufficientPermissionException ignore) {
+				}
 			}
 
 			@Override
@@ -146,7 +149,13 @@ public class Pages {
 				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 					return;
 				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(null, Pages::doNothing);
+					try {
+						msg.clearReactions().queue(null, Pages::doNothing);
+					} catch (InsufficientPermissionException e) {
+						msg.getReactions().forEach(r -> {
+							if (r.isSelf()) r.removeReaction().complete();
+						});
+					}
 					return;
 				}
 
@@ -159,7 +168,10 @@ public class Pages {
 				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
 				currCat = updateCategory(event, msg, pg);
-				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
+				try {
+					event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
+				} catch (InsufficientPermissionException ignore) {
+				}
 			}
 
 			@Override
@@ -210,10 +222,19 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(null, Pages::doNothing);
+					try {
+						msg.clearReactions().queue(null, Pages::doNothing);
+					} catch (InsufficientPermissionException e) {
+						msg.getReactions().forEach(r -> {
+							if (r.isSelf()) r.removeReaction().complete();
+						});
+					}
 				}
 
-				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
+				try {
+					event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
+				} catch (InsufficientPermissionException ignore) {
+				}
 			}
 
 			@Override
@@ -278,7 +299,13 @@ public class Pages {
 				}
 
 				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					msg.clearReactions().queue(null, Pages::doNothing);
+					try {
+						msg.clearReactions().queue(null, Pages::doNothing);
+					} catch (InsufficientPermissionException e) {
+						msg.getReactions().forEach(r -> {
+							if (r.isSelf()) r.removeReaction().complete();
+						});
+					}
 				}
 
 
@@ -287,7 +314,10 @@ public class Pages {
 					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 				} catch (InsufficientPermissionException ignore) {
 				}
-				event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
+				try {
+					event.getReaction().removeReaction(event.getUser()).queue(null, Pages::doNothing);
+				} catch (InsufficientPermissionException ignore) {
+				}
 			}
 
 			@Override
