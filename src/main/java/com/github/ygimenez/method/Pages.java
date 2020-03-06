@@ -93,9 +93,7 @@ public class Pages {
 					try {
 						msg.clearReactions().queue(success, Pages::doNothing);
 					} catch (InsufficientPermissionException e) {
-						msg.getReactions().forEach(r -> {
-							if (r.isSelf()) r.removeReaction().complete();
-						});
+						msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
 						success.accept(null);
 					}
 				}
@@ -182,9 +180,7 @@ public class Pages {
 					try {
 						msg.clearReactions().queue(success, Pages::doNothing);
 					} catch (InsufficientPermissionException e) {
-						msg.getReactions().forEach(r -> {
-							if (r.isSelf()) r.removeReaction().complete();
-						});
+						msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
 						success.accept(null);
 					}
 					return;
@@ -267,9 +263,7 @@ public class Pages {
 					try {
 						msg.clearReactions().queue(success, Pages::doNothing);
 					} catch (InsufficientPermissionException e) {
-						msg.getReactions().forEach(r -> {
-							if (r.isSelf()) r.removeReaction().complete();
-						});
+						msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
 						success.accept(null);
 					}
 				}
@@ -358,9 +352,7 @@ public class Pages {
 					try {
 						msg.clearReactions().queue(success, Pages::doNothing);
 					} catch (InsufficientPermissionException e) {
-						msg.getReactions().forEach(r -> {
-							if (r.isSelf()) r.removeReaction().complete();
-						});
+						msg.getReactions().forEach(r -> r.removeReaction(api.getSelfUser()).queue());
 						success.accept(null);
 					}
 				}
