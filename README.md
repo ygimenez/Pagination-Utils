@@ -107,6 +107,25 @@ exampleChannel.sendMessage("This is a menu message").queue(success -> {
 });
 ```
 
+## *NEW* How do I buttonize?
+
+A new feature in version 1.0.3, is that you're able to add buttons with custom functions using this library. To do it, you first need to setup a few things:
+
+```java
+//THE BICONSUMER IS A CALLBACK FUNCTION THAT USES TWO ARGUMENTS INSTEAD OF ONE
+//HERE, THE MEMBER IS THE ONE THAT PRESSED THE BUTTON, AND MESSAGE IS THE BUTTONIZED MESSAGE ITSELF
+BiConsumer<Member, Message> customFunction = (mb, ms) -> {
+    //EXAMPLE OF GIVING A ROLE TO ANYONE WHO PRESSES THIS BUTTON
+    guild.addRoleToMember(mb, guild.getRoleById("123456789")).queue();
+};
+
+exampleChannel.sendMessage("This is a sample message").queue(success -> {
+    //SAME ARUMENTS, EXCEPT THE THIRD THAT MUST EXTEND Map CLASS
+    //THE LAST ARGUMENT DEFINES WHETHER TO SHOW CANCEL BUTTON OR NOT
+    Pages.buttonize(bot, success, Collections.singletonMap("✅", customFunction), false);
+});
+```
+
 ## Is it really that easy?
 
 Yes, you can focus on creating epic menus, raking, lists, whatever and leave the boring part for the library to do its job, isn't that awesome?
