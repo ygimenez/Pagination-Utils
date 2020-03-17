@@ -107,7 +107,7 @@ exampleChannel.sendMessage("This is a menu message").queue(success -> {
 });
 ```
 
-## *NEW* How do I buttonize?
+## \*NEW\* How do I buttonize?
 
 A new feature in version 1.0.3, is that you're able to add buttons with custom functions using this library. To do it, you first need to setup a few things:
 
