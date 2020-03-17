@@ -128,7 +128,7 @@ exampleChannel.sendMessage("This is a sample message").queue(success -> {
 
 ## Is it really that easy?
 
-Yes, you can focus on creating epic menus, raking, lists, whatever and leave the boring part for the library to do its job, isn't that awesome?
+Yes, you can focus on creating epic menus, ranking, lists, whatever and leave the boring part for the library to do its job, isn't that awesome?
 
 ## How do I get it?
 
