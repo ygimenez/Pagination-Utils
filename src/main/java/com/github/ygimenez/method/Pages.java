@@ -110,6 +110,7 @@ public class Pages {
 				if (event.getMessageId().equals(msg.getId()) && timeout != null) {
 					timeout.cancel(true);
 					timeout = null;
+					api.removeEventListener(this);
 				}
 			}
 		});
@@ -189,6 +190,7 @@ public class Pages {
 				if (event.getMessageId().equals(msg.getId()) && timeout != null) {
 					timeout.cancel(true);
 					timeout = null;
+					api.removeEventListener(this);
 				}
 			}
 		});
@@ -340,6 +342,7 @@ public class Pages {
 				if (event.getMessageId().equals(msg.getId()) && timeout != null) {
 					timeout.cancel(true);
 					timeout = null;
+					api.removeEventListener(this);
 				}
 			}
 		});
