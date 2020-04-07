@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import javax.annotation.Nonnull;
@@ -64,7 +63,7 @@ public class Pages {
 				if (timeout == null)
 					try {
 						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (InsufficientPermissionException ignore) {
+					} catch (PermissionException ignore) {
 					}
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
 					return;
@@ -72,7 +71,7 @@ public class Pages {
 				if (timeout != null) timeout.cancel(true);
 				try {
 					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (InsufficientPermissionException ignore) {
+				} catch (PermissionException ignore) {
 				}
 				if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
 					if (p > 0) {
@@ -94,14 +93,14 @@ public class Pages {
 							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						});
-					} catch (InsufficientPermissionException e) {
+					} catch (PermissionException e) {
 						msg.getReactions().forEach(r -> r.removeReaction().queue());
 						success.accept(null);
 					}
 				}
 				try {
 					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (InsufficientPermissionException ignore) {
+				} catch (PermissionException ignore) {
 				}
 			}
 
@@ -152,7 +151,7 @@ public class Pages {
 				if (timeout == null)
 					try {
 						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (InsufficientPermissionException ignore) {
+					} catch (PermissionException ignore) {
 					}
 
 				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
@@ -163,7 +162,7 @@ public class Pages {
 							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						});
-					} catch (InsufficientPermissionException e) {
+					} catch (PermissionException e) {
 						msg.getReactions().forEach(r -> r.removeReaction().queue());
 						success.accept(null);
 					}
@@ -173,7 +172,7 @@ public class Pages {
 				if (timeout != null) timeout.cancel(true);
 				try {
 					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (InsufficientPermissionException ignore) {
+				} catch (PermissionException ignore) {
 				}
 
 				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
@@ -181,7 +180,7 @@ public class Pages {
 				currCat = updateCategory(event, msg, pg);
 				try {
 					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (InsufficientPermissionException ignore) {
+				} catch (PermissionException ignore) {
 				}
 			}
 
@@ -240,7 +239,7 @@ public class Pages {
 							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						});
-					} catch (InsufficientPermissionException e) {
+					} catch (PermissionException e) {
 						msg.getReactions().forEach(r -> r.removeReaction().queue());
 						success.accept(null);
 					}
@@ -248,7 +247,7 @@ public class Pages {
 
 				try {
 					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (InsufficientPermissionException ignore) {
+				} catch (PermissionException ignore) {
 				}
 			}
 
@@ -299,7 +298,7 @@ public class Pages {
 				if (timeout == null)
 					try {
 						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (InsufficientPermissionException ignore) {
+					} catch (PermissionException ignore) {
 					}
 
 				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
@@ -319,7 +318,7 @@ public class Pages {
 							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						});
-					} catch (InsufficientPermissionException e) {
+					} catch (PermissionException e) {
 						msg.getReactions().forEach(r -> r.removeReaction().queue());
 						success.accept(null);
 					}
@@ -329,11 +328,11 @@ public class Pages {
 				if (timeout != null) timeout.cancel(true);
 				try {
 					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (InsufficientPermissionException ignore) {
+				} catch (PermissionException ignore) {
 				}
 				try {
 					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (InsufficientPermissionException ignore) {
+				} catch (PermissionException ignore) {
 				}
 			}
 
