@@ -100,7 +100,7 @@ public class Pages {
 				}
 				try {
 					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException ignore) {
+				} catch (PermissionException | ErrorResponseException ignore) {
 				}
 			}
 
@@ -180,7 +180,7 @@ public class Pages {
 				currCat = updateCategory(event, msg, pg);
 				try {
 					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException ignore) {
+				} catch (PermissionException | ErrorResponseException ignore) {
 				}
 			}
 
@@ -247,7 +247,7 @@ public class Pages {
 
 				try {
 					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException ignore) {
+				} catch (PermissionException | ErrorResponseException ignore) {
 				}
 			}
 
@@ -332,7 +332,7 @@ public class Pages {
 				}
 				try {
 					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException ignore) {
+				} catch (PermissionException | ErrorResponseException ignore) {
 				}
 			}
 
