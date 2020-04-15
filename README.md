@@ -30,7 +30,15 @@ Have you been using a bot and came across one of those two GIFs and thought: "Th
 
 ## How do I paginate?
 
-It's easier than it seems, all you need to do is create a `Page` object containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
+It's easier than it seems! The first step is to set a JDA client object as the event handler, which can be done in a single line:
+
+```java
+JDA bot = ... //CREATION OF THE BOT CLIENT
+
+Pages.activate(bot);
+```
+
+Then all you need to do is create a `Page` object containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
 
 Example:
 
@@ -67,13 +75,13 @@ Then all you have to do is call `Pages.paginate()` method:
 
 ```java
 //THIS METHOD REQUIRES 4 VARIABLES:
-//THE BOT'S OBJECT (JDA)
+
 //THE TARGET MESSAGE (Message)
 //THE LIST OF PAGES (any List object)
 //THE IDLE TIME BEFORE SHUTTING DOWN (int)
 //THE TimeUnit FOR THE TIME
 exampleChannel.sendMessage((Message) pages.get(0).getContent()).queue(success -> {
-    Pages.paginate(bot, success, pages, 60, TimeUnit.SECONDS);
+    Pages.paginate(success, pages, 60, TimeUnit.SECONDS);
 });
 ```
 
@@ -101,9 +109,9 @@ pages.put("\u270f", new Page(PageType.TEXT, mb.build()))
 Then just call the `Pages.categorize()` method just like you did with `Pages.paginate()` method:
 
 ```java
-//SAME ARGUMENTS, EXCEPT THE THIRD THAT MUST EXTEND Map CLASS
+//SAME ARGUMENTS, EXCEPT THE SECOND THAT MUST EXTEND Map CLASS
 exampleChannel.sendMessage("This is a menu message").queue(success -> {
-    Pages.categorize(bot, success, pages, 60, TimeUnit.SECONDS);
+    Pages.categorize(success, pages, 60, TimeUnit.SECONDS);
 });
 ```
 
@@ -120,9 +128,9 @@ BiConsumer<Member, Message> customFunction = (mb, ms) -> {
 };
 
 exampleChannel.sendMessage("This is a sample message").queue(success -> {
-    //SAME ARUMENTS, EXCEPT THE THIRD THAT MUST EXTEND Map CLASS
+    //SAME ARUMENTS, EXCEPT THE SECOND THAT MUST EXTEND Map CLASS
     //THE LAST ARGUMENT DEFINES WHETHER TO SHOW CANCEL BUTTON OR NOT
-    Pages.buttonize(bot, success, Collections.singletonMap("✅", customFunction), false);
+    Pages.buttonize(success, Collections.singletonMap("✅", customFunction), false);
 });
 ```
 
