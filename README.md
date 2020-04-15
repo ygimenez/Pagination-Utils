@@ -132,7 +132,7 @@ Yes, you can focus on creating epic menus, ranking, lists, whatever and leave th
 
 ## How do I get it?
 
-This library is available for manual instalation and through Jitpack:
+This library is available for manual installation and through Jitpack:
 
 ### To install manually
 * Click on the releases tab on the top of this repository
@@ -191,4 +191,4 @@ Maven:
 
 ## Feedback
 
-If you have any issue using this library, feel free to create a new issue on this repository, I'll review it as soon as possible!
+If you have any issues using this library, feel free to create a new issue on this repository. I'll review it as soon as possible!
