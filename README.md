@@ -74,8 +74,7 @@ for (int i = 0; i < 10; i++) {
 Then all you have to do is call `Pages.paginate()` method:
 
 ```java
-//THIS METHOD REQUIRES 4 VARIABLES:
-
+//THIS METHOD REQUIRES 4 ARGUMENTS:
 //THE TARGET MESSAGE (Message)
 //THE LIST OF PAGES (any List object)
 //THE IDLE TIME BEFORE SHUTTING DOWN (int)
@@ -95,7 +94,7 @@ To categorize it's almost the same process as paginating, however, the type of c
 HashMap<String, Page> pages = new HashMap<>();
 MessageBuilder mb = new MessageBuilder();
 
-//MANUALLY ADDING 3 CATEGORIES TO THE MAP, YOU COULD USE SOME KIND OF ITERATION TO FILL IT (Map key must be a emote's unicode - See https://emojipedia.org/ for unicodes)
+//MANUALLY ADDING 3 CATEGORIES TO THE MAP, YOU COULD USE SOME KIND OF ITERATION TO FILL IT (Map key must be a emoji's unicode or emote name - See https://emojipedia.org/ for unicodes)
 mb.setContent("This is category 1");
 pages.put("\u26f3", new Page(PageType.TEXT, mb.build()));
 
@@ -199,4 +198,4 @@ Maven:
 
 ## Feedback
 
-If you have any issues using this library, feel free to create a new issue on this repository. I'll review it as soon as possible!
+If you have any issues using this library, feel free to create a new issue on this repository and I'll review it as soon as possible!
