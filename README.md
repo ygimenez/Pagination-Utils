@@ -22,9 +22,11 @@ With this library you will be using pages and categories in your bot commands in
 
 ## What is a page/category?
 
-![Demo1](https://i.imgur.com/7bMGoJC.gif)
+![Pagination Example](https://imgur.com/5Cain0U)
 
-![Demo2](https://i.imgur.com/ZbgoADy.gif)
+![Categorization Example](https://imgur.com/AEusZQ1)
+
+![Buttonization Example](https://imgur.com/4PBVoTn)
 
 Have you been using a bot and came across one of those two GIFs and thought: "That must've been hard to make." or "I'd like one of those in my bot!". Fear no more, KuuHaKu to the rescue!
 
