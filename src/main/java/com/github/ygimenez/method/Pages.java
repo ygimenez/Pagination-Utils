@@ -151,7 +151,7 @@ public class Pages {
 		handler.addEvent(msg.getGuild().getId() + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private String currCat = "";
 			private Future<?> timeout;
-			private final Consumer<Void> success = s -> api.removeEventListener(this);
+			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
@@ -219,7 +219,7 @@ public class Pages {
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
 			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
 		handler.addEvent(msg.getGuild().getId() + msg.getId(), new Consumer<MessageReactionAddEvent>() {
-			private final Consumer<Void> success = s -> api.removeEventListener(this);
+			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
@@ -285,7 +285,7 @@ public class Pages {
 			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
 		handler.addEvent(msg.getGuild().getId() + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private Future<?> timeout;
-			private final Consumer<Void> success = s -> api.removeEventListener(this);
+			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
