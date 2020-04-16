@@ -20,7 +20,7 @@
 
 With this library you will be using pages and categories in your bot commands in no time!
 
-## What is a page/category/buttons?
+## What is a page/category/button?
 
 ![Pagination Example](https://i.imgur.com/5Cain0U.gif)
 
