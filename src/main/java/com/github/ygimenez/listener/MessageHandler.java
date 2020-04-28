@@ -18,7 +18,7 @@ public class MessageHandler extends ListenerAdapter {
 	}
 
 	public void removeEvent(Message msg) {
-		events.remove(msg.getGuild().getId() + msg.getId());
+		events.remove((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId());
 	}
 
 	@Override
@@ -29,6 +29,6 @@ public class MessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onMessageDelete(@Nonnull MessageDeleteEvent evt) {
-		events.remove(evt.getGuild().getId() + evt.getMessageId());
+		events.remove((evt.getChannelType().isGuild() ? evt.getGuild().getId() : evt.getPrivateChannel().getUser().getId()) + evt.getMessageId());
 	}
 }

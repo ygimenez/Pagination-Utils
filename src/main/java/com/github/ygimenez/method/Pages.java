@@ -67,7 +67,7 @@ public class Pages {
 		msg.addReaction(CANCEL.getCode()).queue();
 		msg.addReaction(NEXT.getCode()).queue();
 
-		handler.addEvent(msg.getGuild().getId() + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private final int maxP = pages.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
@@ -148,7 +148,7 @@ public class Pages {
 			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
 		});
 		msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent(msg.getGuild().getId() + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private String currCat = "";
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -218,7 +218,7 @@ public class Pages {
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
 			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent(msg.getGuild().getId() + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			@Override
@@ -283,7 +283,7 @@ public class Pages {
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
 			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent(msg.getGuild().getId() + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
