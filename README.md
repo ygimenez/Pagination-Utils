@@ -40,7 +40,7 @@ JDA bot = ... //CREATION OF THE BOT CLIENT
 Pages.activate(bot);
 ```
 
-Then all you need to do is create a `Page` object containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
+Then all you need to do is create a `Page` collection containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
 
 Example:
 
@@ -78,7 +78,7 @@ Then all you have to do is call `Pages.paginate()` method:
 ```java
 //THIS METHOD REQUIRES 4 ARGUMENTS:
 //THE TARGET MESSAGE (Message)
-//THE LIST OF PAGES (any List object)
+//THE LIST OF PAGES (any List collection)
 //THE IDLE TIME BEFORE SHUTTING DOWN (int)
 //THE TimeUnit FOR THE TIME
 exampleChannel.sendMessage((Message) pages.get(0).getContent()).queue(success -> {
@@ -110,7 +110,7 @@ pages.put("\u270f", new Page(PageType.TEXT, mb.build()))
 Then just call the `Pages.categorize()` method just like you did with `Pages.paginate()` method:
 
 ```java
-//SAME ARGUMENTS, EXCEPT THE SECOND THAT MUST EXTEND Map CLASS
+//SAME ARGUMENTS, EXCEPT THE SECOND THAT MUST EXTEND Map Collection
 exampleChannel.sendMessage("This is a menu message").queue(success -> {
     Pages.categorize(success, pages, 60, TimeUnit.SECONDS);
 });
@@ -129,7 +129,7 @@ BiConsumer<Member, Message> customFunction = (mb, ms) -> {
 };
 
 exampleChannel.sendMessage("This is a sample message").queue(success -> {
-    //SAME ARUMENTS, EXCEPT THE SECOND THAT MUST EXTEND Map CLASS
+    //SAME ARUMENTS, EXCEPT THE SECOND THAT MUST EXTEND Map Collection
     //THE LAST ARGUMENT DEFINES WHETHER TO SHOW CANCEL BUTTON OR NOT
     Pages.buttonize(success, Collections.singletonMap("✅", customFunction), false);
 });
