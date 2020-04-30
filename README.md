@@ -28,11 +28,11 @@ With this library you will be using pages and categories in your bot commands in
 
 ![Buttonization Example](https://i.imgur.com/4PBVoTn.gif)
 
-Have you been using a bot and came across one of those two GIFs and thought: "That must've been hard to make." or "I'd like one of those in my bot!". Fear no more, KuuHaKu to the rescue!
+Have you been using a bot and came across one of those three GIFs and thought: "That must've been hard to make." or "I'd like one of those in my bot!". Fear no more, KuuHaKu to the rescue!
 
 ## How do I paginate?
 
-It's easier than it seems! The first step is to set a JDA client object as the event handler, which can be done in a single line:
+It's easier than it seems! The first step is to set a JDA client object as the event holder, which can be done in a single line:
 
 ```java
 JDA bot = ... //CREATION OF THE BOT CLIENT
