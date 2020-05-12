@@ -8,16 +8,18 @@ assignees: ''
 ---
 
 **Checklist**
+
 Make sure that you've checked all the items below.
 
-[ ] Bot has the following permissions:
-- MESSAGE_MANAGE
-- MESSAGE_ADD_REACTION
-- MESSAGE_EXT_EMOJI
-- MESSAGE_READ/WRITE
-- VIEW_CHANNEL
-[ ] PaginationUtils is up-to-date.
-[ ] You have activated the library as descripted in the README.
+- [ ] Bot has the following permissions:
+  - MESSAGE_MANAGE
+  - MESSAGE_ADD_REACTION
+  - MESSAGE_EXT_EMOJI
+  - MESSAGE_READ/WRITE
+  - VIEW_CHANNEL
+- [ ] PaginationUtils is up-to-date.
+- [ ] You have activated the library as descripted in the README.
+
 
 **Library info**
 
@@ -25,9 +27,11 @@ What libraries versions are you using.
 - JDA version X.XXX
 - PaginationUtils version X.XXX
 
+
 **Describe the bug**
 
 A clear and concise description of what the bug is.
+
 
 **To Reproduce**
 
@@ -37,13 +41,16 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
+
 **Expected behavior**
 
 A clear and concise description of what you expected to happen.
 
+
 **Screenshots**
 
 If applicable, add screenshots to help explain your problem.
+
 
 **Additional context**
 
