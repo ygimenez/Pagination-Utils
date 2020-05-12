@@ -122,6 +122,103 @@ public class Pages {
 	}
 
 	/**
+	 * Adds navigation buttons to the specified Message/MessageEmbed which will
+	 * navigate through a given List of pages. You must specify how long the
+	 * listener will stay active before shutting down itself after a no-activity
+	 * interval.
+	 *
+	 * @param msg   The message sent which will be paginated.
+	 * @param pages The pages to be shown. The order of the array will define the
+	 *              order of the pages.
+	 * @param time  The time before the listener automatically stop listening for
+	 *              further events. (Recommended: 60)
+	 * @param unit  The time's time unit. (Recommended: TimeUnit.SECONDS)
+	 * @param skipAmount  The amount of pages to be skipped when clicking SKIP buttons
+	 *
+	 * @throws ErrorResponseException Thrown if the message no longer exists or
+	 *                                cannot be acessed when triggering a
+	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 */
+	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, PermissionException {
+		if (api == null) throw new InvalidStateException();
+
+		msg.addReaction(SKIP_BACKWARD.getCode()).queue();
+		msg.addReaction(PREVIOUS.getCode()).queue();
+		msg.addReaction(CANCEL.getCode()).queue();
+		msg.addReaction(NEXT.getCode()).queue();
+		msg.addReaction(SKIP_FORWARD.getCode()).queue();
+
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+			private final int maxP = pages.size() - 1;
+			private int p = 0;
+			private Future<?> timeout;
+			private final Consumer<Void> success = s -> handler.removeEvent(msg);
+
+			@Override
+			public void accept(MessageReactionAddEvent event) {
+				if (timeout == null)
+					try {
+						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					} catch (PermissionException ignore) {
+					}
+				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				if (timeout != null) timeout.cancel(true);
+				try {
+					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				} catch (PermissionException ignore) {
+				}
+				if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+					if (p > 0) {
+						p--;
+						Page pg = pages.get(p);
+
+						updatePage(msg, pg);
+					}
+				} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+					if (p < maxP) {
+						p++;
+						Page pg = pages.get(p);
+
+						updatePage(msg, pg);
+					}
+				} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+					if (p > 0) {
+						p -= (p - skipAmount < 0 ? p : skipAmount);
+						Page pg = pages.get(p);
+
+						updatePage(msg, pg);
+					}
+				} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+					if (p < maxP) {
+						p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+						Page pg = pages.get(p);
+
+						updatePage(msg, pg);
+					}
+				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					try {
+						msg.clearReactions().queue(success, s -> {
+							msg.getReactions().forEach(r -> r.removeReaction().queue());
+							success.accept(null);
+						});
+					} catch (PermissionException e) {
+						msg.getReactions().forEach(r -> r.removeReaction().queue());
+						success.accept(null);
+					}
+				}
+				try {
+					event.getReaction().removeReaction(event.getUser()).complete();
+				} catch (PermissionException | ErrorResponseException ignore) {
+				}
+			}
+		});
+	}
+
+	/**
 	 * Adds menu-like buttons to the specified Message/MessageEmbed which will
 	 * browse through a given Map of pages. You may specify one Page per button,
 	 * adding another button with an existing unicode will overwrite the current
