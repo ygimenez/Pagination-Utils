@@ -7,10 +7,30 @@ assignees: ''
 
 ---
 
+**Checklist**
+Make sure that you've checked all the items below.
+
+[ ] Bot has the following permissions:
+- MESSAGE_MANAGE
+- MESSAGE_ADD_REACTION
+- MESSAGE_EXT_EMOJI
+- MESSAGE_READ/WRITE
+- VIEW_CHANNEL
+[ ] PaginationUtils is up-to-date.
+[ ] You have activated the library as descripted in the README.
+
+**Library info**
+
+What libraries versions are you using.
+- JDA version X.XXX
+- PaginationUtils version X.XXX
+
 **Describe the bug**
+
 A clear and concise description of what the bug is.
 
 **To Reproduce**
+
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -18,21 +38,13 @@ Steps to reproduce the behavior:
 4. See error
 
 **Expected behavior**
+
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
+
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
 **Additional context**
+
 Add any other context about the problem here.
