@@ -181,7 +181,7 @@ Gradle:
 
 ```gradle
 dependencies {
-    implementation 'com.github.ygimenez:PaginationUtils:VERSION'
+    implementation 'com.github.ygimenez:Pagination-Utils:VERSION'
 }
 ```
 
@@ -190,7 +190,7 @@ Maven:
 ```xml
 <dependency>
     <groupId>com.github.ygimenez</groupId>
-    <artifactId>PaginationUtils</artifactId>
+    <artifactId>Pagination-Utils</artifactId>
     <version>VERSION</version>
 </dependency>
 ```
