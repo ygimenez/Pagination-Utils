@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.ygimenez</groupId>
     <artifactId>PaginationUtils</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.1b</version>
     <packaging>jar</packaging>
 
     <name>Pagination Utils</name>
