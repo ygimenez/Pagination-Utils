@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.ygimenez</groupId>
     <artifactId>PaginationUtils</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
 
     <name>Pagination Utils</name>
@@ -29,7 +29,7 @@
         <repository>
             <id>github</id>
             <name>GitHub KuuHaKu Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/ygimenez/PaginationUtils</url>
+            <url>https://maven.pkg.github.com/ygimenez/Pagination-Utils</url>
         </repository>
     </distributionManagement>
 

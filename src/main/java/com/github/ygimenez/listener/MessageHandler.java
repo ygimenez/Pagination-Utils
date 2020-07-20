@@ -3,6 +3,7 @@ package com.github.ygimenez.listener;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
@@ -23,12 +24,25 @@ public class MessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
-		Consumer<MessageReactionAddEvent> act = events.get(evt.getGuild().getId() + evt.getMessageId());
-		if (act != null) act.accept(evt);
+		if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
+			events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
 	}
 
 	@Override
 	public void onMessageDelete(@Nonnull MessageDeleteEvent evt) {
 		events.remove((evt.getChannelType().isGuild() ? evt.getGuild().getId() : evt.getPrivateChannel().getUser().getId()) + evt.getMessageId());
+	}
+
+	@Override
+	public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent evt) {
+		if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
+			evt.getChannel().retrieveMessageById(evt.getMessageId()).queue(msg -> {
+				if (!msg.getReactions().contains(evt.getReaction())) {
+					if (evt.getReactionEmote().isEmoji())
+						msg.addReaction(evt.getReactionEmote().getAsCodepoints()).queue();
+					else
+						msg.addReaction(evt.getReactionEmote().getEmote()).queue();
+				}
+			});
 	}
 }
