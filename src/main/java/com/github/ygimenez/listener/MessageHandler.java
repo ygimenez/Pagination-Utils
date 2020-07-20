@@ -1,5 +1,6 @@
 package com.github.ygimenez.listener;
 
+import com.github.ygimenez.method.Pages;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -43,6 +44,6 @@ public class MessageHandler extends ListenerAdapter {
 					else
 						msg.addReaction(evt.getReactionEmote().getEmote()).queue();
 				}
-			});
+			}, Pages::doNothing);
 	}
 }

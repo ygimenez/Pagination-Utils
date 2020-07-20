@@ -451,7 +451,7 @@ public class Pages {
 		return out.get();
 	}
 
-	private static void doNothing(Throwable t) {
+	public static void doNothing(Throwable t) {
 		try {
 			throw t;
 		} catch (Throwable ignore) {
