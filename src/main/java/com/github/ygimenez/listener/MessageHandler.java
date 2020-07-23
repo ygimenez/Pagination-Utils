@@ -40,9 +40,9 @@ public class MessageHandler extends ListenerAdapter {
 			evt.getChannel().retrieveMessageById(evt.getMessageId()).queue(msg -> {
 				if (!msg.getReactions().contains(evt.getReaction())) {
 					if (evt.getReactionEmote().isEmoji())
-						msg.addReaction(evt.getReactionEmote().getAsCodepoints()).queue();
+						msg.addReaction(evt.getReactionEmote().getAsCodepoints()).queue(null, Pages::doNothing);
 					else
-						msg.addReaction(evt.getReactionEmote().getEmote()).queue();
+						msg.addReaction(evt.getReactionEmote().getEmote()).queue(null, Pages::doNothing);
 				}
 			}, Pages::doNothing);
 	}
