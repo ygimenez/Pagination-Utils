@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class MessageHandler extends ListenerAdapter {
@@ -25,7 +26,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
-		if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
+		if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()) && !Objects.requireNonNull(evt.getUser()).isBot())
 			events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
 	}
 
