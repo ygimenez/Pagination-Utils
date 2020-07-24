@@ -225,21 +225,21 @@ public class Pages {
 	 * listener will stay active before shutting down itself after a no-activity
 	 * interval.
 	 *
-	 * @param msg        The message sent which will be paginated.
-	 * @param pages      The pages to be shown. The order of the array will define the
-	 *                   order of the pages.
-	 * @param time       The time before the listener automatically stop listening for
-	 *                   further events. (Recommended: 60)
-	 * @param unit       The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param skipAmount The amount of pages to be skipped when clicking SKIP buttons
-	 * @param canCancel  Predicate to determine whether the user that pressed the button can or cannot cancel the listener
+	 * @param msg         The message sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the array will define the
+	 *                    order of the pages.
+	 * @param time        The time before the listener automatically stop listening for
+	 *                    further events. (Recommended: 60)
+	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
+	 * @param skipAmount  The amount of pages to be skipped when clicking SKIP buttons
+	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
 	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount, Predicate<User> canCancel) throws ErrorResponseException, PermissionException {
+	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (api == null) throw new InvalidStateException();
 
 		msg.addReaction(SKIP_BACKWARD.getCode()).queue();
@@ -256,49 +256,49 @@ public class Pages {
 
 			@Override
 			public void accept(MessageReactionAddEvent event) {
-				if (timeout == null)
+				if (canInteract.test(event.getUser())) {
+					if (timeout == null)
+						try {
+							timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+						} catch (PermissionException ignore) {
+						}
+					if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (timeout != null) timeout.cancel(true);
 					try {
 						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
 					} catch (PermissionException ignore) {
 					}
-				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
-					return;
+					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (p > 0) {
+							p--;
+							Page pg = pages.get(p);
 
-				if (timeout != null) timeout.cancel(true);
-				try {
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (PermissionException ignore) {
-				}
-				if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
-					if (p > 0) {
-						p--;
-						Page pg = pages.get(p);
+							updatePage(msg, pg);
+						}
+					} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						if (p < maxP) {
+							p++;
+							Page pg = pages.get(p);
 
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
-					if (p < maxP) {
-						p++;
-						Page pg = pages.get(p);
+							updatePage(msg, pg);
+						}
+					} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+						if (p > 0) {
+							p -= (p - skipAmount < 0 ? p : skipAmount);
+							Page pg = pages.get(p);
 
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
-					if (p > 0) {
-						p -= (p - skipAmount < 0 ? p : skipAmount);
-						Page pg = pages.get(p);
+							updatePage(msg, pg);
+						}
+					} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+						if (p < maxP) {
+							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+							Page pg = pages.get(p);
 
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
-					if (p < maxP) {
-						p += (p + skipAmount > maxP ? maxP - p : skipAmount);
-						Page pg = pages.get(p);
-
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					if (canCancel.test(event.getUser())) {
+							updatePage(msg, pg);
+						}
+					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
 							msg.clearReactions().queue(success, s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().queue());
@@ -309,10 +309,10 @@ public class Pages {
 							success.accept(null);
 						}
 					}
-				}
-				try {
-					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException | ErrorResponseException ignore) {
+					try {
+						event.getReaction().removeReaction(event.getUser()).complete();
+					} catch (PermissionException | ErrorResponseException ignore) {
+					}
 				}
 			}
 		});
@@ -397,20 +397,20 @@ public class Pages {
 	 * button's Page. You must specify how long the listener will stay active before
 	 * shutting down itself after a no-activity interval.
 	 *
-	 * @param msg        The message sent which will be categorized.
-	 * @param categories The categories to be shown. The categories are defined by a
-	 *                   Map containing emote unicodes as keys and Pages as values.
-	 * @param time       The time before the listener automatically stop listening
-	 *                   for further events. (Recommended: 60)
-	 * @param unit       The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param canCancel  Predicate to determine whether the user that pressed the button can or cannot cancel the listener
+	 * @param msg         The message sent which will be categorized.
+	 * @param categories  The categories to be shown. The categories are defined by a
+	 *                    Map containing emote unicodes as keys and Pages as values.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events. (Recommended: 60)
+	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
+	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
 	 */
-	public static void categorize(Message msg, Map<String, Page> categories, int time, TimeUnit unit, Predicate<User> canCancel) throws ErrorResponseException, PermissionException {
+	public static void categorize(Message msg, Map<String, Page> categories, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (api == null) throw new InvalidStateException();
 
 		categories.keySet().forEach(k -> {
@@ -425,16 +425,16 @@ public class Pages {
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
-				if (timeout == null)
-					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (PermissionException ignore) {
-					}
+				if (canInteract.test(event.getUser())) {
+					if (timeout == null)
+						try {
+							timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+						} catch (PermissionException ignore) {
+						}
 
-				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
-					return;
-				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					if (canCancel.test(event.getUser())) {
+					if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
+						return;
+					else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
 							msg.clearReactions().queue(success, s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().queue());
@@ -444,22 +444,22 @@ public class Pages {
 							msg.getReactions().forEach(r -> r.removeReaction().queue());
 							success.accept(null);
 						}
+						return;
 					}
-					return;
-				}
 
-				if (timeout != null) timeout.cancel(true);
-				try {
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (PermissionException ignore) {
-				}
+					if (timeout != null) timeout.cancel(true);
+					try {
+						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					} catch (PermissionException ignore) {
+					}
 
-				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
+					Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
-				currCat = updateCategory(event, msg, pg);
-				try {
-					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException | ErrorResponseException ignore) {
+					currCat = updateCategory(event, msg, pg);
+					try {
+						event.getReaction().removeReaction(event.getUser()).complete();
+					} catch (PermissionException | ErrorResponseException ignore) {
+					}
 				}
 			}
 		});
@@ -618,14 +618,14 @@ public class Pages {
 	 * @param time             The time before the listener automatically stop listening for
 	 *                         further events. (Recommended: 60)
 	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param canCancel        Predicate to determine whether the user that pressed the button can or cannot cancel the listener
+	 * @param canInteract      Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
 	 *                                cannot be acessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
 	 */
-	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canCancel) throws ErrorResponseException, PermissionException {
+	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (api == null) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
@@ -640,25 +640,25 @@ public class Pages {
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
-				if (timeout == null)
+				if (canInteract.test(event.getUser())) {
+					if (timeout == null)
+						try {
+							timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+						} catch (PermissionException ignore) {
+						}
+
+					if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+						return;
+
 					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (PermissionException ignore) {
+						if (event.getReactionEmote().isEmoji())
+							buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+						else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+					} catch (NullPointerException ignore) {
+
 					}
 
-				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
-					return;
-
-				try {
-					if (event.getReactionEmote().isEmoji())
-						buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
-				} catch (NullPointerException ignore) {
-
-				}
-
-				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					if (canCancel.test(event.getUser())) {
+					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
 							msg.clearReactions().queue(success, s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().queue());
@@ -669,16 +669,16 @@ public class Pages {
 							success.accept(null);
 						}
 					}
-				}
 
-				if (timeout != null) timeout.cancel(true);
-				try {
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (PermissionException ignore) {
-				}
-				try {
-					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException | ErrorResponseException ignore) {
+					if (timeout != null) timeout.cancel(true);
+					try {
+						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					} catch (PermissionException ignore) {
+					}
+					try {
+						event.getReaction().removeReaction(event.getUser()).complete();
+					} catch (PermissionException | ErrorResponseException ignore) {
+					}
 				}
 			}
 		});
