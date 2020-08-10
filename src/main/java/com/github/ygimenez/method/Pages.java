@@ -75,6 +75,10 @@ public class Pages {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
+			{
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+			}
+
 			@Override
 			public void accept(MessageReactionAddEvent event) {
 				if (timeout == null)
@@ -156,6 +160,10 @@ public class Pages {
 			private int p = 0;
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
+
+			{
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+			}
 
 			@Override
 			public void accept(MessageReactionAddEvent event) {
@@ -254,6 +262,10 @@ public class Pages {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
+			{
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+			}
+
 			@Override
 			public void accept(MessageReactionAddEvent event) {
 				if (canInteract.test(event.getUser())) {
@@ -350,6 +362,10 @@ public class Pages {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
+			{
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+			}
+
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
@@ -422,6 +438,10 @@ public class Pages {
 			private String currCat = "";
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
+
+			{
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+			}
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
@@ -559,6 +579,10 @@ public class Pages {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
+			{
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+			}
+
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
 				if (timeout == null)
@@ -637,6 +661,10 @@ public class Pages {
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
+
+			{
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+			}
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {

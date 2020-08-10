@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.ygimenez</groupId>
-    <artifactId>PaginationUtils</artifactId>
-    <version>1.2.2</version>
+    <artifactId>Pagination-Utils</artifactId>
+    <version>1.2.3</version>
     <packaging>jar</packaging>
 
     <name>Pagination Utils</name>
     <description>A collection of methods to make message pagination with JDA easier.</description>
-    <url>https://github.com/ygimenez/PaginationUtils</url>
+    <url>https://github.com/ygimenez/Pagination-Utils</url>
 
     <developers>
         <developer>
@@ -20,9 +20,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/ygimenez/PaginationUtils</url>
-        <connection>scm:git:git@github.com:ygimenez/PaginationUtils.git</connection>
-        <developerConnection>scm:git:git@github.com:ygimenez/PaginationUtils.git</developerConnection>
+        <url>https://github.com/ygimenez/Pagination-Utils</url>
+        <connection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</connection>
+        <developerConnection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</developerConnection>
     </scm>
 
     <distributionManagement>
