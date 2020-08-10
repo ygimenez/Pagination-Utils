@@ -1,11 +1,11 @@
 [build]: https://github.com/ygimenez/PaginationUtils/tree/master
 [jitpack]: https://jitpack.io/#ygimenez/PaginationUtils
-[bintray]: https://bintray.com/ygimenez/maven/PaginationUtils/_latestVersion
+[bintray]: https://bintray.com/ygimenez/maven/Pagination-Utils/_latestVersion
 [license]: https://github.com/ygimenez/PaginationUtils/blob/master/LICENSE
 [issue]: https://github.com/ygimenez/PaginationUtils/issues
 [build-shield]: https://img.shields.io/github/workflow/status/ygimenez/PaginationUtils/Java%20CI?label=Build
 [jitpack-shield]: https://img.shields.io/badge/Download-Jitpack-success
-[bintray-shield]: https://api.bintray.com/packages/ygimenez/maven/PaginationUtils/images/download.svg
+[bintray-shield]: https://api.bintray.com/packages/ygimenez/maven/Pagination-Utils/images/download.svg
 [license-shield]: https://img.shields.io/github/license/ygimenez/PaginationUtils?color=lightgrey&label=License
 [issue-shield]: https://img.shields.io/github/issues/ygimenez/PaginationUtils?label=Issues
 [ ![bintray-shield][] ][bintray]
