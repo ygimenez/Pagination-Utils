@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class MessageHandler extends ListenerAdapter {
-	private Map<String, Consumer<MessageReactionAddEvent>> events = new HashMap<>();
+	private final Map<String, Consumer<MessageReactionAddEvent>> events = new HashMap<>();
 
 	public void addEvent(String id, Consumer<MessageReactionAddEvent> act) {
 		events.put(id, act);
@@ -26,7 +26,9 @@ public class MessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
-		if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()) && !Objects.requireNonNull(evt.getUser()).isBot())
+		if (!evt.isFromGuild() && events.containsKey(evt.getPrivateChannel().getUser().getId() + evt.getMessageId()))
+			events.get(evt.getPrivateChannel().getUser().getId() + evt.getMessageId()).accept(evt);
+		else if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()) && !Objects.requireNonNull(evt.getUser()).isBot())
 			events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
 	}
 
@@ -37,7 +39,16 @@ public class MessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent evt) {
-		if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
+		if (!evt.isFromGuild() && events.containsKey(evt.getPrivateChannel().getUser().getId() + evt.getMessageId()))
+			evt.getPrivateChannel().retrieveMessageById(evt.getMessageId()).queue(msg -> {
+				if (!msg.getReactions().contains(evt.getReaction())) {
+					if (evt.getReactionEmote().isEmoji())
+						msg.addReaction(evt.getReactionEmote().getAsCodepoints()).queue(null, Pages::doNothing);
+					else
+						msg.addReaction(evt.getReactionEmote().getEmote()).queue(null, Pages::doNothing);
+				}
+			}, Pages::doNothing);
+		else if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
 			evt.getChannel().retrieveMessageById(evt.getMessageId()).queue(msg -> {
 				if (!msg.getReactions().contains(evt.getReaction())) {
 					if (evt.getReactionEmote().isEmoji())
