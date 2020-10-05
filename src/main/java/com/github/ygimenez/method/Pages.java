@@ -712,6 +712,95 @@ public class Pages {
 		});
 	}
 
+	/**
+	 * Adds buttons to the specified Message/MessageEmbed, with each executing a
+	 * specific task on click. Each button's unicode must be unique, adding another
+	 * button with an existing unicode will overwrite the current button's Runnable.
+	 * You can specify the time in which the listener will automatically stop itself
+	 * after a no-activity interval.
+	 *
+	 * @param msg              The message sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a Map
+	 *                         containing emote unicodes as keys and BiConsumer<Member, Message> containing
+	 *                         desired behavior as value.
+	 * @param showCancelButton Should the cancel button be created automatically?
+	 * @param time             The time before the listener automatically stop listening for
+	 *                         further events. (Recommended: 60)
+	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
+	 * @param canInteract      Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
+	 * @param onCancel		   Action to be ran after the listener is removed
+	 * @throws ErrorResponseException Thrown if the message no longer exists or
+	 *                                cannot be acessed when triggering a
+	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 */
+	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, BiConsumer<Member, Message> onCancel) throws ErrorResponseException, PermissionException {
+		if (api == null) throw new InvalidStateException();
+
+		buttons.keySet().forEach(k -> {
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
+		});
+		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
+			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+			private Future<?> timeout;
+			private final Consumer<Void> success = s -> {
+				handler.removeEvent(msg);
+				if (onCancel != null) onCancel.accept(null, msg);
+			};
+
+			{
+				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+			}
+
+			@Override
+			public void accept(@Nonnull MessageReactionAddEvent event) {
+				if (canInteract.test(event.getUser())) {
+					if (timeout == null)
+						try {
+							timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+						} catch (PermissionException ignore) {
+						}
+
+					if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					try {
+						if (event.getReactionEmote().isEmoji())
+							buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+						else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+					} catch (NullPointerException ignore) {
+
+					}
+
+					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						try {
+							msg.clearReactions().queue(success, s -> {
+								msg.getReactions().forEach(r -> r.removeReaction().queue());
+								success.accept(null);
+							});
+						} catch (PermissionException e) {
+							msg.getReactions().forEach(r -> r.removeReaction().queue());
+							success.accept(null);
+						}
+					}
+
+					if (timeout != null) timeout.cancel(true);
+					try {
+						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+					} catch (PermissionException ignore) {
+					}
+					try {
+						event.getReaction().removeReaction(event.getUser()).complete();
+					} catch (PermissionException | ErrorResponseException ignore) {
+					}
+				}
+			}
+		});
+	}
+
 	private static void updatePage(Message msg, Page p) {
 		if (p == null) throw new EmptyPageCollectionException();
 		if (p.getType() == PageType.TEXT) {
