@@ -735,7 +735,7 @@ public class Pages {
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
 	 */
-	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, BiConsumer<Member, Message> onCancel) throws ErrorResponseException, PermissionException {
+	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, PermissionException {
 		if (api == null) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
@@ -748,7 +748,7 @@ public class Pages {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
-				if (onCancel != null) onCancel.accept(null, msg);
+				if (onCancel != null) onCancel.accept(msg);
 			};
 
 			{
