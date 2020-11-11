@@ -26,10 +26,17 @@
     </scm>
 
     <distributionManagement>
+        <!-->
         <repository>
             <id>github</id>
             <name>GitHub KuuHaKu Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/ygimenez/Pagination-Utils</url>
+        </repository>
+        <-->
+        <repository>
+            <id>bintray-ygimenez-maven</id>
+            <name>ygimenez-maven</name>
+            <url>https://api.bintray.com/maven/ygimenez/maven/Pagination-Utils/;publish=1</url>
         </repository>
     </distributionManagement>
 
@@ -79,4 +86,8 @@
             <version>f26d3b39be</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 </project>
