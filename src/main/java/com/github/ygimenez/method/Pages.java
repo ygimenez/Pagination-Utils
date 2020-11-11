@@ -1,7 +1,7 @@
 package com.github.ygimenez.method;
 
 import com.coder4.emoji.EmojiUtils;
-import com.github.ygimenez.exception.EmptyPageCollectionException;
+import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.Page;
@@ -57,7 +57,7 @@ public class Pages {
 	 *              further events. (Recommended: 60)
 	 * @param unit  The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
+	 *                                cannot be accessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
@@ -65,64 +65,160 @@ public class Pages {
 	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit) throws ErrorResponseException, PermissionException {
 		if (api == null) throw new InvalidStateException();
 
-		msg.addReaction(PREVIOUS.getCode()).queue();
-		msg.addReaction(CANCEL.getCode()).queue();
-		msg.addReaction(NEXT.getCode()).queue();
+		msg.addReaction(PREVIOUS.getCode()).submit();
+		msg.addReaction(CANCEL.getCode()).submit();
+		msg.addReaction(NEXT.getCode()).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private final int maxP = pages.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			{
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 			}
 
 			@Override
 			public void accept(MessageReactionAddEvent event) {
-				if (timeout == null)
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (timeout == null)
+						try {
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+						} catch (PermissionException ignore) {
+						}
+					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (timeout != null) timeout.cancel(true);
 					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+						timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 					} catch (PermissionException ignore) {
 					}
-				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
-					return;
+					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (p > 0) {
+							p--;
+							Page pg = pages.get(p);
 
-				if (timeout != null) timeout.cancel(true);
-				try {
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (PermissionException ignore) {
-				}
-				if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
-					if (p > 0) {
-						p--;
-						Page pg = pages.get(p);
+							updatePage(msg, pg);
+						}
+					} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						if (p < maxP) {
+							p++;
+							Page pg = pages.get(p);
 
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
-					if (p < maxP) {
-						p++;
-						Page pg = pages.get(p);
-
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					try {
-						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
+							updatePage(msg, pg);
+						}
+					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						try {
+							msg.clearReactions().submit()
+									.thenAccept(success)
+									.exceptionally(s -> {
+										msg.getReactions().forEach(r -> r.removeReaction().submit());
+										success.accept(null);
+										return null;
+									});
+						} catch (PermissionException e) {
+							msg.getReactions().forEach(r -> r.removeReaction().submit());
 							success.accept(null);
-						});
-					} catch (PermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction().queue());
-						success.accept(null);
+						}
 					}
-				}
-				try {
-					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException | ErrorResponseException ignore) {
-				}
+					try {
+						event.getReaction().removeReaction(u).submit();
+					} catch (PermissionException | ErrorResponseException ignore) {
+					}
+				});
+			}
+		});
+	}
+
+	/**
+	 * Adds navigation buttons to the specified Message/MessageEmbed which will
+	 * navigate through a given List of pages. You must specify how long the
+	 * listener will stay active before shutting down itself after a no-activity
+	 * interval.
+	 *
+	 * @param msg         The message sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the array will define the
+	 *                    order of the pages.
+	 * @param time        The time before the listener automatically stop listening for
+	 *                    further events. (Recommended: 60)
+	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
+	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
+	 * @throws ErrorResponseException Thrown if the message no longer exists or
+	 *                                cannot be accessed when triggering a
+	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 */
+	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+		if (api == null) throw new InvalidStateException();
+
+		msg.addReaction(PREVIOUS.getCode()).submit();
+		msg.addReaction(CANCEL.getCode()).submit();
+		msg.addReaction(NEXT.getCode()).submit();
+
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+			private final int maxP = pages.size() - 1;
+			private int p = 0;
+			private Future<?> timeout;
+			private final Consumer<Void> success = s -> handler.removeEvent(msg);
+
+			{
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+			}
+
+			@Override
+			public void accept(MessageReactionAddEvent event) {
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (canInteract.test(u)) {
+						if (timeout == null)
+							try {
+								timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+							} catch (PermissionException ignore) {
+							}
+						if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+							return;
+
+						if (timeout != null) timeout.cancel(true);
+						try {
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+						} catch (PermissionException ignore) {
+						}
+						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+							if (p > 0) {
+								p--;
+								Page pg = pages.get(p);
+
+								updatePage(msg, pg);
+							}
+						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+							if (p < maxP) {
+								p++;
+								Page pg = pages.get(p);
+
+								updatePage(msg, pg);
+							}
+						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+							try {
+								msg.clearReactions().submit()
+										.thenAccept(success)
+										.exceptionally(s -> {
+											msg.getReactions().forEach(r -> r.removeReaction().submit());
+											success.accept(null);
+											return null;
+										});
+							} catch (PermissionException e) {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+							}
+						}
+						try {
+							event.getReaction().removeReaction(u).submit();
+						} catch (PermissionException | ErrorResponseException ignore) {
+						}
+					}
+				});
 			}
 		});
 	}
@@ -141,7 +237,7 @@ public class Pages {
 	 * @param unit       The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 * @param skipAmount The amount of pages to be skipped when clicking SKIP buttons
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
+	 *                                cannot be accessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
@@ -149,137 +245,36 @@ public class Pages {
 	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, PermissionException {
 		if (api == null) throw new InvalidStateException();
 
-		msg.addReaction(SKIP_BACKWARD.getCode()).queue();
-		msg.addReaction(PREVIOUS.getCode()).queue();
-		msg.addReaction(CANCEL.getCode()).queue();
-		msg.addReaction(NEXT.getCode()).queue();
-		msg.addReaction(SKIP_FORWARD.getCode()).queue();
+		msg.addReaction(SKIP_BACKWARD.getCode()).submit();
+		msg.addReaction(PREVIOUS.getCode()).submit();
+		msg.addReaction(CANCEL.getCode()).submit();
+		msg.addReaction(NEXT.getCode()).submit();
+		msg.addReaction(SKIP_FORWARD.getCode()).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private final int maxP = pages.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			{
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 			}
 
 			@Override
 			public void accept(MessageReactionAddEvent event) {
-				if (timeout == null)
-					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (PermissionException ignore) {
-					}
-				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
-					return;
-
-				if (timeout != null) timeout.cancel(true);
-				try {
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (PermissionException ignore) {
-				}
-				if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
-					if (p > 0) {
-						p--;
-						Page pg = pages.get(p);
-
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
-					if (p < maxP) {
-						p++;
-						Page pg = pages.get(p);
-
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
-					if (p > 0) {
-						p -= (p - skipAmount < 0 ? p : skipAmount);
-						Page pg = pages.get(p);
-
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
-					if (p < maxP) {
-						p += (p + skipAmount > maxP ? maxP - p : skipAmount);
-						Page pg = pages.get(p);
-
-						updatePage(msg, pg);
-					}
-				} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
-					try {
-						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
-							success.accept(null);
-						});
-					} catch (PermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction().queue());
-						success.accept(null);
-					}
-				}
-				try {
-					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException | ErrorResponseException ignore) {
-				}
-			}
-		});
-	}
-
-	/**
-	 * Adds navigation buttons to the specified Message/MessageEmbed which will
-	 * navigate through a given List of pages. You must specify how long the
-	 * listener will stay active before shutting down itself after a no-activity
-	 * interval.
-	 *
-	 * @param msg         The message sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the array will define the
-	 *                    order of the pages.
-	 * @param time        The time before the listener automatically stop listening for
-	 *                    further events. (Recommended: 60)
-	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param skipAmount  The amount of pages to be skipped when clicking SKIP buttons
-	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
-	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
-
-		msg.addReaction(SKIP_BACKWARD.getCode()).queue();
-		msg.addReaction(PREVIOUS.getCode()).queue();
-		msg.addReaction(CANCEL.getCode()).queue();
-		msg.addReaction(NEXT.getCode()).queue();
-		msg.addReaction(SKIP_FORWARD.getCode()).queue();
-
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
-			private final int maxP = pages.size() - 1;
-			private int p = 0;
-			private Future<?> timeout;
-			private final Consumer<Void> success = s -> handler.removeEvent(msg);
-
-			{
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-			}
-
-			@Override
-			public void accept(MessageReactionAddEvent event) {
-				if (canInteract.test(event.getUser())) {
+				event.retrieveUser().submit().thenAccept(u -> {
 					if (timeout == null)
 						try {
-							timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
 						}
-					if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
+					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (timeout != null) timeout.cancel(true);
 					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+						timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 					} catch (PermissionException ignore) {
 					}
 					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
@@ -312,20 +307,131 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
-							msg.clearReactions().queue(success, s -> {
-								msg.getReactions().forEach(r -> r.removeReaction().queue());
-								success.accept(null);
-							});
+							msg.clearReactions().submit()
+									.thenAccept(success)
+									.exceptionally(s -> {
+										msg.getReactions().forEach(r -> r.removeReaction().submit());
+										success.accept(null);
+										return null;
+									});
 						} catch (PermissionException e) {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
+							msg.getReactions().forEach(r -> r.removeReaction().submit());
 							success.accept(null);
 						}
 					}
 					try {
-						event.getReaction().removeReaction(event.getUser()).complete();
+						event.getReaction().removeReaction(u).submit();
 					} catch (PermissionException | ErrorResponseException ignore) {
 					}
-				}
+				});
+			}
+		});
+	}
+
+	/**
+	 * Adds navigation buttons to the specified Message/MessageEmbed which will
+	 * navigate through a given List of pages. You must specify how long the
+	 * listener will stay active before shutting down itself after a no-activity
+	 * interval.
+	 *
+	 * @param msg         The message sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the array will define the
+	 *                    order of the pages.
+	 * @param time        The time before the listener automatically stop listening for
+	 *                    further events. (Recommended: 60)
+	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
+	 * @param skipAmount  The amount of pages to be skipped when clicking SKIP buttons
+	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
+	 * @throws ErrorResponseException Thrown if the message no longer exists or
+	 *                                cannot be accessed when triggering a
+	 *                                GenericMessageReactionEvent
+	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 */
+	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+		if (api == null) throw new InvalidStateException();
+
+		msg.addReaction(SKIP_BACKWARD.getCode()).submit();
+		msg.addReaction(PREVIOUS.getCode()).submit();
+		msg.addReaction(CANCEL.getCode()).submit();
+		msg.addReaction(NEXT.getCode()).submit();
+		msg.addReaction(SKIP_FORWARD.getCode()).submit();
+
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+			private final int maxP = pages.size() - 1;
+			private int p = 0;
+			private Future<?> timeout;
+			private final Consumer<Void> success = s -> handler.removeEvent(msg);
+
+			{
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+			}
+
+			@Override
+			public void accept(MessageReactionAddEvent event) {
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (canInteract.test(u)) {
+						if (timeout == null)
+							try {
+								timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+							} catch (PermissionException ignore) {
+							}
+						if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+							return;
+
+						if (timeout != null) timeout.cancel(true);
+						try {
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+						} catch (PermissionException ignore) {
+						}
+						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+							if (p > 0) {
+								p--;
+								Page pg = pages.get(p);
+
+								updatePage(msg, pg);
+							}
+						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+							if (p < maxP) {
+								p++;
+								Page pg = pages.get(p);
+
+								updatePage(msg, pg);
+							}
+						} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+							if (p > 0) {
+								p -= (p - skipAmount < 0 ? p : skipAmount);
+								Page pg = pages.get(p);
+
+								updatePage(msg, pg);
+							}
+						} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+							if (p < maxP) {
+								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+								Page pg = pages.get(p);
+
+								updatePage(msg, pg);
+							}
+						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+							try {
+								msg.clearReactions().submit()
+										.thenAccept(success)
+										.exceptionally(s -> {
+											msg.getReactions().forEach(r -> r.removeReaction().submit());
+											success.accept(null);
+											return null;
+										});
+							} catch (PermissionException e) {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+							}
+						}
+						try {
+							event.getReaction().removeReaction(u).submit();
+						} catch (PermissionException | ErrorResponseException ignore) {
+						}
+					}
+				});
 			}
 		});
 	}
@@ -344,7 +450,7 @@ public class Pages {
 	 *                   for further events. (Recommended: 60)
 	 * @param unit       The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
+	 *                                cannot be accessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
@@ -353,55 +459,60 @@ public class Pages {
 		if (api == null) throw new InvalidStateException();
 
 		categories.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
 		});
-		msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+		msg.addReaction(CANCEL.getCode()).submit();
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private String currCat = "";
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			{
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 			}
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
-				if (timeout == null)
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (timeout == null)
+						try {
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+						} catch (PermissionException ignore) {
+						}
+
+					if (Objects.requireNonNull(u).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
+						return;
+					else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						try {
+							msg.clearReactions().submit()
+									.thenAccept(success)
+									.exceptionally(s -> {
+										msg.getReactions().forEach(r -> r.removeReaction().submit());
+										success.accept(null);
+										return null;
+									});
+						} catch (PermissionException e) {
+							msg.getReactions().forEach(r -> r.removeReaction().submit());
+							success.accept(null);
+						}
+						return;
+					}
+
+					if (timeout != null) timeout.cancel(true);
 					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+						timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 					} catch (PermissionException ignore) {
 					}
 
-				if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
-					return;
-				else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
+
+					currCat = updateCategory(event, msg, pg);
 					try {
-						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
-							success.accept(null);
-						});
-					} catch (PermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction().queue());
-						success.accept(null);
+						event.getReaction().removeReaction(u).submit();
+					} catch (PermissionException | ErrorResponseException ignore) {
 					}
-					return;
-				}
-
-				if (timeout != null) timeout.cancel(true);
-				try {
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (PermissionException ignore) {
-				}
-
-				Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
-
-				currCat = updateCategory(event, msg, pg);
-				try {
-					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException | ErrorResponseException ignore) {
-				}
+				});
 			}
 		});
 	}
@@ -421,7 +532,7 @@ public class Pages {
 	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
+	 *                                cannot be accessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
@@ -430,57 +541,62 @@ public class Pages {
 		if (api == null) throw new InvalidStateException();
 
 		categories.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
 		});
-		msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+		msg.addReaction(CANCEL.getCode()).submit();
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private String currCat = "";
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			{
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 			}
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
-				if (canInteract.test(event.getUser())) {
-					if (timeout == null)
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (canInteract.test(u)) {
+						if (timeout == null)
+							try {
+								timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+							} catch (PermissionException ignore) {
+							}
+
+						if (Objects.requireNonNull(u).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
+							return;
+						else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+							try {
+								msg.clearReactions().submit()
+										.thenAccept(success)
+										.exceptionally(s -> {
+											msg.getReactions().forEach(r -> r.removeReaction().submit());
+											success.accept(null);
+											return null;
+										});
+							} catch (PermissionException e) {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+							}
+							return;
+						}
+
+						if (timeout != null) timeout.cancel(true);
 						try {
-							timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
 						}
 
-					if (Objects.requireNonNull(event.getUser()).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
-						return;
-					else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
+
+						currCat = updateCategory(event, msg, pg);
 						try {
-							msg.clearReactions().queue(success, s -> {
-								msg.getReactions().forEach(r -> r.removeReaction().queue());
-								success.accept(null);
-							});
-						} catch (PermissionException e) {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
-							success.accept(null);
+							event.getReaction().removeReaction(u).submit();
+						} catch (PermissionException | ErrorResponseException ignore) {
 						}
-						return;
 					}
-
-					if (timeout != null) timeout.cancel(true);
-					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (PermissionException ignore) {
-					}
-
-					Page pg = categories.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
-
-					currCat = updateCategory(event, msg, pg);
-					try {
-						event.getReaction().removeReaction(event.getUser()).complete();
-					} catch (PermissionException | ErrorResponseException ignore) {
-					}
-				}
+				});
 			}
 		});
 	}
@@ -496,7 +612,7 @@ public class Pages {
 	 *                         desired behavior as value.
 	 * @param showCancelButton Should the cancel button be created automatically?
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
+	 *                                cannot be accessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
@@ -505,42 +621,47 @@ public class Pages {
 		if (api == null) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+			msg.addReaction(CANCEL.getCode()).submit();
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
-				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
-					return;
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+						return;
 
-				try {
-					if (event.getReactionEmote().isEmoji())
-						buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
-				} catch (NullPointerException ignore) {
-				}
-
-				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
-						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
-							success.accept(null);
-						});
-					} catch (PermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction().queue());
-						success.accept(null);
+						if (event.getReactionEmote().isEmoji())
+							buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+						else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+					} catch (NullPointerException ignore) {
 					}
-				}
 
-				try {
-					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException | ErrorResponseException ignore) {
-				}
+					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						try {
+							msg.clearReactions().submit()
+									.thenAccept(success)
+									.exceptionally(s -> {
+										msg.getReactions().forEach(r -> r.removeReaction().submit());
+										success.accept(null);
+										return null;
+									});
+						} catch (PermissionException e) {
+							msg.getReactions().forEach(r -> r.removeReaction().submit());
+							success.accept(null);
+						}
+					}
+
+					try {
+						event.getReaction().removeReaction(u).submit();
+					} catch (PermissionException | ErrorResponseException ignore) {
+					}
+				});
 			}
 		});
 	}
@@ -561,7 +682,7 @@ public class Pages {
 	 *                         further events. (Recommended: 60)
 	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
+	 *                                cannot be accessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
@@ -570,59 +691,64 @@ public class Pages {
 		if (api == null) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+			msg.addReaction(CANCEL.getCode()).submit();
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			{
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 			}
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
-				if (timeout == null)
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (timeout == null)
+						try {
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+						} catch (PermissionException ignore) {
+						}
+
+					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+						return;
+
 					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+						if (event.getReactionEmote().isEmoji())
+							buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+						else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+					} catch (NullPointerException ignore) {
+
+					}
+
+					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						try {
+							msg.clearReactions().submit()
+									.thenAccept(success)
+									.exceptionally(s -> {
+										msg.getReactions().forEach(r -> r.removeReaction().submit());
+										success.accept(null);
+										return null;
+									});
+						} catch (PermissionException e) {
+							msg.getReactions().forEach(r -> r.removeReaction().submit());
+							success.accept(null);
+						}
+					}
+
+					if (timeout != null) timeout.cancel(true);
+					try {
+						timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 					} catch (PermissionException ignore) {
 					}
-
-				if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
-					return;
-
-				try {
-					if (event.getReactionEmote().isEmoji())
-						buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-					else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
-				} catch (NullPointerException ignore) {
-
-				}
-
-				if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 					try {
-						msg.clearReactions().queue(success, s -> {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
-							success.accept(null);
-						});
-					} catch (PermissionException e) {
-						msg.getReactions().forEach(r -> r.removeReaction().queue());
-						success.accept(null);
+						event.getReaction().removeReaction(u).submit();
+					} catch (PermissionException | ErrorResponseException ignore) {
 					}
-				}
-
-				if (timeout != null) timeout.cancel(true);
-				try {
-					timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-				} catch (PermissionException ignore) {
-				}
-				try {
-					event.getReaction().removeReaction(event.getUser()).complete();
-				} catch (PermissionException | ErrorResponseException ignore) {
-				}
+				});
 			}
 		});
 	}
@@ -644,7 +770,7 @@ public class Pages {
 	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 * @param canInteract      Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
+	 *                                cannot be accessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
@@ -653,61 +779,66 @@ public class Pages {
 		if (api == null) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+			msg.addReaction(CANCEL.getCode()).submit();
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			{
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 			}
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
-				if (canInteract.test(event.getUser())) {
-					if (timeout == null)
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (canInteract.test(u)) {
+						if (timeout == null)
+							try {
+								timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+							} catch (PermissionException ignore) {
+							}
+
+						if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+							return;
+
 						try {
-							timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+							if (event.getReactionEmote().isEmoji())
+								buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+							else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+						} catch (NullPointerException ignore) {
+
+						}
+
+						if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+							try {
+								msg.clearReactions().submit()
+										.thenAccept(success)
+										.exceptionally(s -> {
+											msg.getReactions().forEach(r -> r.removeReaction().submit());
+											success.accept(null);
+											return null;
+										});
+							} catch (PermissionException e) {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+							}
+						}
+
+						if (timeout != null) timeout.cancel(true);
+						try {
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
 						}
-
-					if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					try {
-						if (event.getReactionEmote().isEmoji())
-							buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-						else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
-					} catch (NullPointerException ignore) {
-
-					}
-
-					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
-							msg.clearReactions().queue(success, s -> {
-								msg.getReactions().forEach(r -> r.removeReaction().queue());
-								success.accept(null);
-							});
-						} catch (PermissionException e) {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
-							success.accept(null);
+							event.getReaction().removeReaction(u).submit();
+						} catch (PermissionException | ErrorResponseException ignore) {
 						}
 					}
-
-					if (timeout != null) timeout.cancel(true);
-					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (PermissionException ignore) {
-					}
-					try {
-						event.getReaction().removeReaction(event.getUser()).complete();
-					} catch (PermissionException | ErrorResponseException ignore) {
-					}
-				}
+				});
 			}
 		});
 	}
@@ -728,9 +859,9 @@ public class Pages {
 	 *                         further events. (Recommended: 60)
 	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
 	 * @param canInteract      Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
-	 * @param onCancel		   Action to be ran after the listener is removed
+	 * @param onCancel         Action to be ran after the listener is removed
 	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be acessed when triggering a
+	 *                                cannot be accessed when triggering a
 	 *                                GenericMessageReactionEvent
 	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
@@ -739,12 +870,12 @@ public class Pages {
 		if (api == null) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).queue(null, Pages::doNothing);
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).queue(null, Pages::doNothing);
+			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
+			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).queue(null, Pages::doNothing);
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
+			msg.addReaction(CANCEL.getCode()).submit();
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
@@ -752,81 +883,83 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 			}
 
 			@Override
 			public void accept(@Nonnull MessageReactionAddEvent event) {
-				if (canInteract.test(event.getUser())) {
-					if (timeout == null)
+				event.retrieveUser().submit().thenAccept(u -> {
+					if (canInteract.test(u)) {
+						if (timeout == null)
+							try {
+								timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+							} catch (PermissionException ignore) {
+							}
+
+						if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+							return;
+
 						try {
-							timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
+							if (event.getReactionEmote().isEmoji())
+								buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+							else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+						} catch (NullPointerException ignore) {
+
+						}
+
+						if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+							try {
+								msg.clearReactions().submit()
+										.thenAccept(success)
+										.exceptionally(s -> {
+											msg.getReactions().forEach(r -> r.removeReaction().submit());
+											success.accept(null);
+											return null;
+										});
+							} catch (PermissionException e) {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+							}
+						}
+
+						if (timeout != null) timeout.cancel(true);
+						try {
+							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
 						}
-
-					if (Objects.requireNonNull(event.getUser()).isBot() || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					try {
-						if (event.getReactionEmote().isEmoji())
-							buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-						else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
-					} catch (NullPointerException ignore) {
-
-					}
-
-					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
-							msg.clearReactions().queue(success, s -> {
-								msg.getReactions().forEach(r -> r.removeReaction().queue());
-								success.accept(null);
-							});
-						} catch (PermissionException e) {
-							msg.getReactions().forEach(r -> r.removeReaction().queue());
-							success.accept(null);
+							event.getReaction().removeReaction(u).submit();
+						} catch (PermissionException | ErrorResponseException ignore) {
 						}
 					}
-
-					if (timeout != null) timeout.cancel(true);
-					try {
-						timeout = msg.clearReactions().queueAfter(time, unit, success, Pages::doNothing);
-					} catch (PermissionException ignore) {
-					}
-					try {
-						event.getReaction().removeReaction(event.getUser()).complete();
-					} catch (PermissionException | ErrorResponseException ignore) {
-					}
-				}
+				});
 			}
 		});
 	}
 
 	private static void updatePage(Message msg, Page p) {
-		if (p == null) throw new EmptyPageCollectionException();
+		if (p == null) throw new NullPageException();
 		if (p.getType() == PageType.TEXT) {
-			msg.editMessage((Message) p.getContent()).queue(null, Pages::doNothing);
+			msg.editMessage((Message) p.getContent()).submit();
 		} else {
-			msg.editMessage((MessageEmbed) p.getContent()).queue(null, Pages::doNothing);
+			msg.editMessage((MessageEmbed) p.getContent()).submit();
 		}
 	}
 
 	private static String updateCategory(GenericMessageReactionEvent event, Message msg, Page p) {
 		AtomicReference<String> out = new AtomicReference<>("");
-		if (p == null) throw new EmptyPageCollectionException();
+		if (p == null) throw new NullPageException();
 
 		if (p.getType() == PageType.TEXT) {
-			msg.editMessage((Message) p.getContent()).queue(s -> out.set(event.getReactionEmote().getName()));
+			msg.editMessage((Message) p.getContent())
+					.submit()
+					.thenAccept(s -> out.set(event.getReactionEmote().getName()));
 		} else {
-			msg.editMessage((MessageEmbed) p.getContent()).queue(s -> out.set(event.getReactionEmote().getName()));
+			msg.editMessage((MessageEmbed) p.getContent())
+					.submit()
+					.thenAccept(s -> out.set(event.getReactionEmote().getName()));
 		}
 
 		return out.get();
-	}
-
-	public static void doNothing(Throwable t) {
-		try {
-			throw t;
-		} catch (Throwable ignore) {
-		}
 	}
 }

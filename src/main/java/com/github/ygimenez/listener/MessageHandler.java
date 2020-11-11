@@ -1,6 +1,5 @@
 package com.github.ygimenez.listener;
 
-import com.github.ygimenez.method.Pages;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -10,7 +9,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class MessageHandler extends ListenerAdapter {
@@ -21,41 +19,71 @@ public class MessageHandler extends ListenerAdapter {
 	}
 
 	public void removeEvent(Message msg) {
-		events.remove((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getUser().getId()) + msg.getId());
+		switch (msg.getChannelType()) {
+			case TEXT:
+				events.remove(msg.getGuild().getId() + msg.getId());
+				break;
+			case PRIVATE:
+				events.remove(msg.getPrivateChannel().getId() + msg.getId());
+				break;
+		}
 	}
 
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
-		if (!evt.isFromGuild() && events.containsKey(evt.getPrivateChannel().getUser().getId() + evt.getMessageId()))
-			events.get(evt.getPrivateChannel().getUser().getId() + evt.getMessageId()).accept(evt);
-		else if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()) && !Objects.requireNonNull(evt.getUser()).isBot())
-			events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
+		evt.retrieveUser().submit().thenAccept(u -> {
+			if (!u.isBot()) {
+				switch (evt.getChannelType()) {
+					case TEXT:
+						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
+							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
+						break;
+					case PRIVATE:
+						if (events.containsKey(u.getId() + evt.getMessageId()))
+							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
+						break;
+				}
+			}
+		});
 	}
 
 	@Override
 	public void onMessageDelete(@Nonnull MessageDeleteEvent evt) {
-		events.remove((evt.getChannelType().isGuild() ? evt.getGuild().getId() : evt.getPrivateChannel().getUser().getId()) + evt.getMessageId());
+		switch (evt.getChannelType()) {
+			case TEXT:
+				events.remove(evt.getGuild().getId() + evt.getMessageId());
+				break;
+			case PRIVATE:
+				events.remove(evt.getPrivateChannel().getId() + evt.getMessageId());
+				break;
+		}
 	}
 
 	@Override
 	public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent evt) {
-		if (!evt.isFromGuild() && events.containsKey(evt.getPrivateChannel().getUser().getId() + evt.getMessageId()))
-			evt.getPrivateChannel().retrieveMessageById(evt.getMessageId()).queue(msg -> {
-				if (!msg.getReactions().contains(evt.getReaction())) {
-					if (evt.getReactionEmote().isEmoji())
-						msg.addReaction(evt.getReactionEmote().getAsCodepoints()).queue(null, Pages::doNothing);
-					else
-						msg.addReaction(evt.getReactionEmote().getEmote()).queue(null, Pages::doNothing);
-				}
-			}, Pages::doNothing);
-		else if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
-			evt.getChannel().retrieveMessageById(evt.getMessageId()).queue(msg -> {
-				if (!msg.getReactions().contains(evt.getReaction())) {
-					if (evt.getReactionEmote().isEmoji())
-						msg.addReaction(evt.getReactionEmote().getAsCodepoints()).queue(null, Pages::doNothing);
-					else
-						msg.addReaction(evt.getReactionEmote().getEmote()).queue(null, Pages::doNothing);
-				}
-			}, Pages::doNothing);
+		evt.retrieveUser().submit().thenAccept(u -> {
+			if (!u.isBot()) {
+				evt.getPrivateChannel().retrieveMessageById(evt.getMessageId()).submit().thenAccept(msg -> {
+					switch (evt.getChannelType()) {
+						case TEXT:
+							if (events.containsKey(evt.getGuild().getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
+								if (evt.getReactionEmote().isEmoji())
+									msg.addReaction(evt.getReactionEmote().getAsCodepoints()).submit();
+								else
+									msg.addReaction(evt.getReactionEmote().getEmote()).submit();
+							}
+							break;
+						case PRIVATE:
+							if (events.containsKey(u.getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
+								if (evt.getReactionEmote().isEmoji())
+									msg.addReaction(evt.getReactionEmote().getAsCodepoints()).submit();
+								else
+									msg.addReaction(evt.getReactionEmote().getEmote()).submit();
+							}
+							break;
+					}
+				});
+			}
+		});
 	}
 }
