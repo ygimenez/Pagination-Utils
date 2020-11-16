@@ -1,0 +1,12 @@
+name: Deployment Action
+on: [push]
+# You may pin to the exact commit or the version.
+# uses: chrnorm/deployment-action@0a0479c8ab41cd336ddc266342ca0a1c54727a72
+jobs:
+  deploy:
+    name: Deployer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: chrnorm/deployment-action@v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
