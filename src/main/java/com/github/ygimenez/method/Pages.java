@@ -41,7 +41,7 @@ public class Pages {
 	 * <br>
 	 * Before calling this method again, you must use {@link #deactivate(JDA)} to
 	 * remove current handler, else this method will throw
-	 * {@link InvalidStateException}.
+	 * {@link AlreadyActivatedException}.
 	 *
 	 * @param api The bot's {@link JDA} object.
 	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
@@ -73,7 +73,7 @@ public class Pages {
 	 * <br>
 	 * Before calling this method again, you must use
 	 * {@link #deactivate(ShardManager)} to remove current handler, else this method
-	 * will throw {@link InvalidStateException}.
+	 * will throw {@link AlreadyActivatedException}.
 	 *
 	 * @param manager The bot's {@link ShardManager} object.
 	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
