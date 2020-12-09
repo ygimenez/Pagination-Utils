@@ -1,6 +1,7 @@
 package com.github.ygimenez.method;
 
 import com.coder4.emoji.EmojiUtils;
+import com.github.ygimenez.exception.AlreadyActivatedException;
 import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.listener.MessageHandler;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -30,40 +32,97 @@ import java.util.function.Predicate;
 import static com.github.ygimenez.type.Emote.*;
 
 public class Pages {
-	public static JDA api;
 	public static MessageHandler handler = new MessageHandler();
+	public static boolean activated;
 
 	/**
-	 * Sets a JDA object to be used as incoming reactions handler. This is required only once unless you want to use
-	 * another client as the handler.
+	 * Sets a {@link JDA} object to be used as incoming reactions handler. This is
+	 * required only once unless you want to use another client as the handler. <br>
+	 * <br>
+	 * Before calling this method again, you must use {@link #deactivate(JDA)} to
+	 * remove current handler, else this method will throw
+	 * {@link InvalidStateException}.
 	 *
-	 * @param api The bot's client object.
+	 * @param api The bot's {@link JDA} object.
+	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
 	 */
 	public static void activate(JDA api) {
-		Pages.api = api;
+		if (activated) throw new AlreadyActivatedException();
 		api.addEventListener(handler);
+		activated = true;
 	}
 
 	/**
-	 * Adds navigation buttons to the specified Message/MessageEmbed which will
-	 * navigate through a given List of pages. You must specify how long the
-	 * listener will stay active before shutting down itself after a no-activity
-	 * interval.
+	 * Remove current button handler, allowing another {@link #activate(JDA)} call.
 	 *
-	 * @param msg   The message sent which will be paginated.
-	 * @param pages The pages to be shown. The order of the array will define the
-	 *              order of the pages.
+	 * @param api The {@link JDA} object which is currently handling buttons.
+	 *            Calling this method without having a handler currently set will do
+	 *            nothing.
+	 */
+	public static void deactivate(JDA api) {
+		if (!activated)
+			return;
+		api.removeEventListener(handler);
+		activated = false;
+	}
+
+	/**
+	 * Sets a {@link ShardManager} object to be used as incoming reactions handler.
+	 * This is only required once unless you want to use another manager as the
+	 * handler. <br>
+	 * <br>
+	 * Before calling this method again, you must use
+	 * {@link #deactivate(ShardManager)} to remove current handler, else this method
+	 * will throw {@link InvalidStateException}.
+	 *
+	 * @param manager The bot's {@link ShardManager} object.
+	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
+	 */
+	public static void activate(ShardManager manager) {
+		if (activated) throw new AlreadyActivatedException();
+		manager.addEventListener(handler);
+		activated = true;
+	}
+
+	/**
+	 * Remove current button handler, allowing another
+	 * {@link #activate(ShardManager)} call. Calling this method without having a
+	 * handler currently set will do nothing.
+	 *
+	 * @param manager The {@link ShardManager} object which is currently handling
+	 *                buttons.
+	 */
+	public static void deactivate(ShardManager manager) {
+		if (!activated)
+			return;
+		manager.removeEventListener(handler);
+		activated = false;
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You must specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg   The {@link Message} sent which will be paginated.
+	 * @param pages The pages to be shown. The order of the {@link List} will define
+	 *              the order of the pages.
 	 * @param time  The time before the listener automatically stop listening for
-	 *              further events. (Recommended: 60)
-	 * @param unit  The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 *              further events (recommended: 60).
+	 * @param unit  The time's {@link TimeUnit} (recommended:
+	 *              {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}
 	 */
 	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		msg.addReaction(PREVIOUS.getCode()).submit();
 		msg.addReaction(CANCEL.getCode()).submit();
@@ -90,7 +149,8 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (timeout != null) timeout.cancel(true);
+					if (timeout != null)
+						timeout.cancel(true);
 					try {
 						timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 					} catch (PermissionException ignore) {
@@ -111,13 +171,11 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
-							msg.clearReactions().submit()
-									.thenAccept(success)
-									.exceptionally(s -> {
-										msg.getReactions().forEach(r -> r.removeReaction().submit());
-										success.accept(null);
-										return null;
-									});
+							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+								return null;
+							});
 						} catch (PermissionException e) {
 							msg.getReactions().forEach(r -> r.removeReaction().submit());
 							success.accept(null);
@@ -133,26 +191,31 @@ public class Pages {
 	}
 
 	/**
-	 * Adds navigation buttons to the specified Message/MessageEmbed which will
-	 * navigate through a given List of pages. You must specify how long the
-	 * listener will stay active before shutting down itself after a no-activity
-	 * interval.
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You must specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
 	 *
-	 * @param msg         The message sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the array will define the
-	 *                    order of the pages.
-	 * @param time        The time before the listener automatically stop listening for
-	 *                    further events. (Recommended: 60)
-	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission.
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}.
 	 */
 	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		msg.addReaction(PREVIOUS.getCode()).submit();
 		msg.addReaction(CANCEL.getCode()).submit();
@@ -180,7 +243,8 @@ public class Pages {
 						if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (timeout != null) timeout.cancel(true);
+						if (timeout != null)
+							timeout.cancel(true);
 						try {
 							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
@@ -201,13 +265,11 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 							try {
-								msg.clearReactions().submit()
-										.thenAccept(success)
-										.exceptionally(s -> {
-											msg.getReactions().forEach(r -> r.removeReaction().submit());
-											success.accept(null);
-											return null;
-										});
+								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+									msg.getReactions().forEach(r -> r.removeReaction().submit());
+									success.accept(null);
+									return null;
+								});
 							} catch (PermissionException e) {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
 								success.accept(null);
@@ -224,26 +286,31 @@ public class Pages {
 	}
 
 	/**
-	 * Adds navigation buttons to the specified Message/MessageEmbed which will
-	 * navigate through a given List of pages. You must specify how long the
-	 * listener will stay active before shutting down itself after a no-activity
-	 * interval.
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You must specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
 	 *
-	 * @param msg        The message sent which will be paginated.
-	 * @param pages      The pages to be shown. The order of the array will define the
-	 *                   order of the pages.
-	 * @param time       The time before the listener automatically stop listening for
-	 *                   further events. (Recommended: 60)
-	 * @param unit       The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param skipAmount The amount of pages to be skipped when clicking SKIP buttons
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pages      The pages to be shown. The order of the {@link List} will
+	 *                   define the order of the pages.
+	 * @param time       The time before the listener automatically stop listening
+	 *                   for further events (recommended: 60).
+	 * @param unit       The time's {@link TimeUnit} (recommended:
+	 *                   {@link TimeUnit#SECONDS}).
+	 * @param skipAmount The amount of pages to be skipped when clicking SKIP
+	 *                   buttons.
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}
 	 */
 	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		msg.addReaction(SKIP_BACKWARD.getCode()).submit();
 		msg.addReaction(PREVIOUS.getCode()).submit();
@@ -272,7 +339,8 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (timeout != null) timeout.cancel(true);
+					if (timeout != null)
+						timeout.cancel(true);
 					try {
 						timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 					} catch (PermissionException ignore) {
@@ -307,13 +375,11 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
-							msg.clearReactions().submit()
-									.thenAccept(success)
-									.exceptionally(s -> {
-										msg.getReactions().forEach(r -> r.removeReaction().submit());
-										success.accept(null);
-										return null;
-									});
+							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+								return null;
+							});
 						} catch (PermissionException e) {
 							msg.getReactions().forEach(r -> r.removeReaction().submit());
 							success.accept(null);
@@ -329,27 +395,33 @@ public class Pages {
 	}
 
 	/**
-	 * Adds navigation buttons to the specified Message/MessageEmbed which will
-	 * navigate through a given List of pages. You must specify how long the
-	 * listener will stay active before shutting down itself after a no-activity
-	 * interval.
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You must specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
 	 *
-	 * @param msg         The message sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the array will define the
-	 *                    order of the pages.
-	 * @param time        The time before the listener automatically stop listening for
-	 *                    further events. (Recommended: 60)
-	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param skipAmount  The amount of pages to be skipped when clicking SKIP buttons
-	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param skipAmount  The amount of pages to be skipped when clicking SKIP
+	 *                    buttons.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}
 	 */
 	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		msg.addReaction(SKIP_BACKWARD.getCode()).submit();
 		msg.addReaction(PREVIOUS.getCode()).submit();
@@ -379,7 +451,8 @@ public class Pages {
 						if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (timeout != null) timeout.cancel(true);
+						if (timeout != null)
+							timeout.cancel(true);
 						try {
 							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
@@ -414,13 +487,11 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 							try {
-								msg.clearReactions().submit()
-										.thenAccept(success)
-										.exceptionally(s -> {
-											msg.getReactions().forEach(r -> r.removeReaction().submit());
-											success.accept(null);
-											return null;
-										});
+								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+									msg.getReactions().forEach(r -> r.removeReaction().submit());
+									success.accept(null);
+									return null;
+								});
 							} catch (PermissionException e) {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
 								success.accept(null);
@@ -437,30 +508,38 @@ public class Pages {
 	}
 
 	/**
-	 * Adds menu-like buttons to the specified Message/MessageEmbed which will
-	 * browse through a given Map of pages. You may specify one Page per button,
-	 * adding another button with an existing unicode will overwrite the current
-	 * button's Page. You must specify how long the listener will stay active before
-	 * shutting down itself after a no-activity interval.
+	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will browse through a given {@link Map} of pages. You may only specify
+	 * one {@link Page} per button, adding another button with an existing unicode
+	 * will overwrite the current button's {@link Page}. You must specify how long
+	 * the listener will stay active before shutting down itself after a no-activity
+	 * interval.
 	 *
-	 * @param msg        The message sent which will be categorized.
+	 * @param msg        The {@link Message} sent which will be categorized.
 	 * @param categories The categories to be shown. The categories are defined by a
-	 *                   Map containing emote unicodes as keys and Pages as values.
+	 *                   {@link Map} containing emote unicodes as keys and
+	 *                   {@link Pages} as values.
 	 * @param time       The time before the listener automatically stop listening
-	 *                   for further events. (Recommended: 60)
-	 * @param unit       The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 *                   for further events (recommended: 60).
+	 * @param unit       The time's {@link TimeUnit} (recommended:
+	 *                   {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}
 	 */
 	public static void categorize(Message msg, Map<String, Page> categories, int time, TimeUnit unit) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		categories.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else
+				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		msg.addReaction(CANCEL.getCode()).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
@@ -485,13 +564,11 @@ public class Pages {
 						return;
 					else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
-							msg.clearReactions().submit()
-									.thenAccept(success)
-									.exceptionally(s -> {
-										msg.getReactions().forEach(r -> r.removeReaction().submit());
-										success.accept(null);
-										return null;
-									});
+							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+								return null;
+							});
 						} catch (PermissionException e) {
 							msg.getReactions().forEach(r -> r.removeReaction().submit());
 							success.accept(null);
@@ -499,7 +576,8 @@ public class Pages {
 						return;
 					}
 
-					if (timeout != null) timeout.cancel(true);
+					if (timeout != null)
+						timeout.cancel(true);
 					try {
 						timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 					} catch (PermissionException ignore) {
@@ -518,31 +596,40 @@ public class Pages {
 	}
 
 	/**
-	 * Adds menu-like buttons to the specified Message/MessageEmbed which will
-	 * browse through a given Map of pages. You may specify one Page per button,
-	 * adding another button with an existing unicode will overwrite the current
-	 * button's Page. You must specify how long the listener will stay active before
-	 * shutting down itself after a no-activity interval.
+	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will browse through a given {@link Map} of pages. You may only specify
+	 * one {@link Page} per button, adding another button with an existing unicode
+	 * will overwrite the current button's {@link Page}. You must specify how long
+	 * the listener will stay active before shutting down itself after a no-activity
+	 * interval.
 	 *
-	 * @param msg         The message sent which will be categorized.
-	 * @param categories  The categories to be shown. The categories are defined by a
-	 *                    Map containing emote unicodes as keys and Pages as values.
+	 * @param msg         The {@link Message} sent which will be categorized.
+	 * @param categories  The categories to be shown. The categories are defined by
+	 *                    a {@link Map} containing emote unicodes as keys and
+	 *                    {@link Pages} as values.
 	 * @param time        The time before the listener automatically stop listening
-	 *                    for further events. (Recommended: 60)
-	 * @param unit        The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param canInteract Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}
 	 */
 	public static void categorize(Message msg, Map<String, Page> categories, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		categories.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else
+				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		msg.addReaction(CANCEL.getCode()).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<MessageReactionAddEvent>() {
@@ -568,13 +655,11 @@ public class Pages {
 							return;
 						else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 							try {
-								msg.clearReactions().submit()
-										.thenAccept(success)
-										.exceptionally(s -> {
-											msg.getReactions().forEach(r -> r.removeReaction().submit());
-											success.accept(null);
-											return null;
-										});
+								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+									msg.getReactions().forEach(r -> r.removeReaction().submit());
+									success.accept(null);
+									return null;
+								});
 							} catch (PermissionException e) {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
 								success.accept(null);
@@ -582,7 +667,8 @@ public class Pages {
 							return;
 						}
 
-						if (timeout != null) timeout.cancel(true);
+						if (timeout != null)
+							timeout.cancel(true);
 						try {
 							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
@@ -602,27 +688,34 @@ public class Pages {
 	}
 
 	/**
-	 * Adds buttons to the specified Message/MessageEmbed, with each executing a
-	 * specific task on click. Each button's unicode must be unique, adding another
-	 * button with an existing unicode will overwrite the current button's Runnable.
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}.
 	 *
-	 * @param msg              The message sent which will be buttoned.
-	 * @param buttons          The buttons to be shown. The buttons are defined by a Map
-	 *                         containing emote unicodes as keys and BiConsumer<Member, Message> containing
-	 *                         desired behavior as value.
-	 * @param showCancelButton Should the cancel button be created automatically?
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         {@link Map} containing emote unicodes as keys and
+	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>}
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the CANCEL button be created automatically?
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}
 	 */
 	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else
+				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
 			msg.addReaction(CANCEL.getCode()).submit();
@@ -638,19 +731,19 @@ public class Pages {
 					try {
 						if (event.getReactionEmote().isEmoji())
 							buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-						else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+						else
+							buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
 					} catch (NullPointerException ignore) {
 					}
 
-					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
+						&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
-							msg.clearReactions().submit()
-									.thenAccept(success)
-									.exceptionally(s -> {
-										msg.getReactions().forEach(r -> r.removeReaction().submit());
-										success.accept(null);
-										return null;
-									});
+							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+								return null;
+							});
 						} catch (PermissionException e) {
 							msg.getReactions().forEach(r -> r.removeReaction().submit());
 							success.accept(null);
@@ -667,32 +760,39 @@ public class Pages {
 	}
 
 	/**
-	 * Adds buttons to the specified Message/MessageEmbed, with each executing a
-	 * specific task on click. Each button's unicode must be unique, adding another
-	 * button with an existing unicode will overwrite the current button's Runnable.
-	 * You can specify the time in which the listener will automatically stop itself
-	 * after a no-activity interval.
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
 	 *
-	 * @param msg              The message sent which will be buttoned.
-	 * @param buttons          The buttons to be shown. The buttons are defined by a Map
-	 *                         containing emote unicodes as keys and BiConsumer<Member, Message> containing
-	 *                         desired behavior as value.
-	 * @param showCancelButton Should the cancel button be created automatically?
-	 * @param time             The time before the listener automatically stop listening for
-	 *                         further events. (Recommended: 60)
-	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         Map containing emote unicodes as keys and
+	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the CANCEL button be created automatically?
+	 * @param time             The time before the listener automatically stop
+	 *                         listening for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}
 	 */
 	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else
+				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
 			msg.addReaction(CANCEL.getCode()).submit();
@@ -719,27 +819,28 @@ public class Pages {
 					try {
 						if (event.getReactionEmote().isEmoji())
 							buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-						else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+						else
+							buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
 					} catch (NullPointerException ignore) {
 
 					}
 
-					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
+						&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 						try {
-							msg.clearReactions().submit()
-									.thenAccept(success)
-									.exceptionally(s -> {
-										msg.getReactions().forEach(r -> r.removeReaction().submit());
-										success.accept(null);
-										return null;
-									});
+							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+								msg.getReactions().forEach(r -> r.removeReaction().submit());
+								success.accept(null);
+								return null;
+							});
 						} catch (PermissionException e) {
 							msg.getReactions().forEach(r -> r.removeReaction().submit());
 							success.accept(null);
 						}
 					}
 
-					if (timeout != null) timeout.cancel(true);
+					if (timeout != null)
+						timeout.cancel(true);
 					try {
 						timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 					} catch (PermissionException ignore) {
@@ -754,33 +855,43 @@ public class Pages {
 	}
 
 	/**
-	 * Adds buttons to the specified Message/MessageEmbed, with each executing a
-	 * specific task on click. Each button's unicode must be unique, adding another
-	 * button with an existing unicode will overwrite the current button's Runnable.
-	 * You can specify the time in which the listener will automatically stop itself
-	 * after a no-activity interval.
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You must only specify one
+	 * {@link Runnable} per button, adding another button with an existing unicode
+	 * will overwrite the current button's {@link Runnable}. You can specify the
+	 * time in which the listener will automatically stop itself after a no-activity
+	 * interval.
 	 *
-	 * @param msg              The message sent which will be buttoned.
-	 * @param buttons          The buttons to be shown. The buttons are defined by a Map
-	 *                         containing emote unicodes as keys and BiConsumer<Member, Message> containing
-	 *                         desired behavior as value.
-	 * @param showCancelButton Should the cancel button be created automatically?
-	 * @param time             The time before the listener automatically stop listening for
-	 *                         further events. (Recommended: 60)
-	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param canInteract      Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         Map containing emote unicodes as keys and
+	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the CANCEL button be created automatically?
+	 * @param time             The time before the listener automatically stop
+	 *                         listening for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param canInteract      {@link Predicate} to determine whether the
+	 *                         {@link User} that pressed the button can interact
+	 *                         with it or not.
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}
 	 */
 	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else
+				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
 			msg.addReaction(CANCEL.getCode()).submit();
@@ -808,27 +919,28 @@ public class Pages {
 						try {
 							if (event.getReactionEmote().isEmoji())
 								buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-							else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+							else
+								buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
 						} catch (NullPointerException ignore) {
 
 						}
 
-						if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
+							&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 							try {
-								msg.clearReactions().submit()
-										.thenAccept(success)
-										.exceptionally(s -> {
-											msg.getReactions().forEach(r -> r.removeReaction().submit());
-											success.accept(null);
-											return null;
-										});
+								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+									msg.getReactions().forEach(r -> r.removeReaction().submit());
+									success.accept(null);
+									return null;
+								});
 							} catch (PermissionException e) {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
 								success.accept(null);
 							}
 						}
 
-						if (timeout != null) timeout.cancel(true);
+						if (timeout != null)
+							timeout.cancel(true);
 						try {
 							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
@@ -844,34 +956,43 @@ public class Pages {
 	}
 
 	/**
-	 * Adds buttons to the specified Message/MessageEmbed, with each executing a
-	 * specific task on click. Each button's unicode must be unique, adding another
-	 * button with an existing unicode will overwrite the current button's Runnable.
-	 * You can specify the time in which the listener will automatically stop itself
-	 * after a no-activity interval.
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
 	 *
-	 * @param msg              The message sent which will be buttoned.
-	 * @param buttons          The buttons to be shown. The buttons are defined by a Map
-	 *                         containing emote unicodes as keys and BiConsumer<Member, Message> containing
-	 *                         desired behavior as value.
-	 * @param showCancelButton Should the cancel button be created automatically?
-	 * @param time             The time before the listener automatically stop listening for
-	 *                         further events. (Recommended: 60)
-	 * @param unit             The time's time unit. (Recommended: TimeUnit.SECONDS)
-	 * @param canInteract      Predicate to determine whether the user that pressed the button can or cannot interact with the buttons
-	 * @param onCancel         Action to be ran after the listener is removed
-	 * @throws ErrorResponseException Thrown if the message no longer exists or
-	 *                                cannot be accessed when triggering a
-	 *                                GenericMessageReactionEvent
-	 * @throws PermissionException    Thrown if this library cannot remove reactions due to lack of bot permission
-	 * @throws InvalidStateException  Thrown if no JDA client was set with activate()
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         Map containing emote unicodes as keys and
+	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the CANCEL button be created automatically?
+	 * @param time             The time before the listener automatically stop
+	 *                         listening for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param canInteract      {@link Predicate} to determine whether the
+	 *                         {@link User} that pressed the button can interact
+	 *                         with it or not.
+	 * @param onCancel         Action to be ran after the listener is removed.
+	 * @throws ErrorResponseException Thrown if the {@link Message} no longer exists
+	 *                                or cannot be accessed when triggering a
+	 *                                {@link GenericMessageReactionEvent}.
+	 * @throws PermissionException    Thrown if this library cannot remove reactions
+	 *                                due to lack of bot permission.
+	 * @throws InvalidStateException  Thrown if no handler was set with
+	 *                                {@link #activate(JDA)} or
+	 *                                {@link #activate(ShardManager)}.
 	 */
 	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, PermissionException {
-		if (api == null) throw new InvalidStateException();
+		if (!activated) throw new InvalidStateException();
 
 		buttons.keySet().forEach(k -> {
-			if (EmojiUtils.containsEmoji(k)) msg.addReaction(k).submit();
-			else msg.addReaction(Objects.requireNonNull(api.getEmoteById(k))).submit();
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else
+				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		if (!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
 			msg.addReaction(CANCEL.getCode()).submit();
@@ -879,7 +1000,8 @@ public class Pages {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
-				if (onCancel != null) onCancel.accept(msg);
+				if (onCancel != null)
+					onCancel.accept(msg);
 			};
 
 			{
@@ -902,27 +1024,28 @@ public class Pages {
 						try {
 							if (event.getReactionEmote().isEmoji())
 								buttons.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
-							else buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+							else
+								buttons.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
 						} catch (NullPointerException ignore) {
 
 						}
 
-						if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton) && event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						if ((!buttons.containsKey(CANCEL.getCode()) && showCancelButton)
+							&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
 							try {
-								msg.clearReactions().submit()
-										.thenAccept(success)
-										.exceptionally(s -> {
-											msg.getReactions().forEach(r -> r.removeReaction().submit());
-											success.accept(null);
-											return null;
-										});
+								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
+									msg.getReactions().forEach(r -> r.removeReaction().submit());
+									success.accept(null);
+									return null;
+								});
 							} catch (PermissionException e) {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
 								success.accept(null);
 							}
 						}
 
-						if (timeout != null) timeout.cancel(true);
+						if (timeout != null)
+							timeout.cancel(true);
 						try {
 							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
 						} catch (PermissionException ignore) {
@@ -951,12 +1074,10 @@ public class Pages {
 		if (p == null) throw new NullPageException();
 
 		if (p.getType() == PageType.TEXT) {
-			msg.editMessage((Message) p.getContent())
-					.submit()
+			msg.editMessage((Message) p.getContent()).submit()
 					.thenAccept(s -> out.set(event.getReactionEmote().getName()));
 		} else {
-			msg.editMessage((MessageEmbed) p.getContent())
-					.submit()
+			msg.editMessage((MessageEmbed) p.getContent()).submit()
 					.thenAccept(s -> out.set(event.getReactionEmote().getName()));
 		}
 
