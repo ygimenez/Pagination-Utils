@@ -17,6 +17,9 @@ Make sure that you've checked all the items below.
   - MESSAGE_EXT_EMOJI
   - MESSAGE_READ/WRITE
   - VIEW_CHANNEL
+- [ ] If using `JDABuilder.createLight()`, you added the following gateway intents:
+    - GUILD_MESSAGES
+    - GUILD_MESSAGE_REACTIONS
 - [ ] PaginationUtils is up-to-date.
 - [ ] You have activated the library as descripted in the README.
 

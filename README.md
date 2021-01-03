@@ -32,7 +32,19 @@ Have you been using a bot and came across one of those three GIFs and thought: "
 
 ## How do I paginate?
 
-It's easier than it seems! The first step is to set a JDA client object as the event holder, which can be done in a single line:
+Before we start the fun stuff, there're a few things we need to check:
+- You're using Java JDK 11 or above.
+- Your bot has the following permissions:
+    - MESSAGE_MANAGE
+    - MESSAGE_ADD_REACTION
+    - MESSAGE_EXT_EMOJI
+    - MESSAGE_READ/WRITE
+    - VIEW_CHANNEL
+- If using `JDABuilder.createLight()`, you added the following gateway intents:
+    - GUILD_MESSAGES
+    - GUILD_MESSAGE_REACTIONS
+
+Now we can finally start, which is easier than it seems! The first step is to set a JDA client object as the event holder, which can be done in a single line:
 
 ```java
 JDA bot = ... //CREATION OF THE BOT CLIENT
