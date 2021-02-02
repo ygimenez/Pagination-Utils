@@ -1,22 +1,36 @@
 package com.github.ygimenez.type;
 
 public enum Emote {
-	NEXT("\u25B6"),
-	PREVIOUS("\u25C0"),
-	ACCEPT("\u2705"),
-	CANCEL("\u274E"),
-	SKIP_FORWARD("\u23E9"),
-	SKIP_BACKWARD("\u23EA"),
-	GOTO_FIRST("\u23EE\uFE0F"),
-	GOTO_LAST("\u23ED\uFE0F");
-
-	private final String code;
-
-	Emote(String code) {
-		this.code = code;
-	}
-
-	public String getCode() {
-		return code;
-	}
+	/**
+	 * {@link Emote} representing the "next" button (default: &#x25B6;).
+	 */
+	NEXT,
+	/**
+	 * {@link Emote} representing the "previous" button (default: &#x25C0;).
+	 */
+	PREVIOUS,
+	/**
+	 * {@link Emote} representing the "accept" button (default: &#x2705;).
+	 */
+	ACCEPT,
+	/**
+	 * {@link Emote} representing the "cancel" button (default: &#x274E;).
+	 */
+	CANCEL,
+	/**
+	 * {@link Emote} representing the "skip forward" button (default: &#x23E9;).
+	 */
+	SKIP_FORWARD,
+	/**
+	 * {@link Emote} representing the "skip backward" button (default: &#x23EA;).
+	 */
+	SKIP_BACKWARD,
+	/**
+	 * {@link Emote} representing the "go to first" button (default: &#x23EE;&#xFE0F;).
+	 */
+	GOTO_FIRST,
+	/**
+	 * {@link Emote} representing the "go to last" button (default: &#x23ED;&#xFE0F;).
+	 */
+	GOTO_LAST
 }

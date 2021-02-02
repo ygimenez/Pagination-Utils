@@ -34,6 +34,11 @@ import java.util.function.Predicate;
 
 import static com.github.ygimenez.type.Emote.*;
 
+/**
+ * The main class containing all pagination-related methods, including but not futurely limited
+ * to {@link #paginate(Message, List)}, {@link #categorize(Message, Map)} and
+ * {@link #buttonize(Message, Map, boolean)}.
+ */
 public class Pages {
 	protected static MessageHandler handler = new MessageHandler();
 	protected static Paginator paginator;
@@ -52,7 +57,7 @@ public class Pages {
 	 * @throws InvalidHandlerException   Thrown if the handler isn't either a {@link JDA}
 	 *                                   or {@link ShardManager} object.
 	 */
-	public static void activate(Paginator paginator) throws InvalidHandlerException {
+	public static void activate(@Nonnull Paginator paginator) throws InvalidHandlerException {
 		if (isActivated())
 			throw new AlreadyActivatedException();
 
@@ -96,7 +101,7 @@ public class Pages {
 	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
 	 */
 	@Deprecated
-	public static void activate(JDA api) {
+	public static void activate(@Nonnull JDA api) {
 		if (activated) throw new AlreadyActivatedException();
 		api.addEventListener(handler);
 		activated = true;
@@ -112,7 +117,7 @@ public class Pages {
 	 *            nothing.
 	 */
 	@Deprecated
-	public static void deactivate(JDA api) {
+	public static void deactivate(@Nonnull JDA api) {
 		if (!activated)
 			return;
 		api.removeEventListener(handler);
@@ -134,7 +139,7 @@ public class Pages {
 	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
 	 */
 	@Deprecated
-	public static void activate(ShardManager manager) {
+	public static void activate(@Nonnull ShardManager manager) {
 		if (activated) throw new AlreadyActivatedException();
 		manager.addEventListener(handler);
 		activated = true;
@@ -151,7 +156,7 @@ public class Pages {
 	 *                buttons.
 	 */
 	@Deprecated
-	public static void deactivate(ShardManager manager) {
+	public static void deactivate(@Nonnull ShardManager manager) {
 		if (!activated)
 			return;
 		manager.removeEventListener(handler);
@@ -190,13 +195,13 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -209,21 +214,21 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -267,13 +272,13 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -297,21 +302,21 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -360,13 +365,13 @@ public class Pages {
 	 *                                due to lack of bot permission.
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -380,21 +385,21 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -441,13 +446,13 @@ public class Pages {
 	 *                                due to lack of bot permission.
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -472,21 +477,21 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -535,15 +540,15 @@ public class Pages {
 	 *                                due to lack of bot permission.
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, boolean fastForward) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean fastForward) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (fastForward) msg.addReaction(GOTO_FIRST.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (fastForward) msg.addReaction(GOTO_LAST.getCode()).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -557,35 +562,35 @@ public class Pages {
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(GOTO_FIRST.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
 						if (p > 0) {
 							p = 0;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(GOTO_LAST.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
 						if (p < maxP) {
 							p = maxP;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -630,15 +635,15 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, boolean fastForward) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, boolean fastForward) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (fastForward) msg.addReaction(GOTO_FIRST.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (fastForward) msg.addReaction(GOTO_LAST.getCode()).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -662,35 +667,35 @@ public class Pages {
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(GOTO_FIRST.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
 						if (p > 0) {
 							p = 0;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(GOTO_LAST.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
 						if (p < maxP) {
 							p = maxP;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -740,15 +745,15 @@ public class Pages {
 	 *                                due to lack of bot permission.
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (fastForward) msg.addReaction(GOTO_FIRST.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (fastForward) msg.addReaction(GOTO_LAST.getCode()).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -763,35 +768,35 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(GOTO_FIRST.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(GOTO_LAST.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -839,15 +844,15 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (fastForward) msg.addReaction(GOTO_FIRST.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (fastForward) msg.addReaction(GOTO_LAST.getCode()).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -872,35 +877,35 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(GOTO_FIRST.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(GOTO_LAST.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -950,15 +955,15 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int skipAmount) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (skipAmount > 1) msg.addReaction(SKIP_BACKWARD.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (skipAmount > 1) msg.addReaction(SKIP_FORWARD.getCode()).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -971,35 +976,35 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
 						if (p > 0) {
 							p -= (p - skipAmount < 0 ? p : skipAmount);
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
 						if (p < maxP) {
 							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1045,15 +1050,15 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, int skipAmount) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (skipAmount > 1) msg.addReaction(SKIP_BACKWARD.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (skipAmount > 1) msg.addReaction(SKIP_FORWARD.getCode()).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -1077,35 +1082,35 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
 						if (p > 0) {
 							p -= (p - skipAmount < 0 ? p : skipAmount);
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
 						if (p < maxP) {
 							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1156,15 +1161,15 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (skipAmount > 1) msg.addReaction(SKIP_BACKWARD.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (skipAmount > 1) msg.addReaction(SKIP_FORWARD.getCode()).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -1178,35 +1183,35 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1255,15 +1260,15 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, int skipAmount, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (skipAmount > 1) msg.addReaction(SKIP_BACKWARD.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (skipAmount > 1) msg.addReaction(SKIP_FORWARD.getCode()).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -1288,35 +1293,35 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1369,17 +1374,17 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (fastForward) msg.addReaction(GOTO_FIRST.getCode()).submit();
-		if (skipAmount > 1) msg.addReaction(SKIP_BACKWARD.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (skipAmount > 1) msg.addReaction(SKIP_FORWARD.getCode()).submit();
-		if (fastForward) msg.addReaction(GOTO_LAST.getCode()).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -1393,49 +1398,49 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(GOTO_FIRST.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(GOTO_LAST.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1485,17 +1490,17 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void paginate(Message msg, List<Page> pages, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, int skipAmount, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 
-		if (fastForward) msg.addReaction(GOTO_FIRST.getCode()).submit();
-		if (skipAmount > 1) msg.addReaction(SKIP_BACKWARD.getCode()).submit();
-		msg.addReaction(PREVIOUS.getCode()).submit();
-		msg.addReaction(CANCEL.getCode()).submit();
-		msg.addReaction(NEXT.getCode()).submit();
-		if (skipAmount > 1) msg.addReaction(SKIP_FORWARD.getCode()).submit();
-		if (fastForward) msg.addReaction(GOTO_LAST.getCode()).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
@@ -1520,49 +1525,49 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(PREVIOUS.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(NEXT.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(SKIP_BACKWARD.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(SKIP_FORWARD.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(GOTO_FIRST.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(GOTO_LAST.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1613,7 +1618,7 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void categorize(Message msg, Map<String, Page> categories) throws ErrorResponseException, PermissionException {
+	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, Page> cats = Collections.unmodifiableMap(categories);
 
@@ -1623,7 +1628,7 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		msg.addReaction(CANCEL.getCode()).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private String currCat = "";
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -1634,7 +1639,7 @@ public class Pages {
 					if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1650,7 +1655,7 @@ public class Pages {
 
 					Page pg = cats.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
-					currCat = updateCategory(event, msg, pg);
+					currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 						try {
 							event.getReaction().removeReaction(u).submit();
@@ -1685,7 +1690,7 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void categorize(Message msg, Map<String, Page> categories, int time, TimeUnit unit) throws ErrorResponseException, PermissionException {
+	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, Page> cats = Collections.unmodifiableMap(categories);
 
@@ -1695,7 +1700,7 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		msg.addReaction(CANCEL.getCode()).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private String currCat = "";
 			private Future<?> timeout;
@@ -1717,7 +1722,7 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1742,7 +1747,7 @@ public class Pages {
 
 					Page pg = cats.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
-					currCat = updateCategory(event, msg, pg);
+					currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 						try {
 							event.getReaction().removeReaction(u).submit();
@@ -1773,7 +1778,7 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void categorize(Message msg, Map<String, Page> categories, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, Page> cats = Collections.unmodifiableMap(categories);
 
@@ -1783,7 +1788,7 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		msg.addReaction(CANCEL.getCode()).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private String currCat = "";
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -1795,7 +1800,7 @@ public class Pages {
 						if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1811,7 +1816,7 @@ public class Pages {
 
 						Page pg = cats.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
 
-						currCat = updateCategory(event, msg, pg);
+						currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
 								event.getReaction().removeReaction(u).submit();
@@ -1849,7 +1854,7 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void categorize(Message msg, Map<String, Page> categories, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, Page> cats = Collections.unmodifiableMap(categories);
 
@@ -1859,7 +1864,7 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		msg.addReaction(CANCEL.getCode()).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private String currCat = "";
 			private Future<?> timeout;
@@ -1882,7 +1887,7 @@ public class Pages {
 						if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -1907,7 +1912,7 @@ public class Pages {
 						} catch (PermissionException ignore) {
 						}
 
-						currCat = updateCategory(event, msg, pg);
+						currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
 								event.getReaction().removeReaction(u).submit();
@@ -1939,7 +1944,7 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, PermissionException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
@@ -1949,8 +1954,8 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		if (!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).submit();
+		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
@@ -1968,8 +1973,8 @@ public class Pages {
 					} catch (NullPointerException ignore) {
 					}
 
-					if ((!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-						&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+						&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -2017,7 +2022,7 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, PermissionException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
@@ -2027,8 +2032,8 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		if (!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).submit();
+		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -2058,8 +2063,8 @@ public class Pages {
 
 					}
 
-					if ((!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-						&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+					if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+						&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
 							msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 								msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -2114,7 +2119,7 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
@@ -2124,8 +2129,8 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		if (!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).submit();
+		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
@@ -2145,8 +2150,8 @@ public class Pages {
 
 						}
 
-						if ((!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-							&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -2199,7 +2204,7 @@ public class Pages {
 	 *                                due to lack of bot permission
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
@@ -2209,8 +2214,8 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		if (!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).submit();
+		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -2241,8 +2246,8 @@ public class Pages {
 
 						}
 
-						if ((!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-							&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -2299,7 +2304,7 @@ public class Pages {
 	 *                                due to lack of bot permission.
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, PermissionException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
@@ -2309,8 +2314,8 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		if (!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).submit();
+		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
@@ -2334,8 +2339,8 @@ public class Pages {
 
 						}
 
-						if ((!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-							&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -2388,7 +2393,7 @@ public class Pages {
 	 *                                due to lack of bot permission.
 	 * @throws InvalidStateException  Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(Message msg, Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, PermissionException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, PermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
@@ -2398,8 +2403,8 @@ public class Pages {
 			else
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
-		if (!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-			msg.addReaction(CANCEL.getCode()).submit();
+		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -2428,8 +2433,8 @@ public class Pages {
 
 						}
 
-						if ((!btns.containsKey(CANCEL.getCode()) && showCancelButton)
-							&& event.getReactionEmote().getName().equals(CANCEL.getCode())) {
+						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
 								msg.clearReactions().submit().thenAccept(success).exceptionally(s -> {
 									msg.getReactions().forEach(r -> r.removeReaction().submit());
@@ -2463,7 +2468,14 @@ public class Pages {
 		});
 	}
 
-	private static void updatePage(Message msg, Page p) {
+	/**
+	 * Method used to update the current page.
+	 * <strong>Must not be called outside of {@link Pages}</strong>.
+	 *
+	 * @param msg The current {@link Message} object.
+	 * @param p The current {@link Page} index.
+	 */
+	private static void updatePage(@Nonnull Message msg, Page p) {
 		if (p == null) throw new NullPageException();
 		if (p.getType() == PageType.TEXT) {
 			msg.editMessage((Message) p.getContent()).submit();
@@ -2472,16 +2484,25 @@ public class Pages {
 		}
 	}
 
-	private static String updateCategory(GenericMessageReactionEvent event, Message msg, Page p) {
+	/**
+	 * Method used to update the current category.
+	 * <strong>Must not be called outside of {@link Pages}</strong>.
+	 *
+	 * @param emote The button pressed by the user.
+	 * @param msg The current {@link Message} object.
+	 * @param p The current {@link Page} category.
+	 * @return The new {@link Page} category.
+	 */
+	private static String updateCategory(String emote, @Nonnull Message msg, Page p) {
 		AtomicReference<String> out = new AtomicReference<>("");
 		if (p == null) throw new NullPageException();
 
 		if (p.getType() == PageType.TEXT) {
 			msg.editMessage((Message) p.getContent()).submit()
-					.thenAccept(s -> out.set(event.getReactionEmote().getName()));
+					.thenAccept(s -> out.set(emote));
 		} else {
 			msg.editMessage((MessageEmbed) p.getContent()).submit()
-					.thenAccept(s -> out.set(event.getReactionEmote().getName()));
+					.thenAccept(s -> out.set(emote));
 		}
 
 		return out.get();
