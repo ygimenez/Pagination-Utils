@@ -1,7 +1,9 @@
 package com.github.ygimenez.listener;
 
+import com.github.ygimenez.method.Pages;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -12,9 +14,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class MessageHandler extends ListenerAdapter {
-	private final Map<String, Consumer<MessageReactionAddEvent>> events = new HashMap<>();
+	private final Map<String, Consumer<GenericMessageReactionEvent>> events = new HashMap<>();
 
-	public void addEvent(String id, Consumer<MessageReactionAddEvent> act) {
+	public void addEvent(String id, Consumer<GenericMessageReactionEvent> act) {
 		events.put(id, act);
 	}
 
@@ -32,17 +34,17 @@ public class MessageHandler extends ListenerAdapter {
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
 		evt.retrieveUser().submit().thenAccept(u -> {
-			if (!u.isBot()) {
-				switch (evt.getChannelType()) {
-					case TEXT:
-						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
-							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
-						break;
-					case PRIVATE:
-						if (events.containsKey(u.getId() + evt.getMessageId()))
-							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
-						break;
-				}
+			if (u.isBot()) return;
+
+			switch (evt.getChannelType()) {
+				case TEXT:
+					if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
+						events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
+					break;
+				case PRIVATE:
+					if (events.containsKey(u.getId() + evt.getMessageId()))
+						events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
+					break;
 			}
 		});
 	}
@@ -62,7 +64,9 @@ public class MessageHandler extends ListenerAdapter {
 	@Override
 	public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent evt) {
 		evt.retrieveUser().submit().thenAccept(u -> {
-			if (!u.isBot()) {
+			if (u.isBot()) return;
+
+			if ((Pages.isActivated() && Pages.getPaginator() == null) || (Pages.isActivated() && Pages.getPaginator().isRemoveOnReact())) {
 				evt.getPrivateChannel().retrieveMessageById(evt.getMessageId()).submit().thenAccept(msg -> {
 					switch (evt.getChannelType()) {
 						case TEXT:
@@ -83,6 +87,17 @@ public class MessageHandler extends ListenerAdapter {
 							break;
 					}
 				});
+			} else {
+				switch (evt.getChannelType()) {
+					case TEXT:
+						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
+							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
+						break;
+					case PRIVATE:
+						if (events.containsKey(u.getId() + evt.getMessageId()))
+							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
+						break;
+				}
 			}
 		});
 	}
