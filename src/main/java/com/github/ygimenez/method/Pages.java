@@ -67,6 +67,8 @@ public class Pages {
 		else if (hand instanceof ShardManager)
 			((ShardManager) hand).addEventListener(handler);
 		else throw new InvalidHandlerException();
+
+		Pages.paginator = paginator;
 	}
 
 	/**
@@ -169,7 +171,7 @@ public class Pages {
 	 * @return The activation state of this library.
 	 */
 	public static boolean isActivated() {
-		return paginator != null || activated;
+		return (paginator != null && paginator.getHandler() != null) || activated;
 	}
 
 	/**
