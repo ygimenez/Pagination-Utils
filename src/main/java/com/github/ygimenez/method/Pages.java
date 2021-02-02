@@ -83,8 +83,8 @@ public class Pages {
 	}
 
 	/**
-	 * DEPRECATED: Please use {@link #activate(Paginator)} instead.
-	 * <p>
+	 * <strong>DEPRECATED:</strong> Please use {@link #activate(Paginator)} instead.<br>
+	 * <br>
 	 * Sets a {@link JDA} object to be used as incoming reactions handler. This is
 	 * required only once unless you want to use another client as the handler. <br>
 	 * <br>
@@ -103,8 +103,8 @@ public class Pages {
 	}
 
 	/**
-	 * DEPRECATED: Please use {@link #deactivate()} instead.
-	 * <p>
+	 * <strong>DEPRECATED:</strong> Please use {@link #deactivate()} instead. <br>
+	 * <br>
 	 * Removes current button handler, allowing another {@link #activate(JDA)} call.
 	 *
 	 * @param api The {@link JDA} object which is currently handling buttons.
@@ -120,8 +120,8 @@ public class Pages {
 	}
 
 	/**
-	 * DEPRECATED: Please use {@link #activate(Paginator)} instead.
-	 * <p>
+	 * <strong>DEPRECATED:</strong> Please use {@link #activate(Paginator)} instead. <br>
+	 * <br>
 	 * Sets a {@link ShardManager} object to be used as incoming reactions handler.
 	 * This is only required once unless you want to use another manager as the
 	 * handler. <br>
@@ -141,8 +141,8 @@ public class Pages {
 	}
 
 	/**
-	 * DEPRECATED: Please use {@link #deactivate()} instead.
-	 * <p>
+	 * <strong>DEPRECATED:</strong> Please use {@link #deactivate()} instead. <br>
+	 * <br>
 	 * Removes current button handler, allowing another
 	 * {@link #activate(ShardManager)} call. Calling this method without having a
 	 * handler currently set will do nothing.
