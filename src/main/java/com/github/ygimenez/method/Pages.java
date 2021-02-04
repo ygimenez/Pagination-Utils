@@ -229,28 +229,18 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -333,28 +323,18 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -432,28 +412,18 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -540,28 +510,18 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -655,28 +615,18 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -776,28 +726,18 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -893,28 +833,18 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -1018,28 +948,18 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -1133,28 +1053,18 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -1255,28 +1165,18 @@ public class Pages {
 						}
 					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -1372,28 +1272,18 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -1498,28 +1388,18 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -1633,28 +1513,18 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -1776,28 +1646,18 @@ public class Pages {
 							}
 						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -1864,28 +1724,18 @@ public class Pages {
 
 					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -1963,28 +1813,18 @@ public class Pages {
 
 					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -2057,28 +1897,18 @@ public class Pages {
 
 						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -2160,28 +1990,18 @@ public class Pages {
 
 						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -2263,28 +2083,18 @@ public class Pages {
 					if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 						&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -2369,28 +2179,18 @@ public class Pages {
 					if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 						&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 						try {
-							msg.clearReactions().submit().exceptionally(s -> {
-								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
-									}
-
-								success.accept(null);
-								return null;
-							}).thenAccept(success);
-						} catch (InsufficientPermissionException e) {
 							if (msg.getChannel().getType().isGuild())
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
+								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
 									r.removeReaction(event.getJDA().getSelfUser()).submit();
 								}
+
+							success.accept(null);
+						} catch (InsufficientPermissionException | IllegalStateException e) {
+							for (MessageReaction r : msg.getReactions()) {
+								r.removeReaction().submit();
+							}
 
 							success.accept(null);
 						}
@@ -2472,28 +2272,18 @@ public class Pages {
 						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -2584,28 +2374,18 @@ public class Pages {
 						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -2692,28 +2472,18 @@ public class Pages {
 						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
@@ -2801,28 +2571,18 @@ public class Pages {
 						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
 							try {
-								msg.clearReactions().submit().exceptionally(s -> {
-									if (msg.getChannel().getType().isGuild())
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction().submit();
-										}
-									else
-										for (MessageReaction r : msg.getReactions()) {
-											r.removeReaction(event.getJDA().getSelfUser()).submit();
-										}
-
-									success.accept(null);
-									return null;
-								}).thenAccept(success);
-							} catch (InsufficientPermissionException e) {
 								if (msg.getChannel().getType().isGuild())
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
+									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
 										r.removeReaction(event.getJDA().getSelfUser()).submit();
 									}
+
+								success.accept(null);
+							} catch (InsufficientPermissionException | IllegalStateException e) {
+								for (MessageReaction r : msg.getReactions()) {
+									r.removeReaction().submit();
+								}
 
 								success.accept(null);
 							}
