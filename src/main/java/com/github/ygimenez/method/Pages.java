@@ -210,6 +210,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -304,6 +305,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -392,6 +394,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -490,6 +493,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -582,6 +586,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -693,6 +698,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -799,6 +805,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -914,6 +921,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1020,6 +1028,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -1132,6 +1141,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -1238,6 +1248,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1354,6 +1365,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1465,6 +1477,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1598,6 +1611,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1719,6 +1733,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -1808,6 +1823,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (Objects.requireNonNull(u).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -1891,6 +1907,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1984,6 +2001,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -2069,6 +2087,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -2164,6 +2183,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -2256,6 +2276,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -2358,6 +2379,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -2456,6 +2478,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -2555,6 +2578,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = event.retrieveMessage().complete();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
