@@ -35,7 +35,6 @@ Have you been using a bot and came across one of those three GIFs and thought: "
 Before we start the fun stuff, there're a few things we need to check:
 - You're using Java JDK 11 or above.
 - Your bot has the following permissions:
-    - MESSAGE_MANAGE
     - MESSAGE_ADD_REACTION
     - MESSAGE_EXT_EMOJI
     - MESSAGE_READ/WRITE
@@ -49,7 +48,35 @@ Now we can finally start, which is easier than it seems! The first step is to se
 ```java
 JDA bot = ... //CREATION OF THE BOT CLIENT
 
-Pages.activate(bot);
+Pages.activate(PaginatorBuilder.createSimplePaginator(bot));
+```
+
+But if you want some customization of the library's behaviour, you can opt to use the full builder:
+
+```java
+JDA bot = ... //CREATION OF THE BOT CLIENT
+
+Paginator paginator = PaginatorBuilder.createPaginator()
+                        .setHandler(bot) //DEFINES WHICH HANDLER WILL BE USED
+                        .shouldRemoveOnReaction(false) //WHETHER REACTIONS WILL BE REMOVED ON CLICK
+                        .build(); //FINISH CONFIGURATION AND BUILD THE OBJECT
+
+Pages.activate(paginator);
+```
+
+If you want to go even further and change the default buttons' emotes, don't worry, we got you covered:
+
+```java
+JDA bot = ... //CREATION OF THE BOT CLIENT
+
+Paginator paginator = PaginatorBuilder.createPaginator()
+                        .setHandler(bot) //DEFINES WHICH HANDLER WILL BE USED
+                        .shouldRemoveOnReaction(false) //WHETHER REACTIONS WILL BE REMOVED ON CLICK
+                        .setEmote(Emote.NEXT, "😙") //CHANGES THE NEXT BUTTON TO 😙
+                        .setEmote(Emote.PREVIOUS, "😩") //CHANGES THE PREVIOUS BUTTON TO 😩
+                        .build(); //FINISH CONFIGURATION AND BUILD THE OBJECT
+
+Pages.activate(paginator);
 ```
 
 Then all you need to do is create a `Page` collection containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
@@ -91,10 +118,8 @@ Then all you have to do is call `Pages.paginate()` method:
 //THIS METHOD REQUIRES 4 ARGUMENTS:
 //THE TARGET MESSAGE (Message)
 //THE LIST OF PAGES (any List collection)
-//THE IDLE TIME BEFORE SHUTTING DOWN (int)
-//THE TimeUnit FOR THE TIME
 exampleChannel.sendMessage((Message) pages.get(0).getContent()).queue(success -> {
-    Pages.paginate(success, pages, 60, TimeUnit.SECONDS);
+    Pages.paginate(success, pages);
 });
 ```
 
@@ -124,7 +149,7 @@ Then just call the `Pages.categorize()` method just like you did with `Pages.pag
 ```java
 //SAME ARGUMENTS, EXCEPT THE SECOND THAT MUST EXTEND Map Collection
 exampleChannel.sendMessage("This is a menu message").queue(success -> {
-    Pages.categorize(success, pages, 60, TimeUnit.SECONDS);
+    Pages.categorize(success, pages, 60);
 });
 ```
 

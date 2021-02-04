@@ -91,7 +91,7 @@ public class PaginatorBuilder {
 	 * If this is enabled, the bot will require {@link Permission#MESSAGE_MANAGE} permission
 	 * for the buttons to work.
 	 *
-	 * @param shouldRemove Whether reactions will be removed on press or not.
+	 * @param shouldRemove Whether reactions will be removed on press or not (default: false).
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
 	public PaginatorBuilder shouldRemoveOnReact(boolean shouldRemove) {
