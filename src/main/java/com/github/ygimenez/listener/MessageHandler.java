@@ -42,7 +42,7 @@ public class MessageHandler extends ListenerAdapter {
 						events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
 					break;
 				case PRIVATE:
-					if (events.containsKey(u.getId() + evt.getMessageId()))
+					if (events.containsKey(evt.getPrivateChannel().getId() + evt.getMessageId()))
 						events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
 					break;
 			}
@@ -94,7 +94,7 @@ public class MessageHandler extends ListenerAdapter {
 							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
 						break;
 					case PRIVATE:
-						if (events.containsKey(u.getId() + evt.getMessageId()))
+						if (events.containsKey(evt.getPrivateChannel().getId() + evt.getMessageId()))
 							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
 						break;
 				}
