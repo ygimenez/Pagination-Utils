@@ -78,7 +78,7 @@ public class MessageHandler extends ListenerAdapter {
 							}
 							break;
 						case PRIVATE:
-							if (events.containsKey(u.getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
+							if (events.containsKey(evt.getPrivateChannel().getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
 								if (evt.getReactionEmote().isEmoji())
 									msg.addReaction(evt.getReactionEmote().getAsCodepoints()).submit();
 								else
