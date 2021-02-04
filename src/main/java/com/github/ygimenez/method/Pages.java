@@ -205,7 +205,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -282,7 +282,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
@@ -375,7 +375,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -456,7 +456,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
@@ -552,7 +552,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -647,7 +647,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
@@ -757,7 +757,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -856,7 +856,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
@@ -967,7 +967,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -1062,7 +1062,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
@@ -1173,7 +1173,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -1272,7 +1272,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
@@ -1388,7 +1388,7 @@ public class Pages {
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -1504,7 +1504,7 @@ public class Pages {
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private Future<?> timeout;
@@ -1631,7 +1631,7 @@ public class Pages {
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private String currCat = "";
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
@@ -1703,7 +1703,7 @@ public class Pages {
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private String currCat = "";
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -1791,7 +1791,7 @@ public class Pages {
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private String currCat = "";
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
@@ -1867,7 +1867,7 @@ public class Pages {
 				msg.addReaction(Objects.requireNonNull(msg.getJDA().getEmoteById(k))).submit();
 		});
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private String currCat = "";
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -1958,7 +1958,7 @@ public class Pages {
 		});
 		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			@Override
@@ -1967,6 +1967,7 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
+					System.out.println("processing");
 					try {
 						if (event.getReactionEmote().isEmoji())
 							btns.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
@@ -2036,7 +2037,7 @@ public class Pages {
 		});
 		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
@@ -2133,7 +2134,7 @@ public class Pages {
 		});
 		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
 
 			@Override
@@ -2218,7 +2219,7 @@ public class Pages {
 		});
 		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
@@ -2318,7 +2319,7 @@ public class Pages {
 		});
 		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (onCancel != null)
@@ -2407,7 +2408,7 @@ public class Pages {
 		});
 		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getAuthor().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private Future<?> timeout;
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
