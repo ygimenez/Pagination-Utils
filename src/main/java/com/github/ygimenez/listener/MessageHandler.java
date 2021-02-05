@@ -66,7 +66,10 @@ public class MessageHandler extends ListenerAdapter {
 		evt.retrieveUser().submit().thenAccept(u -> {
 			if (u.isBot()) return;
 
-			if ((Pages.isActivated() && Pages.getPaginator() == null) || (Pages.isActivated() && Pages.getPaginator().isRemoveOnReact())) {
+			boolean removeOnReact =
+					(Pages.isActivated() && Pages.getPaginator() == null) || (Pages.isActivated() && Pages.getPaginator().isRemoveOnReact());
+
+			if (evt.isFromGuild() && removeOnReact) {
 				evt.getPrivateChannel().retrieveMessageById(evt.getMessageId()).submit().thenAccept(msg -> {
 					switch (evt.getChannelType()) {
 						case TEXT:
