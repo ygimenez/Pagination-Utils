@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -299,7 +300,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -487,7 +511,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -535,10 +582,7 @@ public class Pages {
 							timeout.cancel(true);
 							timeout = null;
 						}
-						try {
-							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
-						} catch (InsufficientPermissionException ignore) {
-						}
+						setTimeout();
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
@@ -692,7 +736,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -915,7 +982,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -977,10 +1067,7 @@ public class Pages {
 							timeout.cancel(true);
 							timeout = null;
 						}
-						try {
-							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
-						} catch (InsufficientPermissionException ignore) {
-						}
+						setTimeout();
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
@@ -1135,7 +1222,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -1359,7 +1469,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -1421,10 +1554,7 @@ public class Pages {
 							timeout.cancel(true);
 							timeout = null;
 						}
-						try {
-							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
-						} catch (InsufficientPermissionException ignore) {
-						}
+						setTimeout();
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
@@ -1605,7 +1735,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -1681,10 +1834,7 @@ public class Pages {
 							timeout.cancel(true);
 							timeout = null;
 						}
-						try {
-							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
-						} catch (InsufficientPermissionException ignore) {
-						}
+						setTimeout();
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
@@ -1817,7 +1967,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -1995,7 +2168,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -2032,10 +2228,7 @@ public class Pages {
 							timeout.cancel(true);
 							timeout = null;
 						}
-						try {
-							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
-						} catch (InsufficientPermissionException ignore) {
-						}
+						setTimeout();
 
 						currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -2177,7 +2370,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -2373,7 +2589,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -2417,10 +2656,7 @@ public class Pages {
 							timeout.cancel(true);
 							timeout = null;
 						}
-						try {
-							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
-						} catch (InsufficientPermissionException ignore) {
-						}
+						setTimeout();
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
@@ -2572,7 +2808,30 @@ public class Pages {
 			};
 
 			{
-				timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				setTimeout();
+			}
+
+			private void setTimeout() {
+				try {
+					timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
+				} catch (InsufficientPermissionException | IllegalStateException e) {
+					timeout = msg.getChannel()
+							.retrieveMessageById(msg.getId())
+							.submitAfter(time, unit)
+							.thenCompose(message -> {
+								CompletableFuture<?>[] removeReaction = new CompletableFuture[message.getReactions().size()];
+
+								for (int i = 0; i < message.getReactions().size(); i++) {
+									MessageReaction r = message.getReactions().get(i);
+
+									if (!r.isSelf()) continue;
+
+									removeReaction[i] = r.removeReaction().submit();
+								}
+
+								return CompletableFuture.allOf(removeReaction).thenAccept(success);
+							});
+				}
 			}
 
 			@Override
@@ -2616,10 +2875,7 @@ public class Pages {
 							timeout.cancel(true);
 							timeout = null;
 						}
-						try {
-							timeout = msg.clearReactions().submitAfter(time, unit).thenAccept(success);
-						} catch (InsufficientPermissionException ignore) {
-						}
+						setTimeout();
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
