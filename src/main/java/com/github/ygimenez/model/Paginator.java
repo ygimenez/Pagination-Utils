@@ -22,6 +22,7 @@ import static com.github.ygimenez.type.Emote.*;
 public class Paginator {
 	private Object handler = null;
 	private boolean removeOnReact = false;
+	private boolean eventLocked = false;
 	private Map<Emote, String> emotes = new HashMap<Emote, String>() {{
 		put(NEXT, "\u25B6");
 		put(PREVIOUS, "\u25C0");
@@ -88,6 +89,26 @@ public class Paginator {
 	 */
 	protected void setRemoveOnReact(boolean removeOnReact) {
 		this.removeOnReact = removeOnReact;
+	}
+
+	/**
+	 * Retrieves whether events will be locked to prevent double-activation
+	 * of buttons before it finished previous processing (can help if experiencing race condition).
+	 *
+	 * @return Whether events will be hash-locked.
+	 */
+	public boolean isEventLocked() {
+		return eventLocked;
+	}
+
+	/**
+	 * Sets whether evens should be locked to prevent double-activation.
+	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
+	 *
+	 * @param hashLocking Whether events should be locked.
+	 */
+	protected void setEventLocked(boolean hashLocking) {
+		this.eventLocked = hashLocking;
 	}
 
 	/**

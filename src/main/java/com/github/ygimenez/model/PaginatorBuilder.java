@@ -105,6 +105,27 @@ public class PaginatorBuilder {
 	}
 
 	/**
+	 * Retrieves whether events will be locked to prevent double-activation.
+	 *
+	 * @return Whether events will be hash-locked.
+	 */
+	public boolean isEventLocking() {
+		return paginator.isRemoveOnReact();
+	}
+
+	/**
+	 * Sets whether evens should be locked to prevent double-activation of buttons before
+	 * it finished previous processing (can help if experiencing race condition).
+	 *
+	 * @param shouldLock Whether events should be locked (default: false).
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 */
+	public PaginatorBuilder shouldEventLock(boolean shouldLock) {
+		paginator.setEventLocked(shouldLock);
+		return this;
+	}
+
+	/**
 	 * Retrieves an {@link Emote}'s code from the current emote {@link Map}.
 	 *
 	 * @param emote The {@link Emote} to be retrieved.

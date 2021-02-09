@@ -10,7 +10,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -19,12 +21,13 @@ import java.util.function.Consumer;
  */
 public class MessageHandler extends ListenerAdapter {
 	private final Map<String, Consumer<GenericMessageReactionEvent>> events = new HashMap<>();
+	private final Set<String> locks = new HashSet<>();
 
 	/**
 	 * Adds an event to the handler, which will be executed whenever a button with the same
 	 * ID is pressed.
 	 *
-	 * @param id The ID of the event.
+	 * @param id  The ID of the event.
 	 * @param act The action to be executed when the button is pressed.
 	 */
 	public void addEvent(String id, Consumer<GenericMessageReactionEvent> act) {
@@ -47,20 +50,39 @@ public class MessageHandler extends ListenerAdapter {
 		}
 	}
 
+	private void lock(GenericMessageReactionEvent evt) {
+		locks.add(evt.getGuild().getId() + evt.getMessageId());
+	}
+
+	private void unlock(GenericMessageReactionEvent evt) {
+		locks.remove(evt.getGuild().getId() + evt.getMessageId());
+	}
+
+	private boolean isLocked(GenericMessageReactionEvent evt) {
+		return locks.contains(evt.getGuild().getId() + evt.getMessageId());
+	}
+
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
 		evt.retrieveUser().submit().thenAccept(u -> {
-			if (u.isBot()) return;
+			if (u.isBot() || isLocked(evt)) return;
 
-			switch (evt.getChannelType()) {
-				case TEXT:
-					if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
-						events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
-					break;
-				case PRIVATE:
-					if (events.containsKey(evt.getPrivateChannel().getId() + evt.getMessageId()))
-						events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
-					break;
+			try {
+				if (Pages.getPaginator().isEventLocked()) lock(evt);
+				switch (evt.getChannelType()) {
+					case TEXT:
+						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
+							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
+						break;
+					case PRIVATE:
+						if (events.containsKey(evt.getPrivateChannel().getId() + evt.getMessageId()))
+							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
+						break;
+				}
+				if (Pages.getPaginator().isEventLocked()) unlock(evt);
+			} catch (Exception e) {
+				if (Pages.getPaginator().isEventLocked()) unlock(evt);
+				throw e;
 			}
 		});
 	}
@@ -106,7 +128,8 @@ public class MessageHandler extends ListenerAdapter {
 							break;
 					}
 				});
-			} else {
+			} else if (!isLocked(evt)) try {
+				if (Pages.getPaginator().isEventLocked()) lock(evt);
 				switch (evt.getChannelType()) {
 					case TEXT:
 						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
@@ -117,6 +140,10 @@ public class MessageHandler extends ListenerAdapter {
 							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
 						break;
 				}
+				if (Pages.getPaginator().isEventLocked()) unlock(evt);
+			} catch (Exception e) {
+				if (Pages.getPaginator().isEventLocked()) unlock(evt);
+				throw e;
 			}
 		});
 	}
