@@ -2035,7 +2035,7 @@ public class Pages {
 				msg.addReaction(e).submit();
 			}
 		}
-		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -2056,7 +2056,7 @@ public class Pages {
 					} catch (NullPointerException ignore) {
 					}
 
-					if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 							&& checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
@@ -2125,7 +2125,7 @@ public class Pages {
 				msg.addReaction(e).submit();
 			}
 		}
-		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final AtomicReference<Future<?>> timeout = new AtomicReference<>(null);
@@ -2155,7 +2155,7 @@ public class Pages {
 
 					}
 
-					if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 							&& checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
@@ -2225,7 +2225,7 @@ public class Pages {
 				msg.addReaction(e).submit();
 			}
 		}
-		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> handler.removeEvent(msg);
@@ -2248,7 +2248,7 @@ public class Pages {
 
 						}
 
-						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 								&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
@@ -2322,7 +2322,7 @@ public class Pages {
 				msg.addReaction(e).submit();
 			}
 		}
-		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final AtomicReference<Future<?>> timeout = new AtomicReference<>(null);
@@ -2353,7 +2353,7 @@ public class Pages {
 
 						}
 
-						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 								&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
@@ -2424,7 +2424,7 @@ public class Pages {
 				msg.addReaction(e).submit();
 			}
 		}
-		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final Consumer<Void> success = s -> {
@@ -2450,7 +2450,7 @@ public class Pages {
 
 						}
 
-						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 								&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
@@ -2524,7 +2524,7 @@ public class Pages {
 				msg.addReaction(e).submit();
 			}
 		}
-		if (!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<GenericMessageReactionEvent>() {
 			private final AtomicReference<Future<?>> timeout = new AtomicReference<>(null);
@@ -2555,7 +2555,7 @@ public class Pages {
 
 						}
 
-						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
+						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 								&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
