@@ -1,13 +1,13 @@
 package com.github.ygimenez.model;
 
+import com.coder4.emoji.EmojiUtils;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.ygimenez.type.Emote.*;
 
@@ -43,7 +43,7 @@ public class Paginator {
 	 * You should not create a {@link Paginator} instance directly, please use {@link PaginatorBuilder}.
 	 *
 	 * @param handler The handler that'll be used for event processing
-	 * (must be either {@link JDA} or {@link ShardManager}).
+	 *                (must be either {@link JDA} or {@link ShardManager}).
 	 */
 	public Paginator(Object handler) {
 		this.handler = handler;
@@ -63,7 +63,7 @@ public class Paginator {
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param handler The handler that'll be used for event processing
-	 * (must be either {@link JDA} or {@link ShardManager}).
+	 *                (must be either {@link JDA} or {@link ShardManager}).
 	 */
 	protected void setHandler(Object handler) {
 		this.handler = handler;
@@ -98,6 +98,20 @@ public class Paginator {
 	 */
 	public Map<Emote, String> getEmotes() {
 		return emotes;
+	}
+
+	/**
+	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
+	 * into IDs.
+	 *
+	 * @return Either the codepoint (if it is an emoji) or the ID (if it is an emote).
+	 */
+	public String getEmote(Emote e) {
+		String emt = emotes.get(e);
+		return EmojiUtils.containsEmoji(emt) ? emt : Arrays.stream(emt.split(":"))
+				.filter(StringUtils::isNumeric)
+				.max(Comparator.comparingInt(String::length))
+				.orElse(null);
 	}
 
 	/**

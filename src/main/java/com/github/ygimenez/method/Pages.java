@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
@@ -212,21 +213,22 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (checkEmote(reaction, PREVIOUS)) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+					} else if (checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -304,21 +306,22 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (checkEmote(reaction, PREVIOUS)) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+					} else if (checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -388,21 +391,22 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+						if (checkEmote(reaction, PREVIOUS)) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						} else if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -484,21 +488,22 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+						if (checkEmote(reaction, PREVIOUS)) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						} else if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -570,35 +575,36 @@ public class Pages {
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (checkEmote(reaction, PREVIOUS)) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
 						if (p > 0) {
 							p = 0;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
+					} else if (checkEmote(reaction, GOTO_LAST)) {
 						if (p < maxP) {
 							p = maxP;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+					} else if (checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -679,35 +685,36 @@ public class Pages {
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (checkEmote(reaction, PREVIOUS)) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
 						if (p > 0) {
 							p = 0;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
+					} else if (checkEmote(reaction, GOTO_LAST)) {
 						if (p < maxP) {
 							p = maxP;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+					} else if (checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -781,35 +788,36 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+						if (checkEmote(reaction, PREVIOUS)) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
+						} else if (checkEmote(reaction, GOTO_FIRST)) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
+						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						} else if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -894,35 +902,36 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+						if (checkEmote(reaction, PREVIOUS)) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
+						} else if (checkEmote(reaction, GOTO_FIRST)) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
+						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						} else if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -994,35 +1003,36 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (checkEmote(reaction, PREVIOUS)) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 						if (p > 0) {
 							p -= (p - skipAmount < 0 ? p : skipAmount);
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
 						if (p < maxP) {
 							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+					} else if (checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -1104,35 +1114,36 @@ public class Pages {
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (checkEmote(reaction, PREVIOUS)) {
 						if (p > 0) {
 							p--;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 						if (p > 0) {
 							p -= (p - skipAmount < 0 ? p : skipAmount);
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
 						if (p < maxP) {
 							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 							Page pg = pgs.get(p);
 
 							updatePage(msg, pg);
 						}
-					} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+					} else if (checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -1206,35 +1217,36 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+						if (checkEmote(reaction, PREVIOUS)) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
+						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
+						} else if (checkEmote(reaction, SKIP_FORWARD)) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						} else if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -1320,35 +1332,36 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+						if (checkEmote(reaction, PREVIOUS)) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
+						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
+						} else if (checkEmote(reaction, SKIP_FORWARD)) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						} else if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -1426,49 +1439,50 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+						if (checkEmote(reaction, PREVIOUS)) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
+						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
+						} else if (checkEmote(reaction, SKIP_FORWARD)) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
+						} else if (checkEmote(reaction, GOTO_FIRST)) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
+						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						} else if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -1557,49 +1571,50 @@ public class Pages {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(PREVIOUS))) {
+						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+						if (checkEmote(reaction, PREVIOUS)) {
 							if (p > 0) {
 								p--;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(NEXT))) {
+						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_BACKWARD))) {
+						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(SKIP_FORWARD))) {
+						} else if (checkEmote(reaction, SKIP_FORWARD)) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_FIRST))) {
+						} else if (checkEmote(reaction, GOTO_FIRST)) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(GOTO_LAST))) {
+						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
 								updatePage(msg, pg);
 							}
-						} else if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						} else if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -1673,10 +1688,11 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
-					if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+					if (checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -1696,9 +1712,9 @@ public class Pages {
 						return;
 					}
 
-					Page pg = cats.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
+					Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
 
-					currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
+					currCat = updateCategory(reaction.getName(), msg, pg);
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 						try {
 							event.getReaction().removeReaction(u).submit();
@@ -1764,10 +1780,11 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
-					if (Objects.requireNonNull(u).isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (Objects.requireNonNull(u).isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+					if (checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -1790,9 +1807,9 @@ public class Pages {
 					if (timeout.get() != null) timeout.get().cancel(true);
 					setTimeout(timeout, success, msg, time, unit);
 
-					Page pg = cats.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
+					Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
 
-					currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
+					currCat = updateCategory(reaction.getName(), msg, pg);
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 						try {
 							event.getReaction().removeReaction(u).submit();
@@ -1846,11 +1863,12 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
-						if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -1870,9 +1888,9 @@ public class Pages {
 							return;
 						}
 
-						Page pg = cats.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
+						Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
 
-						currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
+						currCat = updateCategory(reaction.getName(), msg, pg);
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
 								event.getReaction().removeReaction(u).submit();
@@ -1941,11 +1959,12 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
-						if (u.isBot() || event.getReactionEmote().getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+						if (checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -1965,12 +1984,12 @@ public class Pages {
 							return;
 						}
 
-						Page pg = cats.get(event.getReactionEmote().isEmoji() ? event.getReactionEmote().getName() : event.getReactionEmote().getId());
+						Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
 
 						if (timeout.get() != null) timeout.get().cancel(true);
 						setTimeout(timeout, success, msg, time, unit);
 
-						currCat = updateCategory(event.getReactionEmote().getName(), msg, pg);
+						currCat = updateCategory(reaction.getName(), msg, pg);
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							try {
 								event.getReaction().removeReaction(u).submit();
@@ -2025,19 +2044,20 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					try {
-						if (event.getReactionEmote().isEmoji())
-							btns.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
 						else
-							btns.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 					} catch (NullPointerException ignore) {
 					}
 
 					if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
-							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+							&& checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -2122,20 +2142,21 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					try {
-						if (event.getReactionEmote().isEmoji())
-							btns.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
 						else
-							btns.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 					} catch (NullPointerException ignore) {
 
 					}
 
 					if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
-							&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+							&& checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -2213,21 +2234,22 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						try {
-							if (event.getReactionEmote().isEmoji())
-								btns.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+							if (reaction.isEmoji())
+								btns.get(reaction.getName()).accept(event.getMember(), msg);
 							else
-								btns.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+								btns.get(reaction.getId()).accept(event.getMember(), msg);
 						} catch (NullPointerException ignore) {
 
 						}
 
 						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
-								&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+								&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -2317,21 +2339,22 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						try {
-							if (event.getReactionEmote().isEmoji())
-								btns.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+							if (reaction.isEmoji())
+								btns.get(reaction.getName()).accept(event.getMember(), msg);
 							else
-								btns.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+								btns.get(reaction.getId()).accept(event.getMember(), msg);
 						} catch (NullPointerException ignore) {
 
 						}
 
 						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
-								&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+								&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -2413,21 +2436,22 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						try {
-							if (event.getReactionEmote().isEmoji())
-								btns.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+							if (reaction.isEmoji())
+								btns.get(reaction.getName()).accept(event.getMember(), msg);
 							else
-								btns.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+								btns.get(reaction.getId()).accept(event.getMember(), msg);
 						} catch (NullPointerException ignore) {
 
 						}
 
 						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
-								&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+								&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -2517,21 +2541,22 @@ public class Pages {
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
 					Message msg = event.retrieveMessage().complete();
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						try {
-							if (event.getReactionEmote().isEmoji())
-								btns.get(event.getReactionEmote().getName()).accept(event.getMember(), msg);
+							if (reaction.isEmoji())
+								btns.get(reaction.getName()).accept(event.getMember(), msg);
 							else
-								btns.get(event.getReactionEmote().getId()).accept(event.getMember(), msg);
+								btns.get(reaction.getId()).accept(event.getMember(), msg);
 						} catch (NullPointerException ignore) {
 
 						}
 
 						if ((!btns.containsKey(paginator.getEmotes().get(CANCEL)) && showCancelButton)
-								&& event.getReactionEmote().getName().equals(paginator.getEmotes().get(CANCEL))) {
+								&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -2637,5 +2662,20 @@ public class Pages {
 					})
 			);
 		}
+	}
+
+	/**
+	 * Utility method used to check if a reaction's {@link net.dv8tion.jda.api.entities.Emote} equals
+	 * to given {@link Emote} set during building.
+	 * <strong>Must not be called outside of {@link Pages}</strong>.
+	 *
+	 * @param reaction The reaction returned by {@link ListenerAdapter#onMessageReactionAdd}
+	 * @param emote The {@link Emote} to check.
+	 * @return Whether the reaction's name or ID equals to the {@link Emote}'s definition.
+	 */
+	private static boolean checkEmote(MessageReaction.ReactionEmote reaction, Emote emote) {
+		if (reaction.isEmoji() && reaction.getName().equals(paginator.getEmote(emote)))
+			return true;
+		else return reaction.isEmote() && reaction.getId().equals(paginator.getEmote(emote));
 	}
 }

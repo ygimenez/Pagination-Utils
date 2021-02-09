@@ -84,6 +84,11 @@
             <artifactId>simple-emoji-4j</artifactId>
             <version>f26d3b39be</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.11</version>
+        </dependency>
     </dependencies>
 
     <properties>
