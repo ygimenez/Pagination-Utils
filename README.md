@@ -1,14 +1,14 @@
 [build]: https://github.com/ygimenez/PaginationUtils/tree/master
 [jitpack]: https://jitpack.io/#ygimenez/PaginationUtils
-[bintray]: https://bintray.com/ygimenez/maven/Pagination-Utils/_latestVersion
+[mvncentral]: https://mvnrepository.com/artifact/com.github.ygimenez/Pagination-Utils
 [license]: https://github.com/ygimenez/PaginationUtils/blob/master/LICENSE
 [issue]: https://github.com/ygimenez/PaginationUtils/issues
 [build-shield]: https://img.shields.io/github/workflow/status/ygimenez/PaginationUtils/Java%20CI?label=Build
 [jitpack-shield]: https://img.shields.io/badge/Download-Jitpack-success
-[bintray-shield]: https://api.bintray.com/packages/ygimenez/maven/Pagination-Utils/images/download.svg
+[mvncentral-shield]: https://img.shields.io/maven-central/v/com.github.ygimenez/Pagination-Utils?label=Maven%20Central
 [license-shield]: https://img.shields.io/github/license/ygimenez/PaginationUtils?color=lightgrey&label=License
 [issue-shield]: https://img.shields.io/github/issues/ygimenez/PaginationUtils?label=Issues
-[ ![bintray-shield][] ][bintray]
+[ ![mvncentral-shield][] ][mvncentral]
 [ ![jitpack-shield][] ][jitpack]
 [ ![build-shield][] ][build]
 [ ![license-shield][] ][license]
@@ -187,31 +187,7 @@ This library is available for manual installation and through Jitpack:
 * Add it to the buildpath
 * Done!
 
-### To install via Jitpack
-* Add the Jitpack repository to your project:
-
-Gradle:
-
-```gradle
-allprojects {
-    repositories {
-        ...
-        maven { url 'https://jitpack.io' }
-    }
-}
-```
-
-Maven:
-
-```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-```
-
+### To install via Maven Central
 * Add this library as a dependency:
 
 Gradle:
@@ -232,7 +208,7 @@ Maven:
 </dependency>
 ```
 
-* Replace `VERSION` with the one shown here: [ ![bintray-shield][] ][bintray]
+* Replace `VERSION` with the one shown here (without "v"): [ ![mvncentral-shield][] ][mvncentral]
 * Done!
 
 ## Feedback
