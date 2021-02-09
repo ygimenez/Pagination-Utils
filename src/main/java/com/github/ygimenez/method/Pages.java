@@ -1656,7 +1656,7 @@ public class Pages {
 	 *
 	 * @param msg        The {@link Message} sent which will be categorized.
 	 * @param categories The categories to be shown. The categories are defined by
-	 *                   a {@link Map} containing emote unicodes as keys and
+	 *                   a {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                   {@link Pages} as values.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
@@ -1736,7 +1736,7 @@ public class Pages {
 	 *
 	 * @param msg        The {@link Message} sent which will be categorized.
 	 * @param categories The categories to be shown. The categories are defined by a
-	 *                   {@link Map} containing emote unicodes as keys and
+	 *                   {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                   {@link Pages} as values.
 	 * @param time       The time before the listener automatically stop listening
 	 *                   for further events (recommended: 60).
@@ -1829,7 +1829,7 @@ public class Pages {
 	 *
 	 * @param msg         The {@link Message} sent which will be categorized.
 	 * @param categories  The categories to be shown. The categories are defined by
-	 *                    a {@link Map} containing emote unicodes as keys and
+	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                    {@link Pages} as values.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
@@ -1913,7 +1913,7 @@ public class Pages {
 	 *
 	 * @param msg         The {@link Message} sent which will be categorized.
 	 * @param categories  The categories to be shown. The categories are defined by
-	 *                    a {@link Map} containing emote unicodes as keys and
+	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                    {@link Pages} as values.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
@@ -2010,7 +2010,7 @@ public class Pages {
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
-	 *                         {@link Map} containing emote unicodes as keys and
+	 *                         {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>}
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
@@ -2096,7 +2096,7 @@ public class Pages {
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
-	 *                         Map containing emote unicodes as keys and
+	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
@@ -2197,7 +2197,7 @@ public class Pages {
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
-	 *                         Map containing emote unicodes as keys and
+	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
@@ -2290,7 +2290,7 @@ public class Pages {
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
-	 *                         Map containing emote unicodes as keys and
+	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
@@ -2396,7 +2396,7 @@ public class Pages {
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
-	 *                         Map containing emote unicodes as keys and
+	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
@@ -2491,7 +2491,7 @@ public class Pages {
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
-	 *                         Map containing emote unicodes as keys and
+	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
