@@ -5,6 +5,7 @@ import com.github.ygimenez.exception.*;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.Paginator;
+import com.github.ygimenez.model.PaginatorBuilder;
 import com.github.ygimenez.type.Emote;
 import com.github.ygimenez.type.PageType;
 import net.dv8tion.jda.api.JDA;
@@ -36,8 +37,18 @@ import static com.github.ygimenez.type.Emote.*;
  * {@link #buttonize(Message, Map, boolean)}.
  */
 public class Pages {
-	protected static MessageHandler handler = new MessageHandler();
+	/**
+	 * The single {@link MessageHandler} instance which will be used for button event management.
+	 */
+	protected static final MessageHandler handler = new MessageHandler();
+	/**
+	 * The {@link Paginator} instance created during {@link PaginatorBuilder} setup.
+	 */
 	protected static Paginator paginator;
+	/**
+	 * <strong>DEPRECATED:</strong> Activation will be checked through {@link Paginator} reference.<br>
+	 * Whether the library has been activated or not
+	 */
 	protected static boolean activated;
 
 	/**
@@ -2011,7 +2022,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         {@link Map} containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>}
+	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;.
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -2097,7 +2108,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
+	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2198,7 +2209,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
+	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
@@ -2291,7 +2302,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
+	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2397,7 +2408,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
+	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
@@ -2492,7 +2503,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}<{@link Member}, {@link Message}>
+	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2592,7 +2603,7 @@ public class Pages {
 
 	/**
 	 * Method used to update the current page.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
+	 * <strong>Must not be called outside of {@link Pages}&lt;/strong>.
 	 *
 	 * @param msg The current {@link Message} object.
 	 * @param p   The current {@link Page} index.
@@ -2608,7 +2619,7 @@ public class Pages {
 
 	/**
 	 * Method used to update the current category.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
+	 * <strong>Must not be called outside of {@link Pages}&lt;/strong>.
 	 *
 	 * @param emote The button pressed by the user.
 	 * @param msg   The current {@link Message} object.
@@ -2632,7 +2643,7 @@ public class Pages {
 
 	/**
 	 * Method used to set expiration of the events.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
+	 * <strong>Must not be called outside of {@link Pages}&lt;/strong>.
 	 *
 	 * @param timeout The {@link Future} reference which will contain expiration action.
 	 * @param success The {@link Consumer} to be called after expiration.
@@ -2667,7 +2678,7 @@ public class Pages {
 	/**
 	 * Utility method used to check if a reaction's {@link net.dv8tion.jda.api.entities.Emote} equals
 	 * to given {@link Emote} set during building.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
+	 * <strong>Must not be called outside of {@link Pages}&lt;/strong>.
 	 *
 	 * @param reaction The reaction returned by {@link ListenerAdapter#onMessageReactionAdd}
 	 * @param emote The {@link Emote} to check.

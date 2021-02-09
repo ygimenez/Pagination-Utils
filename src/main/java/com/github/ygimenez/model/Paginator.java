@@ -104,10 +104,11 @@ public class Paginator {
 	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
 	 * into IDs.
 	 *
+	 * @param emote The {@link Emote} to be defined.
 	 * @return Either the codepoint (if it is an emoji) or the ID (if it is an emote).
 	 */
-	public String getEmote(Emote e) {
-		String emt = emotes.get(e);
+	public String getEmote(Emote emote) {
+		String emt = emotes.get(emote);
 		return EmojiUtils.containsEmoji(emt) ? emt : Arrays.stream(emt.split(":"))
 				.filter(StringUtils::isNumeric)
 				.max(Comparator.comparingInt(String::length))

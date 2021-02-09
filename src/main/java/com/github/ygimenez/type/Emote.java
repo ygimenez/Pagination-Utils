@@ -1,5 +1,8 @@
 package com.github.ygimenez.type;
 
+/**
+ * Enumerator representing values required by non-dynamic buttons.
+ */
 public enum Emote {
 	/**
 	 * {@link Emote} representing the "next" button (default: &#x25B6;).

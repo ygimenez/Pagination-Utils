@@ -6,6 +6,9 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Class representing either a {@link Message} or {@link MessageEmbed} object.
+ */
 public class Page {
 	private final PageType type;
 	private final Object content;

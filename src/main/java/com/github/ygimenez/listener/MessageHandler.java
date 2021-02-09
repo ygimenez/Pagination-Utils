@@ -13,13 +13,29 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * Class responsible for handling reaction events sent by the handler.<br>
+ * Only one event is added to the handler to prevent cluttering and unnecessary listeners.
+ */
 public class MessageHandler extends ListenerAdapter {
 	private final Map<String, Consumer<GenericMessageReactionEvent>> events = new HashMap<>();
 
+	/**
+	 * Adds an event to the handler, which will be executed whenever a button with the same
+	 * ID is pressed.
+	 *
+	 * @param id The ID of the event.
+	 * @param act The action to be executed when the button is pressed.
+	 */
 	public void addEvent(String id, Consumer<GenericMessageReactionEvent> act) {
 		events.put(id, act);
 	}
 
+	/**
+	 * Removes an event from the handler.
+	 *
+	 * @param msg The {@link Message} which had attached events.
+	 */
 	public void removeEvent(Message msg) {
 		switch (msg.getChannelType()) {
 			case TEXT:
