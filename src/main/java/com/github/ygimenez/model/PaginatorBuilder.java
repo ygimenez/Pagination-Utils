@@ -1,11 +1,14 @@
 package com.github.ygimenez.model;
 
+import com.coder4.emoji.EmojiUtils;
+import com.github.ygimenez.exception.InvalidEmoteException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -41,7 +44,7 @@ public class PaginatorBuilder {
 	 * Creates a new {@link Paginator} instance using default settings.
 	 *
 	 * @param handler The handler that'll be used for event processing
-	 * (must be either {@link JDA} or {@link ShardManager}).
+	 *                (must be either {@link JDA} or {@link ShardManager}).
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
 	public static Paginator createSimplePaginator(@Nonnull Object handler) {
@@ -64,8 +67,10 @@ public class PaginatorBuilder {
 	 * Sets the handler used for event processing.
 	 *
 	 * @param handler The handler that'll be used for event processing
-	 * (must be either {@link JDA} or {@link ShardManager}).
+	 *                (must be either {@link JDA} or {@link ShardManager}).
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 * @throws InvalidHandlerException If the supplied handler is not a {@link JDA} or {@link ShardManager}
+	 * object.
 	 */
 	public PaginatorBuilder setHandler(@Nonnull Object handler) throws InvalidHandlerException {
 		if (!(handler instanceof JDA) && !(handler instanceof ShardManager))
@@ -110,15 +115,32 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Modify an {@link Emote}'s code from the {@link Map}. Beware, the code must be in either unicode or Discord
-	 * notation, else the buttons <strong>WILL NOT BE ADDED</strong> and will lead to errors.
+	 * Modify an {@link Emote}'s code from the {@link Map}. Beware, the code must be either unicode or
+	 * {@link net.dv8tion.jda.api.entities.Emote}'s ID,
+	 * else the buttons <strong>WILL NOT BE ADDED</strong> and will lead to errors.
 	 *
 	 * @param emote The {@link Emote} to be set.
-	 * @param code The new {@link Emote}'s code.
+	 * @param code  The new {@link Emote}'s code.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
+	 * object.
+	 * @throws InvalidEmoteException If the supplied {@link net.dv8tion.jda.api.entities.Emote} is not from
+	 * a guild your bot's in and is not unicode.
 	 */
-	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) {
-		paginator.getEmotes().put(emote, code);
+	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
+		if (StringUtils.isNumeric(code)) {
+			net.dv8tion.jda.api.entities.Emote e;
+			if (paginator.getHandler() instanceof JDA)
+				e = ((JDA) paginator.getHandler()).getEmoteById(code);
+			else if (paginator.getHandler() instanceof ShardManager)
+				e = ((ShardManager) paginator.getHandler()).getEmoteById(code);
+			else throw new InvalidHandlerException();
+
+			if (e == null) throw new InvalidEmoteException();
+			paginator.getEmotes().put(emote, e.getName() + ":" + e.getId());
+		} else if (EmojiUtils.containsEmoji(code)) {
+			paginator.getEmotes().put(emote, code);
+		} else throw new InvalidEmoteException();
 		return this;
 	}
 
