@@ -5,35 +5,35 @@ package com.github.ygimenez.type;
  */
 public enum Emote {
 	/**
-	 * {@link Emote} representing the "next" button (default: &#x25B6;).
+	 * {@link Emote} representing the "next" button (default: ▶).
 	 */
 	NEXT,
 	/**
-	 * {@link Emote} representing the "previous" button (default: &#x25C0;).
+	 * {@link Emote} representing the "previous" button (default: ◀).
 	 */
 	PREVIOUS,
 	/**
-	 * {@link Emote} representing the "accept" button (default: &#x2705;).
+	 * {@link Emote} representing the "accept" button (default: ✅).
 	 */
 	ACCEPT,
 	/**
-	 * {@link Emote} representing the "cancel" button (default: &#x274E;).
+	 * {@link Emote} representing the "cancel" button (default: ❎).
 	 */
 	CANCEL,
 	/**
-	 * {@link Emote} representing the "skip forward" button (default: &#x23E9;).
+	 * {@link Emote} representing the "skip forward" button (default: ⏩).
 	 */
 	SKIP_FORWARD,
 	/**
-	 * {@link Emote} representing the "skip backward" button (default: &#x23EA;).
+	 * {@link Emote} representing the "skip backward" button (default: ⏪).
 	 */
 	SKIP_BACKWARD,
 	/**
-	 * {@link Emote} representing the "go to first" button (default: &#x23EE;&#xFE0F;).
+	 * {@link Emote} representing the "go to first" button (default: ⏮).
 	 */
 	GOTO_FIRST,
 	/**
-	 * {@link Emote} representing the "go to last" button (default: &#x23ED;&#xFE0F;).
+	 * {@link Emote} representing the "go to last" button (default: ⏭).
 	 */
 	GOTO_LAST
 }
