@@ -208,7 +208,7 @@ Maven:
 </dependency>
 ```
 
-* Replace `VERSION` with the one shown here: [ ![mvncentral-shield][] ][mvncentral]
+* Replace `VERSION` with the one shown here (without "v"): [ ![mvncentral-shield][] ][mvncentral]
 * Done!
 
 ## Feedback
