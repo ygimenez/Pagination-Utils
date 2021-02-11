@@ -11,7 +11,7 @@ public interface ThrowingBiConsumer<A, B> extends BiConsumer<A, B> {
 	void acceptThrows(A a, B b) throws Exception;
 
 	@Override
-	default void accept(A a, B b) throws RuntimeException {
+	default void accept(A a, B b) {
 		try {
 			acceptThrows(a, b);
 		} catch (final Exception e) {

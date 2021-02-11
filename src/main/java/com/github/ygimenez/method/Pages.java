@@ -228,7 +228,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -318,7 +320,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -399,7 +403,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -493,7 +499,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -578,7 +586,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -685,7 +695,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -784,7 +796,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -895,7 +909,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -994,7 +1010,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -1102,7 +1120,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -1201,7 +1221,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1313,7 +1335,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1417,7 +1441,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1546,7 +1572,9 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1664,7 +1692,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -1753,7 +1783,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -1833,7 +1865,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
@@ -1926,7 +1960,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
@@ -2008,7 +2044,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -2100,7 +2138,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -2185,7 +2225,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
@@ -2283,7 +2325,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
@@ -2373,7 +2417,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
@@ -2471,7 +2517,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().submit().getNow(null);
+					Message msg = event.getChannel()
+							.retrieveMessageById(event.getReaction().getMessageId())
+							.submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
