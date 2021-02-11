@@ -6,6 +6,7 @@ import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.Paginator;
 import com.github.ygimenez.model.PaginatorBuilder;
+import com.github.ygimenez.model.ThrowingBiConsumer;
 import com.github.ygimenez.type.Emote;
 import com.github.ygimenez.type.PageType;
 import net.dv8tion.jda.api.JDA;
@@ -24,7 +25,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -1976,7 +1976,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         {@link Map} containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;.
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;.
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -1987,9 +1987,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2056,7 +2056,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2071,9 +2071,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2150,7 +2150,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
@@ -2164,9 +2164,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2236,7 +2236,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2254,9 +2254,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2335,7 +2335,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
@@ -2349,9 +2349,9 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2423,7 +2423,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2442,9 +2442,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
