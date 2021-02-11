@@ -24,7 +24,6 @@ public class Paginator {
 	private Object handler = null;
 	private boolean removeOnReact = false;
 	private boolean eventLocked = false;
-	private Logger logger = null;
 	private Map<Emote, String> emotes = new HashMap<Emote, String>() {{
 		put(NEXT, "\u25B6");
 		put(PREVIOUS, "\u25C0");
@@ -111,14 +110,6 @@ public class Paginator {
 	 */
 	protected void setEventLocked(boolean hashLocking) {
 		this.eventLocked = hashLocking;
-	}
-
-	public Logger getLogger() {
-		return logger;
-	}
-
-	public void setLogger(Logger logger) {
-		this.logger = logger;
 	}
 
 	/**
