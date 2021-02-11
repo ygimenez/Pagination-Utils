@@ -104,8 +104,8 @@ public class MessageHandler extends ListenerAdapter {
 		evt.retrieveUser().submit().thenAccept(u -> {
 			if (u.isBot()) return;
 
-			boolean removeOnReact =
-					(Pages.isActivated() && Pages.getPaginator() == null) || (Pages.isActivated() && Pages.getPaginator().isRemoveOnReact());
+			boolean removeOnReact = (Pages.isActivated() && Pages.getPaginator() == null)
+									|| (Pages.isActivated() && Pages.getPaginator().isRemoveOnReact());
 
 			if (evt.isFromGuild() && removeOnReact) {
 				evt.getPrivateChannel().retrieveMessageById(evt.getMessageId()).submit().thenAccept(msg -> {
@@ -113,7 +113,7 @@ public class MessageHandler extends ListenerAdapter {
 						case TEXT:
 							if (events.containsKey(evt.getGuild().getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
 								if (evt.getReactionEmote().isEmoji())
-									msg.addReaction(evt.getReactionEmote().getAsCodepoints()).submit();
+									msg.addReaction(evt.getReactionEmote().getName()).submit();
 								else
 									msg.addReaction(evt.getReactionEmote().getEmote()).submit();
 							}
@@ -121,7 +121,7 @@ public class MessageHandler extends ListenerAdapter {
 						case PRIVATE:
 							if (events.containsKey(evt.getPrivateChannel().getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
 								if (evt.getReactionEmote().isEmoji())
-									msg.addReaction(evt.getReactionEmote().getAsCodepoints()).submit();
+									msg.addReaction(evt.getReactionEmote().getName()).submit();
 								else
 									msg.addReaction(evt.getReactionEmote().getEmote()).submit();
 							}

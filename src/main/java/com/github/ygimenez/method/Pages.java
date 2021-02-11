@@ -6,6 +6,7 @@ import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.Paginator;
 import com.github.ygimenez.model.PaginatorBuilder;
+import com.github.ygimenez.model.ThrowingBiConsumer;
 import com.github.ygimenez.type.Emote;
 import com.github.ygimenez.type.PageType;
 import net.dv8tion.jda.api.JDA;
@@ -20,12 +21,10 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -191,6 +190,15 @@ public class Pages {
 	}
 
 	/**
+	 * Retrieves the library's {@link MessageHandler} object.
+	 *
+	 * @return The {@link MessageHandler} object.
+	 */
+	public static MessageHandler getHandler() {
+		return handler;
+	}
+
+	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages.
 	 *
@@ -220,8 +228,8 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
-					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+					Message msg = event.retrieveMessage().submit().getNow(null);
+					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
@@ -259,10 +267,7 @@ public class Pages {
 					}
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -313,8 +318,8 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
-					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+					Message msg = event.retrieveMessage().submit().getNow(null);
+					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
@@ -355,10 +360,7 @@ public class Pages {
 					setTimeout(timeout, success, msg, time, unit);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -397,7 +399,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -437,10 +439,7 @@ public class Pages {
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -494,7 +493,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -537,10 +536,7 @@ public class Pages {
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -582,7 +578,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -635,10 +631,7 @@ public class Pages {
 					}
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -692,7 +685,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
@@ -748,10 +741,7 @@ public class Pages {
 					setTimeout(timeout, success, msg, time, unit);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -794,7 +784,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -848,10 +838,7 @@ public class Pages {
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -908,7 +895,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -965,10 +952,7 @@ public class Pages {
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -1010,8 +994,8 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
-					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+					Message msg = event.retrieveMessage().submit().getNow(null);
+					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
@@ -1063,10 +1047,7 @@ public class Pages {
 					}
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -1121,8 +1102,8 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
-					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+					Message msg = event.retrieveMessage().submit().getNow(null);
+					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
@@ -1177,10 +1158,7 @@ public class Pages {
 					setTimeout(timeout, success, msg, time, unit);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -1223,7 +1201,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1277,10 +1255,7 @@ public class Pages {
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -1338,7 +1313,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1395,10 +1370,7 @@ public class Pages {
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -1445,7 +1417,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1513,10 +1485,7 @@ public class Pages {
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -1577,7 +1546,7 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
@@ -1648,10 +1617,7 @@ public class Pages {
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -1698,7 +1664,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -1727,10 +1693,7 @@ public class Pages {
 
 					currCat = updateCategory(reaction.getName(), msg, pg);
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -1790,9 +1753,9 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (Objects.requireNonNull(u).isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, CANCEL)) {
@@ -1822,10 +1785,7 @@ public class Pages {
 
 					currCat = updateCategory(reaction.getName(), msg, pg);
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -1873,7 +1833,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
@@ -1903,10 +1863,7 @@ public class Pages {
 
 						currCat = updateCategory(reaction.getName(), msg, pg);
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -1969,7 +1926,7 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || reaction.getName().equals(currCat) || !event.getMessageId().equals(msg.getId()))
@@ -2002,10 +1959,7 @@ public class Pages {
 
 						currCat = updateCategory(reaction.getName(), msg, pg);
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -2022,7 +1976,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         {@link Map} containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;.
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;.
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -2033,9 +1987,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2054,21 +2008,18 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					try {
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
-					} catch (NullPointerException ignore) {
-					}
+					if (reaction.isEmoji())
+						btns.get(reaction.getName()).accept(event.getMember(), msg);
+					else
+						btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-							&& checkEmote(reaction, CANCEL)) {
+						&& checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -2088,10 +2039,7 @@ public class Pages {
 					}
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -2108,7 +2056,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2123,9 +2071,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2152,22 +2100,18 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (Objects.requireNonNull(u).isBot() || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					try {
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
-					} catch (NullPointerException ignore) {
-
-					}
+					if (reaction.isEmoji())
+						btns.get(reaction.getName()).accept(event.getMember(), msg);
+					else
+						btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-							&& checkEmote(reaction, CANCEL)) {
+						&& checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
@@ -2190,10 +2134,7 @@ public class Pages {
 					setTimeout(timeout, success, msg, time, unit);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						try {
-							event.getReaction().removeReaction(u).submit();
-						} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-						}
+						event.getReaction().removeReaction(u).submit();
 					}
 				});
 			}
@@ -2209,7 +2150,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
@@ -2223,9 +2164,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2244,23 +2185,19 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						try {
-							if (reaction.isEmoji())
-								btns.get(reaction.getName()).accept(event.getMember(), msg);
-							else
-								btns.get(reaction.getId()).accept(event.getMember(), msg);
-						} catch (NullPointerException ignore) {
-
-						}
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
+						else
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-								&& checkEmote(reaction, CANCEL)) {
+							&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -2280,10 +2217,7 @@ public class Pages {
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -2302,7 +2236,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2320,9 +2254,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2349,23 +2283,19 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						try {
-							if (reaction.isEmoji())
-								btns.get(reaction.getName()).accept(event.getMember(), msg);
-							else
-								btns.get(reaction.getId()).accept(event.getMember(), msg);
-						} catch (NullPointerException ignore) {
-
-						}
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
+						else
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-								&& checkEmote(reaction, CANCEL)) {
+							&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -2388,10 +2318,7 @@ public class Pages {
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -2408,7 +2335,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
@@ -2422,9 +2349,9 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2446,23 +2373,19 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						try {
-							if (reaction.isEmoji())
-								btns.get(reaction.getName()).accept(event.getMember(), msg);
-							else
-								btns.get(reaction.getId()).accept(event.getMember(), msg);
-						} catch (NullPointerException ignore) {
-
-						}
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
+						else
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-								&& checkEmote(reaction, CANCEL)) {
+							&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -2482,10 +2405,7 @@ public class Pages {
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -2503,7 +2423,7 @@ public class Pages {
 	 * @param msg              The {@link Message} sent which will be buttoned.
 	 * @param buttons          The buttons to be shown. The buttons are defined by a
 	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link BiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
 	 *                         containing desired behavior as value.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
@@ -2522,9 +2442,9 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, BiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, BiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2551,23 +2471,19 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = event.retrieveMessage().complete();
+					Message msg = event.retrieveMessage().submit().getNow(null);
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						try {
-							if (reaction.isEmoji())
-								btns.get(reaction.getName()).accept(event.getMember(), msg);
-							else
-								btns.get(reaction.getId()).accept(event.getMember(), msg);
-						} catch (NullPointerException ignore) {
-
-						}
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
+						else
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-								&& checkEmote(reaction, CANCEL)) {
+							&& checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
@@ -2590,10 +2506,7 @@ public class Pages {
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-							try {
-								event.getReaction().removeReaction(u).submit();
-							} catch (InsufficientPermissionException | ErrorResponseException ignore) {
-							}
+							event.getReaction().removeReaction(u).submit();
 						}
 					}
 				});
@@ -2603,7 +2516,7 @@ public class Pages {
 
 	/**
 	 * Method used to update the current page.
-	 * <strong>Must not be called outside of {@link Pages}&lt;/strong>.
+	 * <strong>Must not be called outside of {@link Pages}&lt;</strong>.
 	 *
 	 * @param msg The current {@link Message} object.
 	 * @param p   The current {@link Page} index.
@@ -2619,7 +2532,7 @@ public class Pages {
 
 	/**
 	 * Method used to update the current category.
-	 * <strong>Must not be called outside of {@link Pages}&lt;/strong>.
+	 * <strong>Must not be called outside of {@link Pages}&lt;</strong>.
 	 *
 	 * @param emote The button pressed by the user.
 	 * @param msg   The current {@link Message} object.
@@ -2643,7 +2556,7 @@ public class Pages {
 
 	/**
 	 * Method used to set expiration of the events.
-	 * <strong>Must not be called outside of {@link Pages}&lt;/strong>.
+	 * <strong>Must not be called outside of {@link Pages}&lt;</strong>.
 	 *
 	 * @param timeout The {@link Future} reference which will contain expiration action.
 	 * @param success The {@link Consumer} to be called after expiration.
@@ -2678,10 +2591,10 @@ public class Pages {
 	/**
 	 * Utility method used to check if a reaction's {@link net.dv8tion.jda.api.entities.Emote} equals
 	 * to given {@link Emote} set during building.
-	 * <strong>Must not be called outside of {@link Pages}&lt;/strong>.
+	 * <strong>Must not be called outside of {@link Pages}&lt;</strong>.
 	 *
 	 * @param reaction The reaction returned by {@link ListenerAdapter#onMessageReactionAdd}
-	 * @param emote The {@link Emote} to check.
+	 * @param emote    The {@link Emote} to check.
 	 * @return Whether the reaction's name or ID equals to the {@link Emote}'s definition.
 	 */
 	private static boolean checkEmote(MessageReaction.ReactionEmote reaction, Emote emote) {

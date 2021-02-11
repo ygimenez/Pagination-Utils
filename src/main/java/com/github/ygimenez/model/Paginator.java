@@ -126,7 +126,7 @@ public class Paginator {
 	 * into IDs.
 	 *
 	 * @param emote The {@link Emote} to be defined.
-	 * @return Either the codepoint (if it is an emoji) or the ID (if it is an emote).
+	 * @return Either the unicode (if it is an emoji) or the ID (if it is an emote).
 	 */
 	public String getEmote(Emote emote) {
 		String emt = emotes.get(emote);
