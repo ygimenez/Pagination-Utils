@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
@@ -47,7 +48,7 @@ public class Pages {
 	protected static Paginator paginator;
 	/**
 	 * <strong>DEPRECATED:</strong> Activation will be checked through {@link Paginator} reference.<br>
-	 * Whether the library has been activated or not
+	 * Whether the library has been activated or not.
 	 */
 	protected static boolean activated;
 
@@ -258,7 +259,7 @@ public class Pages {
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -352,7 +353,7 @@ public class Pages {
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -438,7 +439,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -536,7 +537,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -638,7 +639,7 @@ public class Pages {
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -749,7 +750,7 @@ public class Pages {
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -853,7 +854,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -968,7 +969,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -1070,7 +1071,7 @@ public class Pages {
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -1182,7 +1183,7 @@ public class Pages {
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -1286,7 +1287,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -1402,7 +1403,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -1524,7 +1525,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -1657,7 +1658,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -1708,7 +1709,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -1736,7 +1737,7 @@ public class Pages {
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -1793,7 +1794,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -1829,7 +1830,7 @@ public class Pages {
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -1885,7 +1886,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -1914,7 +1915,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -1974,7 +1975,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -2011,7 +2012,7 @@ public class Pages {
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -2068,7 +2069,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -2090,19 +2091,13 @@ public class Pages {
 					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (reaction.isEmoji())
-						btns.get(reaction.getName()).accept(event.getMember(), msg);
-					else
-						btns.get(reaction.getId()).accept(event.getMember(), msg);
-
-					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-						&& checkEmote(reaction, CANCEL)) {
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -2113,7 +2108,13 @@ public class Pages {
 
 							success.accept(null);
 						}
+						return;
 					}
+
+					if (reaction.isEmoji())
+						btns.get(reaction.getName()).accept(event.getMember(), msg);
+					else
+						btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 						event.getReaction().removeReaction(u).submit();
@@ -2156,7 +2157,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -2186,19 +2187,13 @@ public class Pages {
 					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
-					if (reaction.isEmoji())
-						btns.get(reaction.getName()).accept(event.getMember(), msg);
-					else
-						btns.get(reaction.getId()).accept(event.getMember(), msg);
-
-					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-						&& checkEmote(reaction, CANCEL)) {
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
 						try {
 							if (msg.getChannel().getType().isGuild())
 								msg.clearReactions().submit();
 							else
 								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction(event.getJDA().getSelfUser()).submit();
+									r.removeReaction().submit();
 								}
 
 							success.accept(null);
@@ -2209,7 +2204,13 @@ public class Pages {
 
 							success.accept(null);
 						}
+						return;
 					}
+
+					if (reaction.isEmoji())
+						btns.get(reaction.getName()).accept(event.getMember(), msg);
+					else
+						btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 					if (timeout.get() != null) timeout.get().cancel(true);
 					setTimeout(timeout, success, msg, time, unit);
@@ -2253,7 +2254,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -2276,19 +2277,13 @@ public class Pages {
 						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
-
-						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-							&& checkEmote(reaction, CANCEL)) {
+						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -2299,7 +2294,13 @@ public class Pages {
 
 								success.accept(null);
 							}
+							return;
 						}
+
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
+						else
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							event.getReaction().removeReaction(u).submit();
@@ -2347,7 +2348,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -2378,19 +2379,13 @@ public class Pages {
 						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
-
-						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-							&& checkEmote(reaction, CANCEL)) {
+						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -2401,7 +2396,13 @@ public class Pages {
 
 								success.accept(null);
 							}
+							return;
 						}
+
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
+						else
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if (timeout.get() != null) timeout.get().cancel(true);
 						setTimeout(timeout, success, msg, time, unit);
@@ -2446,7 +2447,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -2472,19 +2473,13 @@ public class Pages {
 						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
-
-						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-							&& checkEmote(reaction, CANCEL)) {
+						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -2495,7 +2490,13 @@ public class Pages {
 
 								success.accept(null);
 							}
+							return;
 						}
+
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
+						else
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							event.getReaction().removeReaction(u).submit();
@@ -2543,7 +2544,7 @@ public class Pages {
 			if (EmojiUtils.containsEmoji(k))
 				msg.addReaction(k).submit();
 			else {
-				net.dv8tion.jda.api.entities.Emote e = msg.getJDA().getEmoteById(k);
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 				if (e == null) throw new InvalidEmoteException();
 				msg.addReaction(e).submit();
 			}
@@ -2574,19 +2575,13 @@ public class Pages {
 						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
-
-						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-							&& checkEmote(reaction, CANCEL)) {
+						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
 							try {
 								if (msg.getChannel().getType().isGuild())
 									msg.clearReactions().submit();
 								else
 									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction(event.getJDA().getSelfUser()).submit();
+										r.removeReaction().submit();
 									}
 
 								success.accept(null);
@@ -2597,7 +2592,13 @@ public class Pages {
 
 								success.accept(null);
 							}
+							return;
 						}
+
+						if (reaction.isEmoji())
+							btns.get(reaction.getName()).accept(event.getMember(), msg);
+						else
+							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if (timeout.get() != null) timeout.get().cancel(true);
 						setTimeout(timeout, success, msg, time, unit);
@@ -2690,7 +2691,7 @@ public class Pages {
 	 * to given {@link Emote} set during building.
 	 * <strong>Must not be called outside of {@link Pages}&lt;</strong>.
 	 *
-	 * @param reaction The reaction returned by {@link ListenerAdapter#onMessageReactionAdd}
+	 * @param reaction The reaction returned by {@link ListenerAdapter#onMessageReactionAdd}.
 	 * @param emote    The {@link Emote} to check.
 	 * @return Whether the reaction's name or ID equals to the {@link Emote}'s definition.
 	 */
@@ -2698,5 +2699,42 @@ public class Pages {
 		if (reaction.isEmoji() && reaction.getName().equals(paginator.getEmote(emote)))
 			return true;
 		else return reaction.isEmote() && reaction.getId().equals(paginator.getEmote(emote));
+	}
+
+	/**
+	 * Utility method to either retrieve the Emote by using a {@link RestAction} or get from
+	 * the cache.
+	 * <strong>Must not be called outside of {@link Pages}&lt;</strong>.
+	 *
+	 * @param id The {@link net.dv8tion.jda.api.entities.Emote}'s ID.
+	 * @return The {@link net.dv8tion.jda.api.entities.Emote} object if found, else returns null.
+	 */
+	private static net.dv8tion.jda.api.entities.Emote getOrRetrieveEmote(String id) {
+		net.dv8tion.jda.api.entities.Emote e = null;
+		if (paginator.getHandler() instanceof JDA) {
+			JDA handler = (JDA) paginator.getHandler();
+
+			if (handler.getEmotes().isEmpty()) {
+				for (Guild guild : handler.getGuilds()) {
+					try {
+						e = guild.retrieveEmoteById(id).complete();
+					} catch (ErrorResponseException ignore) {
+					}
+				}
+			} else e = handler.getEmoteById(id);
+		} else if (paginator.getHandler() instanceof ShardManager) {
+			ShardManager handler = (ShardManager) paginator.getHandler();
+
+			if (handler.getEmotes().isEmpty()) {
+				for (Guild guild : handler.getGuilds()) {
+					try {
+						e = guild.retrieveEmoteById(id).complete();
+					} catch (ErrorResponseException ignore) {
+					}
+				}
+			} else e = handler.getEmoteById(id);
+		}
+
+		return e;
 	}
 }

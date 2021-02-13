@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 import static com.github.ygimenez.type.Emote.*;
 

@@ -7,6 +7,8 @@ import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.StringUtils;
 
@@ -150,12 +152,30 @@ public class PaginatorBuilder {
 	 */
 	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
 		if (StringUtils.isNumeric(code)) {
-			net.dv8tion.jda.api.entities.Emote e;
-			if (paginator.getHandler() instanceof JDA)
-				e = ((JDA) paginator.getHandler()).getEmoteById(code);
-			else if (paginator.getHandler() instanceof ShardManager)
-				e = ((ShardManager) paginator.getHandler()).getEmoteById(code);
-			else throw new InvalidHandlerException();
+			net.dv8tion.jda.api.entities.Emote e = null;
+			if (paginator.getHandler() instanceof JDA) {
+				JDA handler = (JDA) paginator.getHandler();
+
+				if (handler.getEmotes().isEmpty()) {
+					for (Guild guild : handler.getGuilds()) {
+						try {
+							e = guild.retrieveEmoteById(code).complete();
+						} catch (ErrorResponseException ignore) {
+						}
+					}
+				} else e = handler.getEmoteById(code);
+			} else if (paginator.getHandler() instanceof ShardManager) {
+				ShardManager handler = (ShardManager) paginator.getHandler();
+
+				if (handler.getEmotes().isEmpty()) {
+					for (Guild guild : handler.getGuilds()) {
+						try {
+							e = guild.retrieveEmoteById(code).complete();
+						} catch (ErrorResponseException ignore) {
+						}
+					}
+				} else e = handler.getEmoteById(code);
+			} else throw new InvalidHandlerException();
 
 			if (e == null) throw new InvalidEmoteException();
 			paginator.getEmotes().put(emote, e.getName() + ":" + e.getId());
