@@ -5,7 +5,6 @@ import com.github.ygimenez.exception.*;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.Paginator;
-import com.github.ygimenez.model.PaginatorBuilder;
 import com.github.ygimenez.model.ThrowingBiConsumer;
 import com.github.ygimenez.type.Emote;
 import com.github.ygimenez.type.PageType;
@@ -38,19 +37,9 @@ import static com.github.ygimenez.type.Emote.*;
  * {@link #buttonize(Message, Map, boolean)}.
  */
 public class Pages {
-	/**
-	 * The single {@link MessageHandler} instance which will be used for button event management.
-	 */
-	protected static final MessageHandler handler = new MessageHandler();
-	/**
-	 * The {@link Paginator} instance created during {@link PaginatorBuilder} setup.
-	 */
-	protected static Paginator paginator;
-	/**
-	 * <strong>DEPRECATED:</strong> Activation will be checked through {@link Paginator} reference.<br>
-	 * Whether the library has been activated or not.
-	 */
-	protected static boolean activated;
+	private static final MessageHandler handler = new MessageHandler();
+	private static Paginator paginator;
+	private static boolean activated;
 
 	/**
 	 * Sets a {@link Paginator} object to handle incoming reactions. This is
@@ -2715,23 +2704,39 @@ public class Pages {
 			JDA handler = (JDA) paginator.getHandler();
 
 			if (handler.getEmotes().isEmpty()) {
-				for (Guild guild : handler.getGuilds()) {
+				Guild g = handler.getGuildById(paginator.getEmoteMap().getOrDefault(id, "0"));
+
+				if (g != null) {
+					e = g.retrieveEmoteById(id).complete();
+				} else for (Guild guild : handler.getGuilds()) {
 					try {
 						e = guild.retrieveEmoteById(id).complete();
+						break;
 					} catch (ErrorResponseException ignore) {
 					}
 				}
+
+				if (e != null && e.getGuild() != null)
+					paginator.getEmoteMap().put(id, e.getGuild().getId());
 			} else e = handler.getEmoteById(id);
 		} else if (paginator.getHandler() instanceof ShardManager) {
 			ShardManager handler = (ShardManager) paginator.getHandler();
 
 			if (handler.getEmotes().isEmpty()) {
-				for (Guild guild : handler.getGuilds()) {
+				Guild g = handler.getGuildById(paginator.getEmoteMap().getOrDefault(id, "0"));
+
+				if (g != null) {
+					e = g.retrieveEmoteById(id).complete();
+				} else for (Guild guild : handler.getGuilds()) {
 					try {
 						e = guild.retrieveEmoteById(id).complete();
+						break;
 					} catch (ErrorResponseException ignore) {
 					}
 				}
+
+				if (e != null && e.getGuild() != null)
+					paginator.getEmoteMap().put(id, e.getGuild().getId());
 			} else e = handler.getEmoteById(id);
 		}
 

@@ -4,7 +4,9 @@ import com.coder4.emoji.EmojiUtils;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -20,6 +22,7 @@ import static com.github.ygimenez.type.Emote.*;
  * <strong>This class must only be instantiated by {@link PaginatorBuilder}</strong>.
  */
 public class Paginator {
+	private final HashMap<String, String> emoteMap = new HashMap<>();
 	private Object handler = null;
 	private boolean removeOnReact = false;
 	private boolean eventLocked = false;
@@ -48,6 +51,17 @@ public class Paginator {
 	 */
 	public Paginator(Object handler) {
 		this.handler = handler;
+	}
+
+	/**
+	 * Retrieves the mapped {@link net.dv8tion.jda.api.entities.Emote} sources. This will be empty if
+	 * the configured handler has {@link CacheFlag#EMOTE} enabled.
+	 *
+	 * @return The {@link Map} containing {@link net.dv8tion.jda.api.entities.Emote} IDs with their
+	 * respective {@link Guild}s.
+	 */
+	public HashMap<String, String> getEmoteMap() {
+		return emoteMap;
 	}
 
 	/**
