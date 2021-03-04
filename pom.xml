@@ -33,7 +33,7 @@
         <url>https://github.com/ygimenez/Pagination-Utils</url>
         <connection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</connection>
         <developerConnection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</developerConnection>
-        <tag>Pagination-Utils-2.1.2</tag>
+        <tag>Pagination-Utils-2.1.5</tag>
     </scm>
 
     <distributionManagement>
