@@ -304,6 +304,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -356,6 +357,7 @@ public class Pages {
 					}
 
 					if (timeout.get() != null) timeout.get().cancel(true);
+					timeout.set(null);
 					setTimeout(timeout, success, msg, time, unit);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -487,6 +489,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -540,6 +543,7 @@ public class Pages {
 						}
 
 						if (timeout.get() != null) timeout.get().cancel(true);
+						timeout.set(null);
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -687,6 +691,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -753,6 +758,7 @@ public class Pages {
 					}
 
 					if (timeout.get() != null) timeout.get().cancel(true);
+					timeout.set(null);
 					setTimeout(timeout, success, msg, time, unit);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -905,6 +911,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -972,6 +979,7 @@ public class Pages {
 						}
 
 						if (timeout.get() != null) timeout.get().cancel(true);
+						timeout.set(null);
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -1120,6 +1128,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -1186,6 +1195,7 @@ public class Pages {
 					}
 
 					if (timeout.get() != null) timeout.get().cancel(true);
+					timeout.set(null);
 					setTimeout(timeout, success, msg, time, unit);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -1339,6 +1349,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -1406,6 +1417,7 @@ public class Pages {
 						}
 
 						if (timeout.get() != null) timeout.get().cancel(true);
+						timeout.set(null);
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -1580,6 +1592,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -1661,6 +1674,7 @@ public class Pages {
 						}
 
 						if (timeout.get() != null) timeout.get().cancel(true);
+						timeout.set(null);
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -1795,6 +1809,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -1834,6 +1849,7 @@ public class Pages {
 					}
 
 					if (timeout.get() != null) timeout.get().cancel(true);
+					timeout.set(null);
 					setTimeout(timeout, success, msg, time, unit);
 
 					Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
@@ -1976,6 +1992,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -2018,6 +2035,7 @@ public class Pages {
 						Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
 
 						if (timeout.get() != null) timeout.get().cancel(true);
+						timeout.set(null);
 						setTimeout(timeout, success, msg, time, unit);
 
 						currCat = updateCategory(reaction.getName(), msg, pg);
@@ -2158,6 +2176,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -2202,6 +2221,7 @@ public class Pages {
 						btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 					if (timeout.get() != null) timeout.get().cancel(true);
+					timeout.set(null);
 					setTimeout(timeout, success, msg, time, unit);
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -2349,6 +2369,7 @@ public class Pages {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (timeout.get() != null) timeout.get().cancel(true);
+				timeout.set(null);
 			};
 
 			{
@@ -2394,6 +2415,7 @@ public class Pages {
 							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if (timeout.get() != null) timeout.get().cancel(true);
+						timeout.set(null);
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -2590,6 +2612,7 @@ public class Pages {
 							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
 						if (timeout.get() != null) timeout.get().cancel(true);
+						timeout.set(null);
 						setTimeout(timeout, success, msg, time, unit);
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {

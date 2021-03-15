@@ -59,7 +59,14 @@ public class MessageHandler extends ListenerAdapter {
 	}
 
 	private boolean isLocked(GenericMessageReactionEvent evt) {
-		return locks.contains(evt.getGuild().getId() + evt.getMessageId());
+		switch (evt.getChannelType()) {
+			case TEXT:
+				return locks.contains(evt.getGuild().getId() + evt.getMessageId());
+			case PRIVATE:
+				return locks.contains(evt.getPrivateChannel().getId() + evt.getMessageId());
+			default:
+				return true;
+		}
 	}
 
 	@Override
