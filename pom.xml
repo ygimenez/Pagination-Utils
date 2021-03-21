@@ -5,7 +5,7 @@
 
     <groupId>com.github.ygimenez</groupId>
     <artifactId>Pagination-Utils</artifactId>
-    <version>2.1.6</version>
+    <version>2.1.7</version>
     <packaging>jar</packaging>
 
     <name>Pagination Utils</name>
@@ -33,7 +33,7 @@
         <url>https://github.com/ygimenez/Pagination-Utils</url>
         <connection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</connection>
         <developerConnection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</developerConnection>
-        <tag>Pagination-Utils-2.1.6</tag>
+        <tag>Pagination-Utils-2.1.7</tag>
     </scm>
 
     <distributionManagement>
@@ -55,8 +55,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>9</source>
+                    <target>9</target>
                 </configuration>
             </plugin>
             <plugin>

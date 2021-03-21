@@ -4,6 +4,7 @@ import com.coder4.emoji.EmojiUtils;
 import com.github.ygimenez.exception.InvalidEmoteException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
+import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -212,5 +213,16 @@ public class PaginatorBuilder {
 
 		paginator.setEmotes();
 		return paginator;
+	}
+
+	/**
+	 * Utility terminal operation that builds the {@link Paginator} and activates it.
+	 */
+	public void activate() throws InvalidHandlerException {
+		if (paginator.getHandler() == null)
+			throw new InvalidStateException();
+
+		paginator.setEmotes();
+		Pages.activate(paginator);
 	}
 }

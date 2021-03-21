@@ -87,7 +87,7 @@ public class Pages {
 	}
 
 	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #activate(Paginator)} instead.<br>
+	 * <strong>DEPRECATED:</strong> Please use {@link #activate(Paginator)} instead (will be removed in version 2.2.0).<br>
 	 * <br>
 	 * Sets a {@link JDA} object to be used as incoming reactions handler. This is
 	 * required only once unless you want to use another client as the handler. <br>
@@ -99,7 +99,7 @@ public class Pages {
 	 * @param api The bot's {@link JDA} object.
 	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.1.0", forRemoval = true)
 	public static void activate(@Nonnull JDA api) {
 		if (activated) throw new AlreadyActivatedException();
 		api.addEventListener(handler);
@@ -107,7 +107,7 @@ public class Pages {
 	}
 
 	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #deactivate()} instead. <br>
+	 * <strong>DEPRECATED:</strong> Please use {@link #deactivate()} instead (will be removed in version 2.2.0).<br>
 	 * <br>
 	 * Removes current button handler, allowing another {@link #activate(JDA)} call.
 	 *
@@ -115,7 +115,7 @@ public class Pages {
 	 *            Calling this method without having a handler currently set will do
 	 *            nothing.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.1.0", forRemoval = true)
 	public static void deactivate(@Nonnull JDA api) {
 		if (!activated)
 			return;
@@ -124,7 +124,7 @@ public class Pages {
 	}
 
 	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #activate(Paginator)} instead. <br>
+	 * <strong>DEPRECATED:</strong> Please use {@link #activate(Paginator)} instead (will be removed in version 2.2.0).<br>
 	 * <br>
 	 * Sets a {@link ShardManager} object to be used as incoming reactions handler.
 	 * This is only required once unless you want to use another manager as the
@@ -137,7 +137,7 @@ public class Pages {
 	 * @param manager The bot's {@link ShardManager} object.
 	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.1.0", forRemoval = true)
 	public static void activate(@Nonnull ShardManager manager) {
 		if (activated) throw new AlreadyActivatedException();
 		manager.addEventListener(handler);
@@ -145,7 +145,7 @@ public class Pages {
 	}
 
 	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #deactivate()} instead. <br>
+	 * <strong>DEPRECATED:</strong> Please use {@link #deactivate()} instead (will be removed in version 2.2.0).<br>
 	 * <br>
 	 * Removes current button handler, allowing another
 	 * {@link #activate(ShardManager)} call. Calling this method without having a
@@ -154,7 +154,7 @@ public class Pages {
 	 * @param manager The {@link ShardManager} object which is currently handling
 	 *                buttons.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.1.0", forRemoval = true)
 	public static void deactivate(@Nonnull ShardManager manager) {
 		if (!activated)
 			return;
