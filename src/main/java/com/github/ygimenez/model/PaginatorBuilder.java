@@ -183,7 +183,7 @@ public class PaginatorBuilder {
 				JDA handler = (JDA) paginator.getHandler();
 
 				if (handler.getEmotes().isEmpty()) {
-					Guild g = handler.getGuildById(paginator.getEmoteMap().getOrDefault(code, "0"));
+					Guild g = handler.getGuildById(paginator.getEmoteCache().getOrDefault(code, "0"));
 
 					if (g != null) {
 						e = g.retrieveEmoteById(code).complete();
@@ -196,13 +196,13 @@ public class PaginatorBuilder {
 					}
 
 					if (e != null && e.getGuild() != null)
-						paginator.getEmoteMap().put(code, e.getGuild().getId());
+						paginator.getEmoteCache().put(code, e.getGuild().getId());
 				} else e = handler.getEmoteById(code);
 			} else if (paginator.getHandler() instanceof ShardManager) {
 				ShardManager handler = (ShardManager) paginator.getHandler();
 
 				if (handler.getEmotes().isEmpty()) {
-					Guild g = handler.getGuildById(paginator.getEmoteMap().getOrDefault(code, "0"));
+					Guild g = handler.getGuildById(paginator.getEmoteCache().getOrDefault(code, "0"));
 
 					if (g != null) {
 						e = g.retrieveEmoteById(code).complete();
@@ -215,7 +215,7 @@ public class PaginatorBuilder {
 					}
 
 					if (e != null && e.getGuild() != null)
-						paginator.getEmoteMap().put(code, e.getGuild().getId());
+						paginator.getEmoteCache().put(code, e.getGuild().getId());
 				} else e = handler.getEmoteById(code);
 			} else throw new InvalidHandlerException();
 

@@ -23,7 +23,7 @@ import static com.github.ygimenez.type.Emote.*;
  * <strong>This class must only be instantiated by {@link PaginatorBuilder}</strong>.
  */
 public class Paginator {
-	private final HashMap<String, String> emoteMap = new HashMap<>();
+	private final HashMap<String, String> emoteCache = new HashMap<>();
 	private Object handler = null;
 	private boolean removeOnReact = false;
 	private boolean eventLocked = false;
@@ -63,8 +63,8 @@ public class Paginator {
 	 * @return The {@link Map} containing {@link net.dv8tion.jda.api.entities.Emote} IDs with their
 	 * respective {@link Guild}s.
 	 */
-	public HashMap<String, String> getEmoteMap() {
-		return emoteMap;
+	public HashMap<String, String> getEmoteCache() {
+		return emoteCache;
 	}
 
 	/**
