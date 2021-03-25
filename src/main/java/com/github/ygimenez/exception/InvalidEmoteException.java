@@ -3,7 +3,7 @@ package com.github.ygimenez.exception;
 import net.dv8tion.jda.api.entities.Emote;
 
 /**
- * Exception thrown trying to set an invalid emoji or {@link Emote}.
+ * Exception thrown when trying to set an invalid emoji or {@link Emote}.
  */
 public class InvalidEmoteException extends RuntimeException {
 	/**

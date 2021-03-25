@@ -5,6 +5,7 @@ import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,8 @@ public class Paginator {
 	private Object handler = null;
 	private boolean removeOnReact = false;
 	private boolean eventLocked = false;
-	private Map<Emote, String> emotes = new HashMap<Emote, String>() {{
+	private boolean deleteOnCancel = false;
+	private Map<Emote, String> emotes = new HashMap<>() {{
 		put(NEXT, "\u25B6");
 		put(PREVIOUS, "\u25C0");
 		put(ACCEPT, "\u2705");
@@ -36,6 +38,7 @@ public class Paginator {
 		put(GOTO_FIRST, "\u23EE\uFE0F");
 		put(GOTO_LAST, "\u23ED\uFE0F");
 	}};
+	private List<String> lookupGuilds = new ArrayList<>();
 
 	/**
 	 * You should not create a {@link Paginator} instance directly, please use {@link PaginatorBuilder}.
@@ -126,6 +129,27 @@ public class Paginator {
 	}
 
 	/**
+	 * Retrieves whether the {@link Message} should be deleted or not when the button handler is removed.<br>
+	 * If this is enabled, the bot will require {@link Permission#MESSAGE_MANAGE} permission
+	 * for the deletion to work.
+	 *
+	 * @return Whether the {@link Message} will be deleted or not.
+	 */
+	public boolean isDeleteOnCancel() {
+		return deleteOnCancel;
+	}
+
+	/**
+	 * Sets whether {@link Message} should be deleted or not when the button handler is removed.
+	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
+	 *
+	 * @param deleteOnCancel Whether the {@link Message} will be deleted or not.
+	 */
+	protected void setDeleteOnCancel(boolean deleteOnCancel) {
+		this.deleteOnCancel = deleteOnCancel;
+	}
+
+	/**
 	 * The {@link Map} containing configured {@link Emote}s for this {@link Paginator}. This {@link Map}
 	 * must not be modified after construction of this {@link Paginator}.
 	 *
@@ -154,7 +178,34 @@ public class Paginator {
 	 * Make configured {@link Emote}s final.
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 */
-	protected void setEmotes() {
+	protected void finishEmotes() {
 		emotes = Collections.unmodifiableMap(emotes);
+	}
+
+	/**
+	 * The {@link List} containing configured guilds IDs for {@link net.dv8tion.jda.api.entities.Emote} lookup.
+	 *
+	 * @return The {@link List} containing lookup guild IDs.
+	 */
+	public List<String> getLookupGuilds() {
+		return lookupGuilds;
+	}
+
+	/**
+	 * Defines the guild IDs to be used for {@link net.dv8tion.jda.api.entities.Emote} lookup.
+	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
+	 *
+	 * @param lookupGuilds The {@link List} containing guild IDs to be used for {@link net.dv8tion.jda.api.entities.Emote} lookup.
+	 */
+	protected void setLookupGuilds(List<String> lookupGuilds) {
+		this.lookupGuilds = lookupGuilds;
+	}
+
+	/**
+	 * Make configured lookup guilds final.
+	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
+	 */
+	protected void finishLookupGuilds() {
+		this.lookupGuilds = Collections.unmodifiableList(lookupGuilds);
 	}
 }

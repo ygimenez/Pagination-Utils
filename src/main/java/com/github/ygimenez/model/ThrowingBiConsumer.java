@@ -23,9 +23,9 @@ public interface ThrowingBiConsumer<A, B> extends BiConsumer<A, B> {
 	 *
 	 * @param a the first input argument
 	 * @param b the second input argument
-	 * @throws Exception Thrown if any exception happens during lambda execution.
+	 * @throws RuntimeException Thrown if any exception happens during lambda execution.
 	 */
-	void acceptThrows(A a, B b) throws Exception;
+	void acceptThrows(A a, B b) throws RuntimeException;
 
 	@Override
 	default void accept(A a, B b) {
