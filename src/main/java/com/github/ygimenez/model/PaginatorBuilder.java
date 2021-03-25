@@ -148,7 +148,7 @@ public class PaginatorBuilder {
 	 * Sets whether {@link Message} should be deleted or not when the button handler is removed.
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
-	 * @param deleteOnCancel Whether the {@link Message} will be deleted or not.
+	 * @param deleteOnCancel Whether the {@link Message} will be deleted or not (default: false).
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
 	public PaginatorBuilder setDeleteOnCancel(boolean deleteOnCancel) {
