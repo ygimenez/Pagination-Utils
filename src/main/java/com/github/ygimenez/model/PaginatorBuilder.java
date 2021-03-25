@@ -236,7 +236,9 @@ public class PaginatorBuilder {
 	 *
 	 * @param lookupGuilds The {@link List} containing guild IDs to be used for {@link net.dv8tion.jda.api.entities.Emote} lookup.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
-	 * @throws InvalidHandlerException If one of the supplied guild IDs is invalid or from a guild your bot is not member of.
+	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
+	 * object.
+	 * @throws InvalidGuildException If one of the supplied guild IDs is invalid or from a guild your bot is not member of.
 	 */
 	public PaginatorBuilder setLookupGuilds(List<String> lookupGuilds) throws InvalidHandlerException {
 		if (paginator.getHandler() instanceof JDA) {
