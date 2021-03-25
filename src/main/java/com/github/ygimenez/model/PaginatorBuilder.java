@@ -1,10 +1,7 @@
 package com.github.ygimenez.model;
 
 import com.coder4.emoji.EmojiUtils;
-import com.github.ygimenez.exception.InvalidEmoteException;
-import com.github.ygimenez.exception.InvalidGuildException;
-import com.github.ygimenez.exception.InvalidHandlerException;
-import com.github.ygimenez.exception.InvalidStateException;
+import com.github.ygimenez.exception.*;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
@@ -279,6 +276,9 @@ public class PaginatorBuilder {
 
 	/**
 	 * Utility terminal operation that builds the {@link Paginator} and activates it.
+	 *
+	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
+	 * @throws InvalidHandlerException Thrown if the handler isn't either a {@link JDA} or {@link ShardManager} object.
 	 */
 	public void activate() throws InvalidHandlerException {
 		if (paginator.getHandler() == null)
