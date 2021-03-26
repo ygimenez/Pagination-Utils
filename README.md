@@ -33,7 +33,7 @@ Have you been using a bot and came across one of those three GIFs and thought: "
 ## How do I paginate?
 
 Before we start the fun stuff, there're a few things we need to check:
-- You're using Java JDK 11 or above.
+- You're using Java JDK 9 or above.
 - Your bot has the following permissions:
     - MESSAGE_ADD_REACTION
     - MESSAGE_EXT_EMOJI
