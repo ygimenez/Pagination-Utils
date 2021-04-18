@@ -108,7 +108,7 @@ MessageBuilder mb = new MessageBuilder();
 for (int i = 0; i < 10; i++) {
     mb.clear();
     mb.setContent("This is entry Nº " + i);
-    pages.add(new Page(PageType.TEXT), mb.build());
+    pages.add(new Page(PageType.TEXT, mb.build()));
 }
 ```
 
