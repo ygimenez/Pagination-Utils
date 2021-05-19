@@ -7,7 +7,6 @@ import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.Paginator;
 import com.github.ygimenez.model.ThrowingBiConsumer;
 import com.github.ygimenez.type.Emote;
-import com.github.ygimenez.type.PageType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -37,7 +36,6 @@ public class Pages {
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private static final MessageHandler handler = new MessageHandler();
 	private static Paginator paginator;
-	private static boolean activated;
 
 	/**
 	 * Sets a {@link Paginator} object to handle incoming reactions. This is
@@ -85,88 +83,12 @@ public class Pages {
 	}
 
 	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #activate(Paginator)} instead (will be removed in version 2.2.0).<br>
-	 * <br>
-	 * Sets a {@link JDA} object to be used as incoming reactions handler. This is
-	 * required only once unless you want to use another client as the handler. <br>
-	 * <br>
-	 * Before calling this method again, you must use {@link #deactivate(JDA)} to
-	 * remove current handler, else this method will throw
-	 * {@link AlreadyActivatedException}.
-	 *
-	 * @param api The bot's {@link JDA} object.
-	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
-	 */
-	@Deprecated(since = "2.1.0", forRemoval = true)
-	public static void activate(@Nonnull JDA api) {
-		if (activated) throw new AlreadyActivatedException();
-		api.addEventListener(handler);
-		activated = true;
-	}
-
-	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #deactivate()} instead (will be removed in version 2.2.0).<br>
-	 * <br>
-	 * Removes current button handler, allowing another {@link #activate(JDA)} call.
-	 *
-	 * @param api The {@link JDA} object which is currently handling buttons.
-	 *            Calling this method without having a handler currently set will do
-	 *            nothing.
-	 */
-	@Deprecated(since = "2.1.0", forRemoval = true)
-	public static void deactivate(@Nonnull JDA api) {
-		if (!activated)
-			return;
-		api.removeEventListener(handler);
-		activated = false;
-	}
-
-	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #activate(Paginator)} instead (will be removed in version 2.2.0).<br>
-	 * <br>
-	 * Sets a {@link ShardManager} object to be used as incoming reactions handler.
-	 * This is only required once unless you want to use another manager as the
-	 * handler. <br>
-	 * <br>
-	 * Before calling this method again, you must use
-	 * {@link #deactivate(ShardManager)} to remove current handler, else this method
-	 * will throw {@link AlreadyActivatedException}.
-	 *
-	 * @param manager The bot's {@link ShardManager} object.
-	 * @throws AlreadyActivatedException Thrown if there's a handler already set.
-	 */
-	@Deprecated(since = "2.1.0", forRemoval = true)
-	public static void activate(@Nonnull ShardManager manager) {
-		if (activated) throw new AlreadyActivatedException();
-		manager.addEventListener(handler);
-		activated = true;
-	}
-
-	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #deactivate()} instead (will be removed in version 2.2.0).<br>
-	 * <br>
-	 * Removes current button handler, allowing another
-	 * {@link #activate(ShardManager)} call. Calling this method without having a
-	 * handler currently set will do nothing.
-	 *
-	 * @param manager The {@link ShardManager} object which is currently handling
-	 *                buttons.
-	 */
-	@Deprecated(since = "2.1.0", forRemoval = true)
-	public static void deactivate(@Nonnull ShardManager manager) {
-		if (!activated)
-			return;
-		manager.removeEventListener(handler);
-		activated = false;
-	}
-
-	/**
 	 * Checks whether this library has been activated or not.
 	 *
 	 * @return The activation state of this library.
 	 */
 	public static boolean isActivated() {
-		return (paginator != null && paginator.getHandler() != null) || activated;
+		return paginator != null && paginator.getHandler() != null;
 	}
 
 	/**
@@ -198,12 +120,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
@@ -244,22 +167,7 @@ public class Pages {
 							updatePage(msg, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 					}
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -287,12 +195,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
@@ -340,22 +249,7 @@ public class Pages {
 							updatePage(msg, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 					}
 
 					setTimeout(timeout, success, msg, time, unit);
@@ -387,6 +281,7 @@ public class Pages {
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
@@ -428,22 +323,7 @@ public class Pages {
 								updatePage(msg, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -480,6 +360,7 @@ public class Pages {
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
@@ -528,22 +409,7 @@ public class Pages {
 								updatePage(msg, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 						}
 
 						setTimeout(timeout, success, msg, time, unit);
@@ -575,6 +441,7 @@ public class Pages {
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
@@ -632,22 +499,7 @@ public class Pages {
 							updatePage(msg, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 					}
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -676,12 +528,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
@@ -745,22 +598,7 @@ public class Pages {
 							updatePage(msg, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 					}
 
 					setTimeout(timeout, success, msg, time, unit);
@@ -793,6 +631,7 @@ public class Pages {
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
@@ -851,22 +690,7 @@ public class Pages {
 								updatePage(msg, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -898,12 +722,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
@@ -968,22 +793,7 @@ public class Pages {
 								updatePage(msg, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 						}
 
 						setTimeout(timeout, success, msg, time, unit);
@@ -1010,12 +820,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
@@ -1072,22 +883,7 @@ public class Pages {
 							updatePage(msg, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 					}
 
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -1117,12 +913,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
@@ -1186,22 +983,7 @@ public class Pages {
 							updatePage(msg, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 					}
 
 					setTimeout(timeout, success, msg, time, unit);
@@ -1229,12 +1011,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
@@ -1292,22 +1075,7 @@ public class Pages {
 								updatePage(msg, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -1340,12 +1108,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, int skipAmount, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
 		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
@@ -1410,22 +1179,7 @@ public class Pages {
 								updatePage(msg, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 						}
 
 						setTimeout(timeout, success, msg, time, unit);
@@ -1455,12 +1209,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
@@ -1534,22 +1289,7 @@ public class Pages {
 								updatePage(msg, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 						}
 
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
@@ -1583,12 +1323,13 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, @Nonnull TimeUnit unit, int skipAmount, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
 
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
@@ -1669,22 +1410,7 @@ public class Pages {
 								updatePage(msg, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 						}
 
 						setTimeout(timeout, success, msg, time, unit);
@@ -1712,13 +1438,14 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, Page> cats = Collections.unmodifiableMap(categories);
+		clearReactions(msg);
 
 		for (String k : cats.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -1745,33 +1472,23 @@ public class Pages {
 						msg = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
+
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 						return;
 					}
 
-					Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(msg, pg);
+						currCat = code;
+					}
 
-					currCat = updateCategory(reaction.getName(), msg, pg);
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 						event.getReaction().removeReaction(u).submit();
 					}
@@ -1800,13 +1517,14 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, Page> cats = Collections.unmodifiableMap(categories);
+		clearReactions(msg);
 
 		for (String k : cats.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -1840,35 +1558,25 @@ public class Pages {
 						msg = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
+
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 						return;
 					}
 
 					setTimeout(timeout, success, msg, time, unit);
 
-					Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(msg, pg);
+						currCat = code;
+					}
 
-					currCat = updateCategory(reaction.getName(), msg, pg);
 					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 						event.getReaction().removeReaction(u).submit();
 					}
@@ -1893,13 +1601,14 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, Page> cats = Collections.unmodifiableMap(categories);
+		clearReactions(msg);
 
 		for (String k : cats.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -1926,34 +1635,24 @@ public class Pages {
 						msg = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
+
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 							return;
 						}
 
-						Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
+						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+						Page pg = cats.get(code);
+						if (pg != null) {
+							updatePage(msg, pg);
+							currCat = code;
+						}
 
-						currCat = updateCategory(reaction.getName(), msg, pg);
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							event.getReaction().removeReaction(u).submit();
 						}
@@ -1985,13 +1684,14 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, Page> cats = Collections.unmodifiableMap(categories);
+		clearReactions(msg);
 
 		for (String k : cats.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2025,36 +1725,26 @@ public class Pages {
 						msg = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
+
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
 						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 							return;
 						}
 
-						Page pg = cats.get(reaction.isEmoji() ? reaction.getName() : reaction.getId());
-
 						setTimeout(timeout, success, msg, time, unit);
 
-						currCat = updateCategory(reaction.getName(), msg, pg);
+						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+						Page pg = cats.get(code);
+						if (pg != null) {
+							updatePage(msg, pg);
+							currCat = code;
+						}
+
 						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
 							event.getReaction().removeReaction(u).submit();
 						}
@@ -2080,13 +1770,14 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		clearReactions(msg);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2118,22 +1809,7 @@ public class Pages {
 						return;
 
 					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 						return;
 					}
 
@@ -2171,13 +1847,14 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		clearReactions(msg);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2216,22 +1893,7 @@ public class Pages {
 						return;
 
 					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-						try {
-							if (msg.getChannel().getType().isGuild())
-								msg.clearReactions().submit();
-							else
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-							success.accept(null);
-						} catch (InsufficientPermissionException | IllegalStateException e) {
-							for (MessageReaction r : msg.getReactions()) {
-								r.removeReaction().submit();
-							}
-
-							success.accept(null);
-						}
+						clearReactions(msg, success);
 						return;
 					}
 
@@ -2269,13 +1931,14 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		clearReactions(msg);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2308,22 +1971,7 @@ public class Pages {
 							return;
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 							return;
 						}
 
@@ -2366,13 +2014,14 @@ public class Pages {
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission
+	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		clearReactions(msg);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2412,22 +2061,7 @@ public class Pages {
 							return;
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 							return;
 						}
 
@@ -2473,6 +2107,7 @@ public class Pages {
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		clearReactions(msg);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2506,22 +2141,7 @@ public class Pages {
 							return;
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 							return;
 						}
 
@@ -2571,6 +2191,7 @@ public class Pages {
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract, @Nonnull Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		clearReactions(msg);
 
 		for (String k : btns.keySet()) {
 			if (EmojiUtils.containsEmoji(k))
@@ -2611,22 +2232,7 @@ public class Pages {
 							return;
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							try {
-								if (msg.getChannel().getType().isGuild())
-									msg.clearReactions().submit();
-								else
-									for (MessageReaction r : msg.getReactions()) {
-										r.removeReaction().submit();
-									}
-
-								success.accept(null);
-							} catch (InsufficientPermissionException | IllegalStateException e) {
-								for (MessageReaction r : msg.getReactions()) {
-									r.removeReaction().submit();
-								}
-
-								success.accept(null);
-							}
+							clearReactions(msg, success);
 							return;
 						}
 
@@ -2646,44 +2252,112 @@ public class Pages {
 		});
 	}
 
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> pagocategories) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+		if (!isActivated()) throw new InvalidStateException();
+		List<Map<String, Page>> pgs = Collections.unmodifiableList(pagocategories);
+		clearReactions(msg);
+
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		for (String k : pgs.get(0).keySet()) {
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else {
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+				if (e == null) throw new InvalidEmoteException();
+				msg.addReaction(e).submit();
+			}
+		}
+
+		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+			private final int maxP = pgs.size() - 1;
+			private int p = 0;
+			private String currCat = "";
+			private Map<String, Page> cats = pgs.get(0);
+			private final Consumer<Void> success = s -> {
+				handler.removeEvent(msg);
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+			};
+
+			@Override
+			public void accept(GenericMessageReactionEvent event) {
+				event.retrieveUser().submit().thenAccept(u -> {
+					Message msg = null;
+					try {
+						msg = event.retrieveMessage().submit().get();
+					} catch (InterruptedException | ExecutionException ignore) {
+					}
+
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					boolean update = false;
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							update = true;
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < maxP) {
+							p++;
+							update = true;
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(msg, success);
+						return;
+					}
+
+					cats = pgs.get(p);
+					if (update) {
+						currCat = "";
+						clearReactions(msg);
+						msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+
+						for (String k : cats.keySet()) {
+							if (EmojiUtils.containsEmoji(k))
+								msg.addReaction(k).submit();
+							else {
+								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+								if (e == null) throw new InvalidEmoteException();
+								msg.addReaction(e).submit();
+							}
+						}
+					}
+
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(msg, pg);
+						currCat = code;
+					}
+
+					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				});
+			}
+		});
+	}
+
 	/**
 	 * Method used to update the current page.
 	 * <strong>Must not be called outside of {@link Pages}</strong>.
 	 *
 	 * @param msg The current {@link Message} object.
-	 * @param p   The current {@link Page} index.
+	 * @param p   The current {@link Page}.
 	 */
 	private static void updatePage(@Nonnull Message msg, Page p) {
 		if (p == null) throw new NullPageException();
-		if (p.getType() == PageType.TEXT) {
+
+		if (p.getContent() instanceof Message) {
 			msg.editMessage((Message) p.getContent()).submit();
-		} else {
+		} else if (p.getContent() instanceof MessageEmbed) {
 			msg.editMessage((MessageEmbed) p.getContent()).submit();
 		}
-	}
-
-	/**
-	 * Method used to update the current category.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
-	 *
-	 * @param emote The button pressed by the user.
-	 * @param msg   The current {@link Message} object.
-	 * @param p     The current {@link Page} category.
-	 * @return The new {@link Page} category.
-	 */
-	private static String updateCategory(String emote, @Nonnull Message msg, Page p) {
-		AtomicReference<String> out = new AtomicReference<>("");
-		if (p == null) throw new NullPageException();
-
-		if (p.getType() == PageType.TEXT) {
-			msg.editMessage((Message) p.getContent()).submit()
-					.thenAccept(s -> out.set(emote));
-		} else {
-			msg.editMessage((MessageEmbed) p.getContent()).submit()
-					.thenAccept(s -> out.set(emote));
-		}
-
-		return out.get();
 	}
 
 	/**
@@ -2753,7 +2427,7 @@ public class Pages {
 	 * @param id The {@link net.dv8tion.jda.api.entities.Emote}'s ID.
 	 * @return The {@link net.dv8tion.jda.api.entities.Emote} object if found, else returns null.
 	 */
-	private static net.dv8tion.jda.api.entities.Emote getOrRetrieveEmote(String id) {
+	public static net.dv8tion.jda.api.entities.Emote getOrRetrieveEmote(String id) {
 		net.dv8tion.jda.api.entities.Emote e = null;
 		if (paginator.getHandler() instanceof JDA) {
 			JDA handler = (JDA) paginator.getHandler();
@@ -2824,5 +2498,46 @@ public class Pages {
 		}
 
 		return e;
+	}
+
+	/**
+	 * Utility method to clear all reactions of a message.
+	 *
+	 * @param msg The {@link Message} to have reactions removed from.
+	 */
+	public static void clearReactions(Message msg) {
+		try {
+			if (msg.getChannel().getType().isGuild())
+				msg.clearReactions().submit();
+			else for (MessageReaction r : msg.getReactions()) {
+				r.removeReaction().submit();
+			}
+		} catch (InsufficientPermissionException | IllegalStateException e) {
+			for (MessageReaction r : msg.getReactions()) {
+				r.removeReaction().submit();
+			}
+		}
+	}
+
+	/**
+	 * Utility method to clear all reactions of a message.
+	 *
+	 * @param msg The {@link Message} to have reactions removed from.
+	 * @param callback Action to be executed after removing reactions.
+	 */
+	public static void clearReactions(Message msg, Consumer<Void> callback) {
+		try {
+			if (msg.getChannel().getType().isGuild())
+				msg.clearReactions().submit();
+			else for (MessageReaction r : msg.getReactions()) {
+				r.removeReaction().submit();
+			}
+		} catch (InsufficientPermissionException | IllegalStateException e) {
+			for (MessageReaction r : msg.getReactions()) {
+				r.removeReaction().submit();
+			}
+		}
+
+		callback.accept(null);
 	}
 }

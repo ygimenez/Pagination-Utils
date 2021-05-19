@@ -50,6 +50,15 @@ public class MessageHandler extends ListenerAdapter {
 		}
 	}
 
+	/**
+	 * Purge events map.<br>
+	 * <br>
+	 * <b>WARNING:</b> This will break <u>all</u> active paginations, use with caution.
+	 */
+	public void clear() {
+		events.clear();
+	}
+
 	private void lock(GenericMessageReactionEvent evt) {
 		locks.add(evt.getGuild().getId() + evt.getMessageId());
 	}
