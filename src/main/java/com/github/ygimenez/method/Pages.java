@@ -2819,7 +2819,7 @@ public class Pages {
 						}
 					} else if (checkEmote(reaction, GOTO_LAST)) {
 						if (p < pgs.size() - 1) {
-							p = pgs.size();
+							p = pgs.size() - 1;
 							update = true;
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
@@ -2954,7 +2954,7 @@ public class Pages {
 						}
 					} else if (checkEmote(reaction, GOTO_LAST)) {
 						if (p < pgs.size() - 1) {
-							p = pgs.size();
+							p = pgs.size() - 1;
 							update = true;
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
@@ -3083,7 +3083,7 @@ public class Pages {
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < pgs.size() - 1) {
-								p = pgs.size();
+								p = pgs.size() - 1;
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
@@ -3224,7 +3224,7 @@ public class Pages {
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < pgs.size() - 1) {
-								p = pgs.size();
+								p = pgs.size() - 1;
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
@@ -3909,7 +3909,7 @@ public class Pages {
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < pgs.size() - 1) {
-								p = pgs.size();
+								p = pgs.size() - 1;
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
@@ -4066,7 +4066,7 @@ public class Pages {
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < pgs.size() - 1) {
-								p = pgs.size();
+								p = pgs.size() - 1;
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
