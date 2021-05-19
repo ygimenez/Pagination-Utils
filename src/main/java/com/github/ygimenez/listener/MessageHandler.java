@@ -1,7 +1,9 @@
 package com.github.ygimenez.listener;
 
 import com.github.ygimenez.method.Pages;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -9,10 +11,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -48,6 +47,16 @@ public class MessageHandler extends ListenerAdapter {
 				events.remove(msg.getPrivateChannel().getId() + msg.getId());
 				break;
 		}
+	}
+
+	/**
+	 * Retrieves the event handler map. This will contain all currently active events being handled by
+	 * the library mapped by {@link Guild} ID ({@link PrivateChannel} ID for DM) plus the {@link Message} ID.
+	 *
+	 * @return An unmodifiable {@link Map} containing events handled by the library.
+	 */
+	public Map<String, Consumer<GenericMessageReactionEvent>> getEventMap() {
+		return Collections.unmodifiableMap(events);
 	}
 
 	/**
