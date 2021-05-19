@@ -2328,7 +2328,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p++;
 							update = true;
 						}
@@ -2449,7 +2449,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p++;
 							update = true;
 						}
@@ -2565,7 +2565,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p++;
 								update = true;
 							}
@@ -2691,7 +2691,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p++;
 								update = true;
 							}
@@ -2808,7 +2808,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p++;
 							update = true;
 						}
@@ -2818,7 +2818,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, GOTO_LAST)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p = pgs.size();
 							update = true;
 						}
@@ -2943,7 +2943,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p++;
 							update = true;
 						}
@@ -2953,7 +2953,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, GOTO_LAST)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p = pgs.size();
 							update = true;
 						}
@@ -3072,7 +3072,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p++;
 								update = true;
 							}
@@ -3082,7 +3082,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p = pgs.size();
 								update = true;
 							}
@@ -3213,7 +3213,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p++;
 								update = true;
 							}
@@ -3223,7 +3223,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p = pgs.size();
 								update = true;
 							}
@@ -3343,7 +3343,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p++;
 							update = true;
 						}
@@ -3353,7 +3353,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, SKIP_FORWARD)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
 							update = true;
 						}
@@ -3479,7 +3479,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p++;
 							update = true;
 						}
@@ -3489,7 +3489,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, SKIP_FORWARD)) {
-						if (p < pgs.size()) {
+						if (p < pgs.size() - 1) {
 							p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
 							update = true;
 						}
@@ -3610,7 +3610,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p++;
 								update = true;
 							}
@@ -3620,7 +3620,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
 								update = true;
 							}
@@ -3752,7 +3752,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p++;
 								update = true;
 							}
@@ -3762,7 +3762,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
 								update = true;
 							}
@@ -3888,7 +3888,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p++;
 								update = true;
 							}
@@ -3898,7 +3898,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
 								update = true;
 							}
@@ -3908,7 +3908,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p = pgs.size();
 								update = true;
 							}
@@ -4045,7 +4045,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p++;
 								update = true;
 							}
@@ -4055,7 +4055,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
 								update = true;
 							}
@@ -4065,7 +4065,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < pgs.size()) {
+							if (p < pgs.size() - 1) {
 								p = pgs.size();
 								update = true;
 							}
