@@ -49,20 +49,18 @@ public class MessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onButtonClick(@NotNull ButtonClickEvent evt) {
-		evt.deferEdit().submit().thenAccept(h -> {
-			User u = h.getInteraction().getUser();
-			if (u.isBot() || isLocked(evt)) return;
+		User u = evt.getInteraction().getUser();
+		if (u.isBot() || isLocked(evt)) return;
 
-			try {
-				lock(evt);
-				Consumer<ButtonClickEvent> event = events.get(evt.getChannel().getId() + evt.getMessageId());
+		try {
+			lock(evt);
+			Consumer<ButtonClickEvent> event = events.get(evt.getChannel().getId() + evt.getMessageId());
 
-				if (event != null)
-					event.accept(evt);
-			} finally {
-				unlock(evt);
-			}
-		});
+			if (event != null)
+				event.accept(evt);
+		} finally {
+			unlock(evt);
+		}
 	}
 
 	@Override
