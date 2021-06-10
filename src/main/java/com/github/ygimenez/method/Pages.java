@@ -3,7 +3,6 @@ package com.github.ygimenez.method;
 import com.github.ygimenez.exception.AlreadyActivatedException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
-import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.Operator;
 import com.github.ygimenez.model.Page;
@@ -14,7 +13,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -131,10 +129,15 @@ public class Pages {
 								}
 								rows.set(0, ActionRow.of(getPaginationNav(op, p)));
 
-								evt.deferEdit()
-										.setActionRows(rows)
-										.submit()
-										.thenAccept(h -> updatePage(h, op.getPages().get(p)));
+								Page pg = op.getPages().get(p);
+								if (pg.getContent() instanceof Message)
+									evt.editComponents(rows)
+											.setContent(pg.toString())
+											.submit();
+								else
+									evt.editComponents(rows)
+											.setEmbeds((MessageEmbed) pg.getContent())
+											.submit();
 							}
 						}));
 	}
@@ -170,7 +173,7 @@ public class Pages {
 						case NEXT:
 						case SKIP_FORWARD:
 						case GOTO_FIRST:
-							return btn.withDisabled(p == op.getPages().size());
+							return btn.withDisabled(p == op.getPages().size() - 1);
 						case PREVIOUS:
 						case SKIP_BACKWARD:
 						case GOTO_LAST:
@@ -180,22 +183,5 @@ public class Pages {
 					}
 				})
 				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Method used to update the current page.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
-	 *
-	 * @param hook The current {@link InteractionHook} object.
-	 * @param p    The current {@link Page}.
-	 */
-	private static void updatePage(@Nonnull InteractionHook hook, Page p) {
-		if (p == null) throw new NullPageException();
-
-		if (p.getContent() instanceof Message) {
-			hook.editOriginal((Message) p.getContent()).submit();
-		} else if (p.getContent() instanceof MessageEmbed) {
-			hook.editOriginalEmbeds((MessageEmbed) p.getContent()).submit();
-		}
 	}
 }
