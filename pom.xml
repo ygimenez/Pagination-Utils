@@ -5,7 +5,7 @@
 
     <groupId>com.github.ygimenez</groupId>
     <artifactId>Pagination-Utils</artifactId>
-    <version>2.2.0</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>Pagination Utils</name>
@@ -33,7 +33,7 @@
         <url>https://github.com/ygimenez/Pagination-Utils</url>
         <connection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</connection>
         <developerConnection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</developerConnection>
-        <tag>Pagination-Utils-2.2.0</tag>
+        <tag>Pagination-Utils-3.0.0</tag>
     </scm>
 
     <distributionManagement>
@@ -118,13 +118,9 @@
 
     <repositories>
         <repository>
-            <id>jcenter</id>
-            <name>jcenter-bintray</name>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
         </repository>
     </repositories>
 
@@ -132,12 +128,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.0_214</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.liheyuan</groupId>
-            <artifactId>simple-emoji-4j</artifactId>
-            <version>f26d3b39be</version>
+            <version>4.2.1_276</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

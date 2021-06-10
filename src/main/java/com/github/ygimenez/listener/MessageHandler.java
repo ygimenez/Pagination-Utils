@@ -1,175 +1,72 @@
 package com.github.ygimenez.listener;
 
 import com.github.ygimenez.method.Pages;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
-import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Consumer;
 
-/**
- * Class responsible for handling reaction events sent by the handler.<br>
- * Only one event is added to the handler to prevent cluttering and unnecessary listeners.
- */
 public class MessageHandler extends ListenerAdapter {
-	private final Map<String, Consumer<GenericMessageReactionEvent>> events = new HashMap<>();
+	private final Map<String, Consumer<ButtonClickEvent>> events = new HashMap<>();
 	private final Set<String> locks = new HashSet<>();
 
-	/**
-	 * Adds an event to the handler, which will be executed whenever a button with the same
-	 * ID is pressed.
-	 *
-	 * @param id  The ID of the event.
-	 * @param act The action to be executed when the button is pressed.
-	 */
-	public void addEvent(String id, Consumer<GenericMessageReactionEvent> act) {
+	public void addEvent(String id, Consumer<ButtonClickEvent> act) {
 		events.put(id, act);
 	}
 
-	/**
-	 * Removes an event from the handler.
-	 *
-	 * @param msg The {@link Message} which had attached events.
-	 */
 	public void removeEvent(Message msg) {
-		switch (msg.getChannelType()) {
-			case TEXT:
-				events.remove(msg.getGuild().getId() + msg.getId());
-				break;
-			case PRIVATE:
-				events.remove(msg.getPrivateChannel().getId() + msg.getId());
-				break;
-		}
+		events.remove(msg.getChannel().getId() + msg.getId());
 	}
 
-	/**
-	 * Retrieves the event handler map. This will contain all currently active events being handled by
-	 * the library mapped by {@link Guild} ID ({@link PrivateChannel} ID for DM) plus the {@link Message} ID.
-	 *
-	 * @return An unmodifiable {@link Map} containing events handled by the library.
-	 */
-	public Map<String, Consumer<GenericMessageReactionEvent>> getEventMap() {
+	public Map<String, Consumer<ButtonClickEvent>> getEventMap() {
 		return Collections.unmodifiableMap(events);
 	}
 
-	/**
-	 * Purge events map.<br>
-	 * <br>
-	 * <b>WARNING:</b> This will break <u>all</u> active paginations, use with caution.
-	 */
 	public void clear() {
 		events.clear();
 	}
 
-	private void lock(GenericMessageReactionEvent evt) {
-		locks.add(evt.getGuild().getId() + evt.getMessageId());
+	private void lock(ButtonClickEvent evt) {
+		if (Pages.getPaginator().isEventLocked())
+			locks.add(evt.getChannel().getId() + evt.getMessageId());
 	}
 
-	private void unlock(GenericMessageReactionEvent evt) {
-		locks.remove(evt.getGuild().getId() + evt.getMessageId());
+	private void unlock(ButtonClickEvent evt) {
+		if (Pages.getPaginator().isEventLocked())
+			locks.remove(evt.getChannel().getId() + evt.getMessageId());
 	}
 
-	private boolean isLocked(GenericMessageReactionEvent evt) {
-		switch (evt.getChannelType()) {
-			case TEXT:
-				return locks.contains(evt.getGuild().getId() + evt.getMessageId());
-			case PRIVATE:
-				return locks.contains(evt.getPrivateChannel().getId() + evt.getMessageId());
-			default:
-				return true;
-		}
+	private boolean isLocked(ButtonClickEvent evt) {
+		if (!Pages.getPaginator().isEventLocked()) return false;
+		return locks.contains(evt.getChannel().getId() + evt.getMessageId());
 	}
 
 	@Override
-	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
-		evt.retrieveUser().submit().thenAccept(u -> {
+	public void onButtonClick(@NotNull ButtonClickEvent evt) {
+		evt.deferEdit().submit().thenAccept(h -> {
+			User u = h.getInteraction().getUser();
 			if (u.isBot() || isLocked(evt)) return;
 
 			try {
-				if (Pages.getPaginator().isEventLocked()) lock(evt);
-				switch (evt.getChannelType()) {
-					case TEXT:
-						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
-							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
-						break;
-					case PRIVATE:
-						if (events.containsKey(evt.getPrivateChannel().getId() + evt.getMessageId()))
-							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
-						break;
-				}
-				if (Pages.getPaginator().isEventLocked()) unlock(evt);
-			} catch (Exception e) {
-				if (Pages.getPaginator().isEventLocked()) unlock(evt);
-				throw e;
+				lock(evt);
+				Consumer<ButtonClickEvent> event = events.get(evt.getChannel().getId() + evt.getMessageId());
+
+				if (event != null)
+					event.accept(evt);
+			} finally {
+				unlock(evt);
 			}
 		});
 	}
 
 	@Override
 	public void onMessageDelete(@Nonnull MessageDeleteEvent evt) {
-		switch (evt.getChannelType()) {
-			case TEXT:
-				events.remove(evt.getGuild().getId() + evt.getMessageId());
-				break;
-			case PRIVATE:
-				events.remove(evt.getPrivateChannel().getId() + evt.getMessageId());
-				break;
-		}
-	}
-
-	@Override
-	public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent evt) {
-		evt.retrieveUser().submit().thenAccept(u -> {
-			if (u.isBot()) return;
-
-			boolean removeOnReact = (Pages.isActivated() && Pages.getPaginator() == null)
-									|| (Pages.isActivated() && Pages.getPaginator().isRemoveOnReact());
-
-			if (evt.isFromGuild() && removeOnReact) {
-				evt.getPrivateChannel().retrieveMessageById(evt.getMessageId()).submit().thenAccept(msg -> {
-					switch (evt.getChannelType()) {
-						case TEXT:
-							if (events.containsKey(evt.getGuild().getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
-								if (evt.getReactionEmote().isEmoji())
-									msg.addReaction(evt.getReactionEmote().getName()).submit();
-								else
-									msg.addReaction(evt.getReactionEmote().getEmote()).submit();
-							}
-							break;
-						case PRIVATE:
-							if (events.containsKey(evt.getPrivateChannel().getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
-								if (evt.getReactionEmote().isEmoji())
-									msg.addReaction(evt.getReactionEmote().getName()).submit();
-								else
-									msg.addReaction(evt.getReactionEmote().getEmote()).submit();
-							}
-							break;
-					}
-				});
-			} else if (!isLocked(evt)) try {
-				if (Pages.getPaginator().isEventLocked()) lock(evt);
-				switch (evt.getChannelType()) {
-					case TEXT:
-						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
-							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
-						break;
-					case PRIVATE:
-						if (events.containsKey(evt.getPrivateChannel().getId() + evt.getMessageId()))
-							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
-						break;
-				}
-				if (Pages.getPaginator().isEventLocked()) unlock(evt);
-			} catch (Exception e) {
-				if (Pages.getPaginator().isEventLocked()) unlock(evt);
-				throw e;
-			}
-		});
+		events.remove(evt.getChannel().getId() + evt.getMessageId());
 	}
 }
