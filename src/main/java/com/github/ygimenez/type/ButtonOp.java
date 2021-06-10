@@ -2,10 +2,10 @@ package com.github.ygimenez.type;
 
 
 public enum ButtonOp {
-	NEXT,
-	PREVIOUS,
 	ACCEPT,
 	CANCEL,
+	NEXT,
+	PREVIOUS,
 	SKIP_FORWARD,
 	SKIP_BACKWARD,
 	GOTO_FIRST,

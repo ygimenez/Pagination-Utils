@@ -3,6 +3,7 @@ package com.github.ygimenez.method;
 import com.github.ygimenez.exception.AlreadyActivatedException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
+import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.Operator;
 import com.github.ygimenez.model.Page;
@@ -10,10 +11,10 @@ import com.github.ygimenez.model.Paginator;
 import com.github.ygimenez.model.Style;
 import com.github.ygimenez.type.ButtonOp;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -76,11 +77,69 @@ public class Pages {
 		return handler;
 	}
 
-	public static void paginate(final Operator op) {
+	public static void paginate(final Operator op, final int skip) {
 		if (!isActivated()) throw new InvalidStateException();
 
-		List<ActionRow> rows = new ArrayList<>();
+		List<ActionRow> rows = new ArrayList<>(1);
+		rows.set(0, ActionRow.of(getPaginationNav(op, 0)));
 
+		op.getMessage()
+				.editMessage(op.getMessage())
+				.setActionRows(rows)
+				.submit()
+				.thenAccept(msg -> handler.addEvent(msg.getChannel().getId() + msg.getId(),
+						new Consumer<>() {
+							private final int maxP = op.getPages().size() - 1;
+							private int p = 0;
+							private final Consumer<Void> success = s -> {
+								handler.removeEvent(msg);
+								if (paginator.isDeleteOnCancel()) msg.delete().submit();
+							};
+
+							@Override
+							public void accept(ButtonClickEvent evt) {
+								String[] params = evt.getComponentId().split(Pattern.quote("."));
+								String msgId = params[0];
+								ButtonOp bop = ButtonOp.valueOf(params[1]);
+
+								if (evt.getUser().isBot() || evt.getMessage() == null || !evt.getMessageId().equals(msgId))
+									return;
+
+								switch (bop) {
+									case ACCEPT:
+										break;
+									case CANCEL:
+										break;
+									case NEXT:
+										p = Math.min(p + 1, maxP);
+										break;
+									case PREVIOUS:
+										p = Math.max(p - 1, 0);
+										break;
+									case SKIP_FORWARD:
+										p = Math.min(p + skip, maxP);
+										break;
+									case SKIP_BACKWARD:
+										p = Math.max(p - skip, 0);
+										break;
+									case GOTO_FIRST:
+										p = 0;
+										break;
+									case GOTO_LAST:
+										p = maxP;
+										break;
+								}
+								rows.set(0, ActionRow.of(getPaginationNav(op, 0)));
+
+								evt.deferEdit()
+										.setActionRows(rows)
+										.submit()
+										.thenAccept(h -> updatePage(h, op.getPages().get(p)));
+							}
+						}));
+	}
+
+	private static List<Button> getPaginationNav(Operator op, int p) {
 		LinkedList<ButtonOp> buttons = new LinkedList<>();
 
 		if (op.isShowCancel())
@@ -102,68 +161,43 @@ public class Pages {
 				break;
 		}
 
-		rows.add(ActionRow.of(
-				buttons.stream()
-						.map(b -> {
-							Style s = paginator.getEmotes().get(b);
-							return Button.of(s.getStyle(), op.getMessage().getId() + "." + b.name(), s.getLabel(), s.getEmoji());
-						})
-						.collect(Collectors.toList())
-		));
+		return buttons.stream()
+				.map(b -> {
+					Style s = paginator.getEmotes().get(b);
+					Button btn = Button.of(s.getStyle(), op.getMessage().getId() + "." + b.name(), s.getLabel(), s.getEmoji());
 
-		op.getMessage()
-				.editMessage(op.getMessage())
-				.setActionRows(rows)
-				.submit().thenAccept(msg -> handler.addEvent(msg.getChannel().getId() + msg.getId(),
-				new Consumer<>() {
-					private final int maxP = op.getPages().size() - 1;
-					private int p = 0;
-					private final Consumer<Void> success = s -> {
-						handler.removeEvent(msg);
-						if (paginator.isDeleteOnCancel()) msg.delete().submit();
-					};
-
-					@Override
-					public void accept(ButtonClickEvent evt) {
-						String[] params = evt.getComponentId().split(Pattern.quote("."));
-						String msgId = params[0];
-						ButtonOp bop = ButtonOp.valueOf(params[1]);
-
-						if (evt.getUser().isBot() || evt.getMessage() == null || !evt.getMessageId().equals(params[0]))
-							return;
-
-						MessageBuilder mb = new MessageBuilder();
-						switch (bop) {
-							case NEXT:
-
-								break;
-							case PREVIOUS:
-								if (p > 0) {
-									p--;
-									Page pg = op.getPages().get(p);
-
-									if (pg instanceof Message)
-										mb.setContent(pg.toString());
-									else
-										mb.setEmbed((MessageEmbed) pg.getContent());
-								}
-								break;
-							case ACCEPT:
-								break;
-							case CANCEL:
-								break;
-							case SKIP_FORWARD:
-								break;
-							case SKIP_BACKWARD:
-								break;
-							case GOTO_FIRST:
-								break;
-							case GOTO_LAST:
-								break;
-						}
-
-						evt.editMessage(mb.build()).submit();
+					switch (b) {
+						case NEXT:
+						case SKIP_FORWARD:
+						case GOTO_FIRST:
+							btn = btn.withDisabled(p == op.getPages().size());
+							break;
+						case PREVIOUS:
+						case SKIP_BACKWARD:
+						case GOTO_LAST:
+							btn = btn.withDisabled(p == 0);
+							break;
 					}
-				}));
+
+					return btn;
+				})
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Method used to update the current page.
+	 * <strong>Must not be called outside of {@link Pages}</strong>.
+	 *
+	 * @param hook The current {@link InteractionHook} object.
+	 * @param p    The current {@link Page}.
+	 */
+	private static void updatePage(@Nonnull InteractionHook hook, Page p) {
+		if (p == null) throw new NullPageException();
+
+		if (p.getContent() instanceof Message) {
+			hook.editOriginal((Message) p.getContent()).submit();
+		} else if (p.getContent() instanceof MessageEmbed) {
+			hook.editOriginalEmbeds((MessageEmbed) p.getContent()).submit();
+		}
 	}
 }
