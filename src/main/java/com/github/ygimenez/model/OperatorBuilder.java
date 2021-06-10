@@ -22,12 +22,12 @@ public class OperatorBuilder {
 		return new OperatorBuilder(message);
 	}
 
-	public OperatorBuilder assertThat(Function<Message, Predicate<Message>> validation) {
+	public OperatorBuilder assertThat(Function<Message, Boolean> validation) {
 		Predicate<Message> current = op.getValidation();
 		if (current == null)
-			op.setValidation(validation.apply(op.getMessage()));
+			op.setValidation(p -> validation.apply(op.getMessage()));
 		else
-			op.setValidation(current.and(validation.apply(op.getMessage())));
+			op.setValidation(current.and(p -> validation.apply(op.getMessage())));
 
 		return this;
 	}
