@@ -129,7 +129,7 @@ public class Pages {
 										p = maxP;
 										break;
 								}
-								rows.set(0, ActionRow.of(getPaginationNav(op, 0)));
+								rows.set(0, ActionRow.of(getPaginationNav(op, p)));
 
 								evt.deferEdit()
 										.setActionRows(rows)
@@ -170,16 +170,14 @@ public class Pages {
 						case NEXT:
 						case SKIP_FORWARD:
 						case GOTO_FIRST:
-							btn = btn.withDisabled(p == op.getPages().size());
-							break;
+							return btn.withDisabled(p == op.getPages().size());
 						case PREVIOUS:
 						case SKIP_BACKWARD:
 						case GOTO_LAST:
-							btn = btn.withDisabled(p == 0);
-							break;
+							return btn.withDisabled(p == 0);
+						default:
+							return btn;
 					}
-
-					return btn;
 				})
 				.collect(Collectors.toList());
 	}
