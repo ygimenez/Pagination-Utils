@@ -80,8 +80,8 @@ public class Pages {
 	public static void paginate(final Operator op, final int skip) {
 		if (!isActivated()) throw new InvalidStateException();
 
-		List<ActionRow> rows = new ArrayList<>(1);
-		rows.set(0, ActionRow.of(getPaginationNav(op, 0)));
+		List<ActionRow> rows = new ArrayList<>();
+		rows.add(ActionRow.of(getPaginationNav(op, 0)));
 
 		op.getMessage()
 				.editMessage(op.getMessage())
