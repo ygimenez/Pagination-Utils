@@ -127,8 +127,8 @@ public class Pages {
 								Action a = fixedButtons.getOrDefault(id, pageButtons.get(id));
 								if (a != null) {
 									if (a.getType() == ButtonOp.CUSTOM) {
-										evt.deferReply().submit();
-										a.getEvent().accept(msg, evt.getUser());
+										evt.deferEdit().submit()
+												.thenRun(() -> a.getEvent().accept(msg, evt.getUser()));
 										return;
 									} else {
 										id = a.getType().name();
@@ -139,7 +139,7 @@ public class Pages {
 									case "CANCEL":
 										evt.editComponents(new ActionRow[0])
 												.submit()
-												.thenAccept(s -> success.accept(null));
+												.thenRun(() -> success.accept(null));
 										return;
 									case "NEXT":
 										p = Math.min(p + 1, maxP);
@@ -247,7 +247,7 @@ public class Pages {
 					msg.editMessage(msg)
 							.setActionRows(List.of())
 							.submit()
-							.thenAccept(s -> success.accept(null));
+							.thenRun(() -> success.accept(null));
 				}, time, unit)
 		);
 	}
