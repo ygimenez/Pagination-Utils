@@ -16,7 +16,8 @@ public class Utils {
 			chunks.add(list.subList(i * chunkSize, (i * chunkSize) + chunkSize));
 		}
 
-		chunks.add(list.subList(list.size() - overflow, list.size()));
+		if (overflow != 0)
+			chunks.add(list.subList(list.size() - overflow, list.size()));
 
 		return chunks;
 	}
