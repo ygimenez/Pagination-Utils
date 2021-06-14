@@ -2,14 +2,16 @@ package com.github.ygimenez.model;
 
 import com.github.ygimenez.exception.InsufficientSlotsException;
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.type.ButtonOp;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class OperatorBuilder {
 	private final Operator op;
@@ -22,12 +24,12 @@ public class OperatorBuilder {
 		return new OperatorBuilder(message);
 	}
 
-	public OperatorBuilder assertThat(Function<Message, Boolean> validation) {
-		Predicate<Message> current = op.getValidation();
+	public OperatorBuilder assertThat(BiPredicate<Message, User> validation) {
+		BiPredicate<Message, User> current = op.getValidation();
 		if (current == null)
-			op.setValidation(p -> validation.apply(op.getMessage()));
+			op.setValidation(validation);
 		else
-			op.setValidation(current.and(p -> validation.apply(op.getMessage())));
+			op.setValidation(current.and(validation));
 
 		return this;
 	}
@@ -44,7 +46,7 @@ public class OperatorBuilder {
 		return this;
 	}
 
-	public OperatorBuilder addPage(Object content, int group) {
+	public OperatorBuilder addPage(Object content, String group) {
 		op.getPages().add(new Page(content, group));
 
 		return this;
@@ -56,9 +58,23 @@ public class OperatorBuilder {
 		return this;
 	}
 
-	public OperatorBuilder addButton(Button button,Consumer<Message> action) {
+	public OperatorBuilder addButton(ButtonOp type, int index, Button button, BiConsumer<Message, User> action) {
 		if (op.getButtonSlots() == 0) throw new InsufficientSlotsException();
-		op.getButtons().add(new Action(button, action));
+		op.getButtons().add(new Action(button, type, action, index));
+
+		return this;
+	}
+
+	public OperatorBuilder addButton(ButtonOp type, Button button, BiConsumer<Message, User> action) {
+		if (op.getButtonSlots() == 0) throw new InsufficientSlotsException();
+		op.getButtons().add(new Action(button, type, action));
+
+		return this;
+	}
+
+	public OperatorBuilder addButton(Button button, BiConsumer<Message, User> action) {
+		if (op.getButtonSlots() == 0) throw new InsufficientSlotsException();
+		op.getButtons().add(new Action(button, ButtonOp.CUSTOM, action));
 
 		return this;
 	}

@@ -2,21 +2,20 @@ package com.github.ygimenez.model;
 
 import com.github.ygimenez.method.Pages;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public class Operator {
 	private final Message message;
 	private final List<Page> pages = new ArrayList<>();
-	private final List<Action> buttons = new ArrayList<>();
+	private final Set<Action> buttons = new HashSet<>();
 	private final EnumMap<Pages.Mode, Flag> flags = new EnumMap<>(Pages.Mode.class);
 
-	private Predicate<Message> validation;
+	private BiPredicate<Message, User> validation;
 	private Consumer<Message> onClose;
 	private int time;
 	private TimeUnit unit;
@@ -45,11 +44,11 @@ public class Operator {
 		return message;
 	}
 
-	public Predicate<Message> getValidation() {
+	public BiPredicate<Message, User> getValidation() {
 		return validation;
 	}
 
-	protected void setValidation(Predicate<Message> validation) {
+	protected void setValidation(BiPredicate<Message, User> validation) {
 		this.validation = validation;
 	}
 
@@ -65,7 +64,7 @@ public class Operator {
 		return pages;
 	}
 
-	public List<Action> getButtons() {
+	public Set<Action> getButtons() {
 		return buttons;
 	}
 
@@ -95,17 +94,7 @@ public class Operator {
 	}
 
 	public int getButtonSlots() {
-		int total = 25;
-		for (Flag flag : flags.values()) {
-			switch (flag) {
-				case PAGINATE_WITH_SKIP:
-				case PAGINATE_WITH_FF:
-					total -= 2;
-					break;
-			}
-		}
-
-		if (showCancel) total--;
+		int total = 20;
 
 		int groups = (int) pages.stream().map(Page::getGroup).distinct().count();
 		total -= groups > 1 ? groups : 0;

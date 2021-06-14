@@ -9,5 +9,6 @@ public enum ButtonOp {
 	SKIP_FORWARD,
 	SKIP_BACKWARD,
 	GOTO_FIRST,
-	GOTO_LAST
+	GOTO_LAST,
+	CUSTOM
 }
