@@ -93,6 +93,10 @@ public class Page {
 
 		return rows;
 	}
+
+	public boolean hasButtons() {
+		return !buttons.isEmpty();
+	}
 	
 	public String getGroup() {
 		return group;

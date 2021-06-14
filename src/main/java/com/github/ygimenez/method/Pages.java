@@ -83,7 +83,8 @@ public class Pages {
 		rows.add(ActionRow.of(getPaginationNav(op, 0)));
 
 		Page pg = op.getPages().get(0);
-		rows.addAll(pg.getActionRows());
+		if (pg.hasButtons())
+			rows.addAll(pg.getActionRows());
 
 		op.getMessage()
 				.editMessage(op.getMessage())
@@ -159,7 +160,8 @@ public class Pages {
 								rows.add(ActionRow.of(getPaginationNav(op, p)));
 
 								Page pg = op.getPages().get(p);
-								rows.addAll(pg.getActionRows());
+								if (pg.hasButtons())
+									rows.addAll(pg.getActionRows());
 
 								if (pg.getContent() instanceof Message)
 									evt.editComponents(rows)
