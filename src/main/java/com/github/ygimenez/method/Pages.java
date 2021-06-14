@@ -25,7 +25,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Pages {
@@ -190,8 +189,10 @@ public class Pages {
 		if (!isActivated()) throw new InvalidStateException();
 
 		List<ActionRow> rows = new ArrayList<>();
-		Map<Emoji, Page> cats = op.getPages().stream()
-				.collect(Collectors.toMap(Page::getGroup, Function.identity()));
+		Map<Emoji, Page> cats = new HashMap<>();
+		for (Page page : op.getPages()) {
+			cats.put(page.getGroup(), page);
+		}
 
 		List<List<Button>> buttons = Utils.chunkify(getCategorizationNav(op, cats, groupIndexes, null), 5);
 		for (List<Button> row : buttons) {
