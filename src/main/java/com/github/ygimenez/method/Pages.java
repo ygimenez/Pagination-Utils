@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Pages {
@@ -185,11 +186,13 @@ public class Pages {
 				));
 	}
 
-	public static void categorize(final Operator op, int skip, Map<Emoji, Integer> groupIndexes) {
+	public static void categorize(final Operator op, @Nonnull Map<Emoji, Integer> groupIndexes) {
 		if (!isActivated()) throw new InvalidStateException();
 
 		List<ActionRow> rows = new ArrayList<>();
-		Map<Emoji, List<Page>> cats = op.getPages().stream().collect(Collectors.groupingBy(Page::getGroup));
+		Map<Emoji, Page> cats = op.getPages().stream()
+				.collect(Collectors.toMap(Page::getGroup, Function.identity()));
+
 		List<List<Button>> buttons = Utils.chunkify(getCategorizationNav(op, cats, groupIndexes, null), 5);
 		for (List<Button> row : buttons) {
 			rows.add(ActionRow.of(row));
@@ -220,8 +223,6 @@ public class Pages {
 							private final Map<String, Action> fixedButtons = getButtonRows(op);
 							private Map<String, Action> pageButtons = pg.hasButtons() ? pg.getButtonsAsMap() : Map.of();
 							private Emoji currCat = pg.getGroup();
-							private int maxP = cats.get(currCat).size() - 1;
-							private int p = 0;
 
 							{
 								if (op.getUnit() != null)
@@ -253,38 +254,14 @@ public class Pages {
 									}
 								}
 
-								switch (id) {
-									case "CANCEL":
-										evt.editComponents(new ActionRow[0])
-												.submit()
-												.thenRun(() -> success.accept(null));
-										return;
-									case "NEXT":
-										p = Math.min(p + 1, maxP);
-										break;
-									case "PREVIOUS":
-										p = Math.max(p - 1, 0);
-										break;
-									case "SKIP_FORWARD":
-										p = Math.min(p + skip, maxP);
-										break;
-									case "SKIP_BACKWARD":
-										p = Math.max(p - skip, 0);
-										break;
-									case "GOTO_FIRST":
-										p = 0;
-										break;
-									case "GOTO_LAST":
-										p = maxP;
-										break;
-									default:
-										if (emj == null) return;
+								if (id.equals("CANCEL")) {
+									evt.editComponents(new ActionRow[0])
+											.submit()
+											.thenRun(() -> success.accept(null));
+									return;
 								}
 
-								List<Page> pages = cats.get(currCat);
 								currCat = emj;
-								maxP = pages.size() - 1;
-								p = 0;
 
 								rows.clear();
 								List<List<Button>> buttons = Utils.chunkify(getCategorizationNav(op, cats, groupIndexes, currCat), 5);
@@ -292,7 +269,7 @@ public class Pages {
 									rows.add(ActionRow.of(row));
 								}
 
-								Page pg = pages.get(p);
+								Page pg = cats.get(currCat);
 								if (pg.hasButtons()) {
 									rows.addAll(pg.getActionRows());
 									pageButtons = pg.getButtonsAsMap();
@@ -358,10 +335,10 @@ public class Pages {
 				.collect(Collectors.toList());
 	}
 
-	private static List<Button> getCategorizationNav(Operator op, Map<Emoji, List<Page>> cats, Map<Emoji, Integer> groupIndexes, Emoji currCat) {
-		LinkedList<Button> buttons = cats.keySet().stream()
-				.sorted(Comparator.comparingInt(e -> groupIndexes.getOrDefault(e, -1)))
-				.map(e -> Button.secondary(e.getAsMention(), e))
+	private static List<Button> getCategorizationNav(Operator op, Map<Emoji, Page> cats, Map<Emoji, Integer> groupIndexes, Emoji currCat) {
+		LinkedList<Button> buttons = cats.entrySet().stream()
+				.sorted(Comparator.comparingInt(e -> groupIndexes.getOrDefault(e.getKey(), -1)))
+				.map(e -> Button.secondary(e.getKey().getAsMention(), e.getValue().getGroup()))
 				.collect(Collectors.toCollection(LinkedList::new));
 
 		if (op.isShowCancel()) {
