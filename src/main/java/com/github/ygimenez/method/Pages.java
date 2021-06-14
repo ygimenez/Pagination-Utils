@@ -105,7 +105,8 @@ public class Pages {
 								if (paginator.isDeleteOnCancel())
 									msg.delete().submit();
 							};
-							private final Map<String, Action> buttons = getButtonRows(op);
+							private final Map<String, Action> fixedButtons = getButtonRows(op);
+							private Map<String, Action> pageButtons = pg.hasButtons() ? pg.getButtonsAsMap() : Map.of();
 
 							{
 								if (op.getUnit() != null)
@@ -123,7 +124,7 @@ public class Pages {
 									|| !op.getValidation().test(evt.getMessage(), evt.getUser())
 								) return;
 
-								Action a = buttons.get(id);
+								Action a = fixedButtons.getOrDefault(id, pageButtons.get(id));
 								if (a != null) {
 									if (a.getType() == ButtonOp.CUSTOM) {
 										evt.deferReply().submit();
@@ -131,7 +132,6 @@ public class Pages {
 										return;
 									} else {
 										id = a.getType().name();
-										a = null;
 									}
 								}
 
@@ -167,8 +167,10 @@ public class Pages {
 								rows.add(ActionRow.of(getPaginationNav(op, p)));
 
 								Page pg = op.getPages().get(p);
-								if (pg.hasButtons())
+								if (pg.hasButtons()) {
 									rows.addAll(pg.getActionRows());
+									pageButtons = pg.getButtonsAsMap();
+								}
 
 								if (pg.getContent() instanceof Message)
 									evt.editComponents(rows)

@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -77,6 +78,10 @@ public class Page {
 
 	public Set<Action> getButtons() {
 		return Collections.unmodifiableSet(buttons);
+	}
+
+	public Map<String, Action> getButtonsAsMap() {
+		return Collections.unmodifiableMap(buttons.stream().collect(Collectors.toMap(Action::getId, Function.identity())));
 	}
 
 	public List<ActionRow> getActionRows() {

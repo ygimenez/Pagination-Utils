@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -23,7 +22,7 @@ public class Action {
 		String id = Utils.getOr(button.getId(), button.getUrl());
 		assert id != null;
 
-		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
+		this.id = id;
 		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
 		this.type = type;
 		this.event = event;
@@ -35,7 +34,7 @@ public class Action {
 		String id = Utils.getOr(button.getId(), button.getUrl());
 		assert id != null;
 
-		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
+		this.id = id;
 		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
 		this.type = type;
 		this.event = event;
@@ -46,7 +45,7 @@ public class Action {
 		String id = Utils.getOr(button.getId(), button.getUrl());
 		assert id != null;
 
-		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
+		this.id = id;
 		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
 		this.type = type;
 		this.event = event;
@@ -57,10 +56,14 @@ public class Action {
 		String id = Utils.getOr(button.getId(), button.getUrl());
 		assert id != null;
 
-		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
+		this.id = id;
 		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
 		this.type = type;
 		this.event = event;
+	}
+
+	public String getId() {
+		return id;
 	}
 
 	public Button getButton() {
