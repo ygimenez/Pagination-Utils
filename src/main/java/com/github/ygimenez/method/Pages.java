@@ -6,7 +6,9 @@ import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.ButtonOp;
+import com.github.ygimenez.util.Utils;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -16,10 +18,7 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -34,7 +33,7 @@ public class Pages {
 	private static Paginator paginator;
 
 	public enum Mode {
-		PAGINATE, CATEGORIZE, BUTTONIZE, HYBRIDIZE
+		PAGINATE, CATEGORIZE, BUTTONIZE
 	}
 
 	public static void activate(@Nonnull Paginator paginator) throws InvalidHandlerException {
@@ -76,13 +75,13 @@ public class Pages {
 		return handler;
 	}
 
-	public static void paginate(final Operator op, final int skip) {
+	public static void paginate(final Operator op, int skip) {
 		if (!isActivated()) throw new InvalidStateException();
 
 		List<ActionRow> rows = new ArrayList<>();
 		rows.add(ActionRow.of(getPaginationNav(op, 0)));
 
-		Page pg = op.getPages().get(0);
+		Page pg = Utils.getOr(op.getHome(), op.getPages().get(0));
 		if (pg.hasButtons())
 			rows.addAll(pg.getActionRows());
 
@@ -95,7 +94,6 @@ public class Pages {
 						new Consumer<>() {
 							private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 							private final int maxP = op.getPages().size() - 1;
-							private int p = 0;
 							private final Consumer<Void> success = s -> {
 								handler.removeEvent(msg);
 
@@ -108,6 +106,7 @@ public class Pages {
 							};
 							private final Map<String, Action> fixedButtons = getButtonRows(op);
 							private Map<String, Action> pageButtons = pg.hasButtons() ? pg.getButtonsAsMap() : Map.of();
+							private int p = 0;
 
 							{
 								if (op.getUnit() != null)
@@ -186,6 +185,132 @@ public class Pages {
 				));
 	}
 
+	public static void categorize(final Operator op, int skip, Map<Emoji, Integer> groupIndexes) {
+		if (!isActivated()) throw new InvalidStateException();
+
+		List<ActionRow> rows = new ArrayList<>();
+		Map<Emoji, List<Page>> cats = op.getPages().stream().collect(Collectors.groupingBy(Page::getGroup));
+		List<List<Button>> buttons = Utils.chunkify(getCategorizationNav(op, cats, groupIndexes, null), 5);
+		for (List<Button> row : buttons) {
+			rows.add(ActionRow.of(row));
+		}
+
+		Page pg = Utils.getOr(op.getHome(), op.getPages().get(0));
+		if (pg.hasButtons())
+			rows.addAll(pg.getActionRows());
+
+		(pg.getContent() instanceof Message
+				? op.getMessage().editMessage((Message) pg.getContent())
+				: op.getMessage().editMessage((MessageEmbed) pg.getContent())
+		).setActionRows(rows)
+				.submit()
+				.thenAccept(msg -> handler.addEvent(msg.getChannel().getId() + msg.getId(),
+						new Consumer<>() {
+							private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
+							private final Consumer<Void> success = s -> {
+								handler.removeEvent(msg);
+
+								if (timeout.get() != null)
+									timeout.get().cancel(true);
+								if (op.getOnClose() != null)
+									op.getOnClose().accept(op.getMessage());
+								if (paginator.isDeleteOnCancel())
+									msg.delete().submit();
+							};
+							private final Map<String, Action> fixedButtons = getButtonRows(op);
+							private Map<String, Action> pageButtons = pg.hasButtons() ? pg.getButtonsAsMap() : Map.of();
+							private Emoji currCat = pg.getGroup();
+							private int maxP = cats.get(currCat).size() - 1;
+							private int p = 0;
+
+							{
+								if (op.getUnit() != null)
+									setTimeout(timeout, success, msg, op.getTime(), op.getUnit());
+							}
+
+							@Override
+							public void accept(ButtonClickEvent evt) {
+								Message msg = evt.getMessage();
+								String id = evt.getComponentId();
+
+								assert evt.getButton() != null;
+								Emoji emj = evt.getButton().getEmoji();
+
+								if (evt.getUser().isBot()
+									|| msg == null
+									|| (emj != null && currCat == emj)
+									|| !op.getValidation().test(evt.getMessage(), evt.getUser())
+								) return;
+
+								Action a = fixedButtons.getOrDefault(id, pageButtons.get(id));
+								if (a != null) {
+									if (a.getType() == ButtonOp.CUSTOM) {
+										evt.deferEdit().submit()
+												.thenRun(() -> a.getEvent().accept(msg, evt.getUser()));
+										return;
+									} else {
+										id = a.getType().name();
+									}
+								}
+
+								switch (id) {
+									case "CANCEL":
+										evt.editComponents(new ActionRow[0])
+												.submit()
+												.thenRun(() -> success.accept(null));
+										return;
+									case "NEXT":
+										p = Math.min(p + 1, maxP);
+										break;
+									case "PREVIOUS":
+										p = Math.max(p - 1, 0);
+										break;
+									case "SKIP_FORWARD":
+										p = Math.min(p + skip, maxP);
+										break;
+									case "SKIP_BACKWARD":
+										p = Math.max(p - skip, 0);
+										break;
+									case "GOTO_FIRST":
+										p = 0;
+										break;
+									case "GOTO_LAST":
+										p = maxP;
+										break;
+									default:
+										if (emj == null) return;
+								}
+
+								List<Page> pages = cats.get(currCat);
+								currCat = emj;
+								maxP = pages.size() - 1;
+								p = 0;
+
+								rows.clear();
+								List<List<Button>> buttons = Utils.chunkify(getCategorizationNav(op, cats, groupIndexes, currCat), 5);
+								for (List<Button> row : buttons) {
+									rows.add(ActionRow.of(row));
+								}
+
+								Page pg = pages.get(p);
+								if (pg.hasButtons()) {
+									rows.addAll(pg.getActionRows());
+									pageButtons = pg.getButtonsAsMap();
+								}
+
+								if (pg.getContent() instanceof Message)
+									evt.editComponents(rows)
+											.setContent(pg.toString())
+											.submit();
+								else
+									evt.editComponents(rows)
+											.setEmbeds((MessageEmbed) pg.getContent())
+											.submit();
+							}
+						}
+				));
+	}
+
 	private static List<Button> getPaginationNav(Operator op, int p) {
 		LinkedList<ButtonOp> buttons = new LinkedList<>();
 
@@ -230,6 +355,26 @@ public class Pages {
 							return btn;
 					}
 				})
+				.collect(Collectors.toList());
+	}
+
+	private static List<Button> getCategorizationNav(Operator op, Map<Emoji, List<Page>> cats, Map<Emoji, Integer> groupIndexes, Emoji currCat) {
+		LinkedList<Button> buttons = cats.keySet().stream()
+				.sorted(Comparator.comparingInt(e -> groupIndexes.getOrDefault(e, -1)))
+				.map(e -> Button.secondary(e.getAsMention(), e))
+				.collect(Collectors.toCollection(LinkedList::new));
+
+		if (op.isShowCancel()) {
+			Style s = paginator.getEmotes().get(ButtonOp.CANCEL);
+			buttons.addFirst(Button.of(s.getStyle(),
+					ButtonOp.CANCEL.name(),
+					s.getLabel(),
+					s.getEmoji()
+			));
+		}
+
+		return buttons.stream()
+				.map(b -> b.getEmoji() == currCat ? b.asDisabled() : b.withDisabled(false))
 				.collect(Collectors.toList());
 	}
 

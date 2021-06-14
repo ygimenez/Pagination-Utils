@@ -15,6 +15,7 @@ public class Operator {
 	private final Set<Action> buttons = new HashSet<>();
 	private final EnumMap<Pages.Mode, Flag> flags = new EnumMap<>(Pages.Mode.class);
 
+	private Page home = null;
 	private BiPredicate<Message, User> validation;
 	private Consumer<Message> onClose;
 	private int time;
@@ -42,6 +43,14 @@ public class Operator {
 
 	public Message getMessage() {
 		return message;
+	}
+
+	public Page getHome() {
+		return home;
+	}
+
+	protected void setHome(Page home) {
+		this.home = home;
 	}
 
 	public BiPredicate<Message, User> getValidation() {
@@ -91,16 +100,5 @@ public class Operator {
 
 	protected void showCancel() {
 		this.showCancel = true;
-	}
-
-	public int getButtonSlots() {
-		int total = 20;
-
-		int groups = (int) pages.stream().map(Page::getGroup).distinct().count();
-		total -= groups > 1 ? groups : 0;
-		total -= groups == 1 && pages.size() > 1 ? 2 : 0;
-		total -= buttons.size();
-
-		return total;
 	}
 }

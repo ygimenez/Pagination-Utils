@@ -2,6 +2,7 @@ package com.github.ygimenez.model;
 
 import com.github.ygimenez.type.ButtonOp;
 import com.github.ygimenez.util.Utils;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 public class Page {
 	private final Object content;
 	private final Set<Action> buttons;
-	private final String group;
+	private final Emoji group;
 	
 	public Page(@Nonnull Object content) throws IllegalArgumentException {
 		if (!(content instanceof Message) && !(content instanceof MessageEmbed))
@@ -35,7 +36,7 @@ public class Page {
 
 		this.content = content;
 		this.buttons = buttons;
-		this.group = group;
+		this.group = Emoji.fromMarkdown(group);
 	}
 	
 	public Page(@Nonnull Object content, @Nonnull Set<Action> buttons) throws IllegalArgumentException {
@@ -53,7 +54,7 @@ public class Page {
 
 		this.content = content;
 		this.buttons = new HashSet<>();
-		this.group = group;
+		this.group = Emoji.fromMarkdown(group);
 	}
 	
 	public Object getContent() {
@@ -103,7 +104,7 @@ public class Page {
 		return !buttons.isEmpty();
 	}
 	
-	public String getGroup() {
+	public Emoji getGroup() {
 		return group;
 	}
 	
