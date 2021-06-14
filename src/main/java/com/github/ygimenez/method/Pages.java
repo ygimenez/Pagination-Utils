@@ -86,9 +86,10 @@ public class Pages {
 		if (pg.hasButtons())
 			rows.addAll(pg.getActionRows());
 
-		op.getMessage()
-				.editMessage(op.getMessage())
-				.setActionRows(rows)
+		(pg.getContent() instanceof Message
+				? op.getMessage().editMessage((Message) pg.getContent())
+				: op.getMessage().editMessage((MessageEmbed) pg.getContent())
+		).setActionRows(rows)
 				.submit()
 				.thenAccept(msg -> handler.addEvent(msg.getChannel().getId() + msg.getId(),
 						new Consumer<>() {
