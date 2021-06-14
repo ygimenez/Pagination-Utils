@@ -24,7 +24,7 @@ public class Action {
 		assert id != null;
 
 		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
-		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(id);
+		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
 		this.type = type;
 		this.event = event;
 		this.active = active;
@@ -36,7 +36,7 @@ public class Action {
 		assert id != null;
 
 		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
-		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(id);
+		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
 		this.type = type;
 		this.event = event;
 		this.index = index;
@@ -47,7 +47,7 @@ public class Action {
 		assert id != null;
 
 		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
-		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(id);
+		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
 		this.type = type;
 		this.event = event;
 		this.active = active;
@@ -58,7 +58,7 @@ public class Action {
 		assert id != null;
 
 		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
-		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(id);
+		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
 		this.type = type;
 		this.event = event;
 	}
