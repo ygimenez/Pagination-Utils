@@ -126,41 +126,42 @@ public class Pages {
 								Action a = buttons.get(id);
 								if (a != null) {
 									if (a.getType() == ButtonOp.CUSTOM) {
+										evt.deferReply().submit();
 										a.getEvent().accept(msg, evt.getUser());
+										return;
 									} else {
 										id = a.getType().name();
 										a = null;
 									}
 								}
 
-								if (a == null)
-									switch (id) {
-										case "CANCEL":
-											evt.editComponents(new ActionRow[0])
-													.submit()
-													.thenAccept(s -> success.accept(null));
-											return;
-										case "NEXT":
-											p = Math.min(p + 1, maxP);
-											break;
-										case "PREVIOUS":
-											p = Math.max(p - 1, 0);
-											break;
-										case "SKIP_FORWARD":
-											p = Math.min(p + skip, maxP);
-											break;
-										case "SKIP_BACKWARD":
-											p = Math.max(p - skip, 0);
-											break;
-										case "GOTO_FIRST":
-											p = 0;
-											break;
-										case "GOTO_LAST":
-											p = maxP;
-											break;
-										default:
-											return;
-									}
+								switch (id) {
+									case "CANCEL":
+										evt.editComponents(new ActionRow[0])
+												.submit()
+												.thenAccept(s -> success.accept(null));
+										return;
+									case "NEXT":
+										p = Math.min(p + 1, maxP);
+										break;
+									case "PREVIOUS":
+										p = Math.max(p - 1, 0);
+										break;
+									case "SKIP_FORWARD":
+										p = Math.min(p + skip, maxP);
+										break;
+									case "SKIP_BACKWARD":
+										p = Math.max(p - skip, 0);
+										break;
+									case "GOTO_FIRST":
+										p = 0;
+										break;
+									case "GOTO_LAST":
+										p = maxP;
+										break;
+									default:
+										return;
+								}
 
 								rows.clear();
 								rows.add(ActionRow.of(getPaginationNav(op, p)));
@@ -178,7 +179,8 @@ public class Pages {
 											.setEmbeds((MessageEmbed) pg.getContent())
 											.submit();
 							}
-						}));
+						}
+				));
 	}
 
 	private static List<Button> getPaginationNav(Operator op, int p) {
