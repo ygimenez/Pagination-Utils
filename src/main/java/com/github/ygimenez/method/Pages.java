@@ -96,10 +96,14 @@ public class Pages {
 							private final int maxP = op.getPages().size() - 1;
 							private int p = 0;
 							private final Consumer<Void> success = s -> {
+								handler.removeEvent(msg);
+
 								if (timeout.get() != null)
 									timeout.get().cancel(true);
-								handler.removeEvent(msg);
-								if (paginator.isDeleteOnCancel()) msg.delete().submit();
+								if (op.getOnClose() != null)
+									op.getOnClose().accept(op.getMessage());
+								if (paginator.isDeleteOnCancel())
+									msg.delete().submit();
 							};
 							private final Map<String, Action> buttons = getButtonRows(op);
 
@@ -154,6 +158,8 @@ public class Pages {
 										case "GOTO_LAST":
 											p = maxP;
 											break;
+										default:
+											return;
 									}
 
 								rows.clear();

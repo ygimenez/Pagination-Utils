@@ -5,6 +5,7 @@ import com.github.ygimenez.util.Utils;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -23,7 +24,7 @@ public class Action {
 		assert id != null;
 
 		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
-		this.button = button;
+		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(id);
 		this.type = type;
 		this.event = event;
 		this.active = active;
@@ -35,7 +36,7 @@ public class Action {
 		assert id != null;
 
 		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
-		this.button = button;
+		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(id);
 		this.type = type;
 		this.event = event;
 		this.index = index;
@@ -46,7 +47,7 @@ public class Action {
 		assert id != null;
 
 		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
-		this.button = button;
+		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(id);
 		this.type = type;
 		this.event = event;
 		this.active = active;
@@ -57,7 +58,7 @@ public class Action {
 		assert id != null;
 
 		this.id = Utils.hash(id.getBytes(StandardCharsets.UTF_8), "SHA-1");
-		this.button = button;
+		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(id);
 		this.type = type;
 		this.event = event;
 	}
