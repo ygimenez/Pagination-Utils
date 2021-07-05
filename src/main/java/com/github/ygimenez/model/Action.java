@@ -23,7 +23,7 @@ public class Action {
 		assert id != null;
 
 		this.id = id;
-		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
+		this.button = button.getStyle() == ButtonStyle.LINK ? button.withUrl(id) : button.withId(id);
 		this.type = type;
 		this.event = event;
 		this.active = active;
@@ -35,7 +35,7 @@ public class Action {
 		assert id != null;
 
 		this.id = id;
-		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
+		this.button = button.getStyle() == ButtonStyle.LINK ? button.withUrl(id) : button.withId(id);
 		this.type = type;
 		this.event = event;
 		this.index = index;
@@ -46,7 +46,7 @@ public class Action {
 		assert id != null;
 
 		this.id = id;
-		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
+		this.button = button.getStyle() == ButtonStyle.LINK ? button.withUrl(id) : button.withId(id);
 		this.type = type;
 		this.event = event;
 		this.active = active;
@@ -57,7 +57,7 @@ public class Action {
 		assert id != null;
 
 		this.id = id;
-		this.button = button.getStyle() == ButtonStyle.LINK ? button : button.withId(this.id);
+		this.button = button.getStyle() == ButtonStyle.LINK ? button.withUrl(id) : button.withId(id);
 		this.type = type;
 		this.event = event;
 	}

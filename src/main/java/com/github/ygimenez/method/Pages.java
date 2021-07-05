@@ -8,9 +8,7 @@ import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.ButtonOp;
 import com.github.ygimenez.util.Utils;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -24,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -172,6 +171,8 @@ public class Pages {
 									pageButtons = pg.getButtonsAsMap();
 								}
 
+								setTimeout(timeout, success, msg, op.getTime(), op.getUnit());
+
 								if (pg.getContent() instanceof Message)
 									evt.editComponents(rows)
 											.setContent(pg.toString())
@@ -276,6 +277,8 @@ public class Pages {
 									pageButtons = pg.getButtonsAsMap();
 								}
 
+								setTimeout(timeout, success, msg, op.getTime(), op.getUnit());
+
 								if (pg.getContent() instanceof Message)
 									evt.editComponents(rows)
 											.setContent(pg.toString())
@@ -284,6 +287,74 @@ public class Pages {
 									evt.editComponents(rows)
 											.setEmbeds((MessageEmbed) pg.getContent())
 											.submit();
+							}
+						}
+				));
+	}
+
+	public static void buttonize(final Operator op) {
+		if (!isActivated()) throw new InvalidStateException();
+
+		Map<String, BiConsumer<Message, User>> acts = op.getButtons().stream()
+				.collect(Collectors.toMap(Action::getId, Action::getEvent));
+
+		List<ActionRow> rows = new ArrayList<>(op.getButtons()).stream()
+				.map(Action::getButton)
+				.collect(Collectors.collectingAndThen(
+						Collectors.toList(),
+						btns -> Utils.chunkify(btns, 5).stream()
+								.map(ActionRow::of)
+								.collect(Collectors.toList())
+						)
+				);
+
+		op.getMessage()
+				.editMessage(op.getMessage())
+				.setActionRows(rows)
+				.submit()
+				.thenAccept(msg -> handler.addEvent(msg.getChannel().getId() + msg.getId(),
+						new Consumer<>() {
+							private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
+							private final Consumer<Void> success = s -> {
+								handler.removeEvent(msg);
+
+								if (timeout.get() != null)
+									timeout.get().cancel(true);
+								if (op.getOnClose() != null)
+									op.getOnClose().accept(op.getMessage());
+								if (paginator.isDeleteOnCancel())
+									msg.delete().submit();
+							};
+
+							{
+								if (op.getUnit() != null)
+									setTimeout(timeout, success, msg, op.getTime(), op.getUnit());
+							}
+
+
+							@Override
+							public void accept(ButtonClickEvent evt) {
+								Message msg = evt.getMessage();
+								String id = evt.getComponentId();
+
+								if (evt.getUser().isBot()
+									|| msg == null
+									|| !op.getValidation().test(evt.getMessage(), evt.getUser())
+								) return;
+
+								if (id.equals("CANCEL")) {
+									evt.editComponents(new ActionRow[0])
+											.submit()
+											.thenRun(() -> success.accept(null));
+									return;
+								}
+
+								BiConsumer<Message, User> act = acts.get(id);
+								if (act != null) {
+									act.accept(msg, evt.getUser());
+								}
+
+								setTimeout(timeout, success, msg, op.getTime(), op.getUnit());
 							}
 						}
 				));
