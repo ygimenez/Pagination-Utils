@@ -1,7 +1,6 @@
 package com.github.ygimenez.model;
 
-import net.dv8tion.jda.internal.utils.JDALogger;
-import org.slf4j.Logger;
+import com.github.ygimenez.method.Pages;
 
 import java.util.function.BiConsumer;
 
@@ -32,8 +31,7 @@ public interface ThrowingBiConsumer<A, B> extends BiConsumer<A, B> {
 		try {
 			acceptThrows(a, b);
 		} catch (final Exception e) {
-			Logger logger = JDALogger.getLog(this.getClass());
-			logger.error(e.getMessage(), e);
+			Pages.getPaginator().getLogger().error("An error occurred during button event execution.", e);
 
 			throw new RuntimeException(e);
 		}

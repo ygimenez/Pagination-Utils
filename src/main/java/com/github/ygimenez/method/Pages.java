@@ -10,6 +10,7 @@ import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -133,7 +134,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -171,7 +172,7 @@ public class Pages {
 						clearReactions(msg, success);
 					}
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -207,7 +208,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -255,7 +256,7 @@ public class Pages {
 
 					setTimeout(timeout, success, msg, time, unit);
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -288,7 +289,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -328,7 +329,7 @@ public class Pages {
 							clearReactions(msg, success);
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -368,7 +369,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -416,7 +417,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -451,7 +452,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -505,7 +506,7 @@ public class Pages {
 						clearReactions(msg, success);
 					}
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -545,7 +546,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -607,7 +608,7 @@ public class Pages {
 
 					setTimeout(timeout, success, msg, time, unit);
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -643,7 +644,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -697,7 +698,7 @@ public class Pages {
 							clearReactions(msg, success);
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -740,7 +741,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -803,7 +804,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -839,7 +840,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -892,7 +893,7 @@ public class Pages {
 						clearReactions(msg, success);
 					}
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -933,7 +934,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -995,7 +996,7 @@ public class Pages {
 
 					setTimeout(timeout, success, msg, time, unit);
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -1032,7 +1033,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -1086,7 +1087,7 @@ public class Pages {
 							clearReactions(msg, success);
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -1130,7 +1131,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -1193,7 +1194,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -1234,7 +1235,7 @@ public class Pages {
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -1302,7 +1303,7 @@ public class Pages {
 							clearReactions(msg, success);
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -1349,7 +1350,7 @@ public class Pages {
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
@@ -1426,7 +1427,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -1469,7 +1470,7 @@ public class Pages {
 		}
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private String currCat = "";
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
@@ -1501,7 +1502,7 @@ public class Pages {
 						currCat = code;
 					}
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -1548,7 +1549,7 @@ public class Pages {
 			}
 		}
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private String currCat = "";
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
@@ -1589,7 +1590,7 @@ public class Pages {
 						currCat = code;
 					}
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -1632,7 +1633,7 @@ public class Pages {
 			}
 		}
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private String currCat = "";
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
@@ -1665,7 +1666,7 @@ public class Pages {
 							currCat = code;
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -1715,7 +1716,7 @@ public class Pages {
 			}
 		}
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private String currCat = "";
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
@@ -1757,7 +1758,7 @@ public class Pages {
 							currCat = code;
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -1802,7 +1803,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -1830,7 +1831,7 @@ public class Pages {
 					else
 						btns.get(reaction.getId()).accept(event.getMember(), msg);
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -1879,7 +1880,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
@@ -1916,7 +1917,7 @@ public class Pages {
 
 					setTimeout(timeout, success, msg, time, unit);
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -1963,7 +1964,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -1992,7 +1993,7 @@ public class Pages {
 						else
 							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -2046,7 +2047,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
@@ -2084,7 +2085,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -2132,7 +2133,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				onCancel.accept(msg);
@@ -2162,7 +2163,7 @@ public class Pages {
 						else
 							btns.get(reaction.getId()).accept(event.getMember(), msg);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -2216,7 +2217,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
@@ -2255,7 +2256,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -2299,7 +2300,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -2367,7 +2368,7 @@ public class Pages {
 						currCat = code;
 					}
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -2413,7 +2414,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -2490,7 +2491,7 @@ public class Pages {
 
 					setTimeout(timeout, success, msg, time, unit);
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -2535,7 +2536,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -2604,7 +2605,7 @@ public class Pages {
 							currCat = code;
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -2654,7 +2655,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -2732,7 +2733,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -2779,7 +2780,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -2857,7 +2858,7 @@ public class Pages {
 						currCat = code;
 					}
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -2907,7 +2908,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -2994,7 +2995,7 @@ public class Pages {
 
 					setTimeout(timeout, success, msg, time, unit);
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -3042,7 +3043,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -3123,7 +3124,7 @@ public class Pages {
 							currCat = code;
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -3176,7 +3177,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3266,7 +3267,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -3314,7 +3315,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -3392,7 +3393,7 @@ public class Pages {
 						currCat = code;
 					}
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -3443,7 +3444,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3530,7 +3531,7 @@ public class Pages {
 
 					setTimeout(timeout, success, msg, time, unit);
 
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
 				});
@@ -3579,7 +3580,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3661,7 +3662,7 @@ public class Pages {
 							currCat = code;
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -3715,7 +3716,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3805,7 +3806,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -3858,7 +3859,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -3951,7 +3952,7 @@ public class Pages {
 							currCat = code;
 						}
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}
@@ -4008,7 +4009,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+		handler.addEvent(msg, new Consumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -4110,7 +4111,7 @@ public class Pages {
 
 						setTimeout(timeout, success, msg, time, unit);
 
-						if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
 						}
 					}

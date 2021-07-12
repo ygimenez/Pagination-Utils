@@ -4,6 +4,7 @@ import com.github.ygimenez.method.Pages;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -11,8 +12,10 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.zip.CRC32;
 
 /**
  * Class responsible for handling reaction events sent by the handler.<br>
@@ -23,14 +26,28 @@ public class MessageHandler extends ListenerAdapter {
 	private final Set<String> locks = new HashSet<>();
 
 	/**
+	 * <strong>DEPRECATED:</strong> Please use {@link #addEvent(Message, Consumer)} instead.<br>
+	 * <br>
 	 * Adds an event to the handler, which will be executed whenever a button with the same
 	 * ID is pressed.
 	 *
 	 * @param id  The ID of the event.
 	 * @param act The action to be executed when the button is pressed.
 	 */
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	public void addEvent(String id, Consumer<GenericMessageReactionEvent> act) {
 		events.put(id, act);
+	}
+
+	/**
+	 * Adds an event to the handler, which will be executed whenever a button with the same
+	 * ID is pressed.
+	 *
+	 * @param msg The {@link Message} to hold the event.
+	 * @param act The action to be executed when the button is pressed.
+	 */
+	public void addEvent(Message msg, Consumer<GenericMessageReactionEvent> act) {
+		events.put(getEventId(msg), act);
 	}
 
 	/**
@@ -39,14 +56,7 @@ public class MessageHandler extends ListenerAdapter {
 	 * @param msg The {@link Message} which had attached events.
 	 */
 	public void removeEvent(Message msg) {
-		switch (msg.getChannelType()) {
-			case TEXT:
-				events.remove(msg.getGuild().getId() + msg.getId());
-				break;
-			case PRIVATE:
-				events.remove(msg.getPrivateChannel().getId() + msg.getId());
-				break;
-		}
+		events.remove(getEventId(msg));
 	}
 
 	/**
@@ -69,107 +79,64 @@ public class MessageHandler extends ListenerAdapter {
 	}
 
 	private void lock(GenericMessageReactionEvent evt) {
-		locks.add(evt.getGuild().getId() + evt.getMessageId());
+		locks.add(getEventId(evt));
 	}
 
 	private void unlock(GenericMessageReactionEvent evt) {
-		locks.remove(evt.getGuild().getId() + evt.getMessageId());
+		locks.remove(getEventId(evt));
 	}
 
 	private boolean isLocked(GenericMessageReactionEvent evt) {
-		switch (evt.getChannelType()) {
-			case TEXT:
-				return locks.contains(evt.getGuild().getId() + evt.getMessageId());
-			case PRIVATE:
-				return locks.contains(evt.getPrivateChannel().getId() + evt.getMessageId());
-			default:
-				return true;
-		}
+		return locks.contains(getEventId(evt));
 	}
 
 	@Override
 	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
+		execute(evt);
+	}
+
+	@Override
+	public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent evt) {
+		if (!Pages.getPaginator().isRemoveOnReact() || !evt.isFromGuild())
+			execute(evt);
+	}
+
+	@Override
+	public void onMessageDelete(@Nonnull MessageDeleteEvent evt) {
+		events.remove(getEventId(evt));
+	}
+
+	private void execute(GenericMessageReactionEvent evt) {
 		evt.retrieveUser().submit().thenAccept(u -> {
 			if (u.isBot() || isLocked(evt)) return;
 
 			try {
 				if (Pages.getPaginator().isEventLocked()) lock(evt);
-				switch (evt.getChannelType()) {
-					case TEXT:
-						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
-							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
-						break;
-					case PRIVATE:
-						if (events.containsKey(evt.getPrivateChannel().getId() + evt.getMessageId()))
-							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
-						break;
-				}
+
+				Consumer<GenericMessageReactionEvent> act = events.get(getEventId(evt));
+
+				if (act != null) act.accept(evt);
+			} catch (RuntimeException e) {
+				Pages.getPaginator().getLogger().error("An error occurred when processing event with ID " + getEventId(evt), e);
+			} finally {
 				if (Pages.getPaginator().isEventLocked()) unlock(evt);
-			} catch (Exception e) {
-				if (Pages.getPaginator().isEventLocked()) unlock(evt);
-				throw e;
 			}
 		});
 	}
 
-	@Override
-	public void onMessageDelete(@Nonnull MessageDeleteEvent evt) {
-		switch (evt.getChannelType()) {
-			case TEXT:
-				events.remove(evt.getGuild().getId() + evt.getMessageId());
-				break;
-			case PRIVATE:
-				events.remove(evt.getPrivateChannel().getId() + evt.getMessageId());
-				break;
-		}
+	private static String getEventId(GenericMessageEvent evt) {
+		CRC32 crc = new CRC32();
+		String rawId = (evt.isFromGuild() ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + evt.getMessageId();
+		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
+
+		return Long.toHexString(crc.getValue());
 	}
 
-	@Override
-	public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent evt) {
-		evt.retrieveUser().submit().thenAccept(u -> {
-			if (u.isBot()) return;
+	private static String getEventId(Message msg) {
+		CRC32 crc = new CRC32();
+		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getPrivateChannel().getId()) + msg.getId();
+		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
-			boolean removeOnReact = (Pages.isActivated() && Pages.getPaginator() == null)
-									|| (Pages.isActivated() && Pages.getPaginator().isRemoveOnReact());
-
-			if (evt.isFromGuild() && removeOnReact) {
-				evt.getPrivateChannel().retrieveMessageById(evt.getMessageId()).submit().thenAccept(msg -> {
-					switch (evt.getChannelType()) {
-						case TEXT:
-							if (events.containsKey(evt.getGuild().getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
-								if (evt.getReactionEmote().isEmoji())
-									msg.addReaction(evt.getReactionEmote().getName()).submit();
-								else
-									msg.addReaction(evt.getReactionEmote().getEmote()).submit();
-							}
-							break;
-						case PRIVATE:
-							if (events.containsKey(evt.getPrivateChannel().getId() + msg.getId()) && !msg.getReactions().contains(evt.getReaction())) {
-								if (evt.getReactionEmote().isEmoji())
-									msg.addReaction(evt.getReactionEmote().getName()).submit();
-								else
-									msg.addReaction(evt.getReactionEmote().getEmote()).submit();
-							}
-							break;
-					}
-				});
-			} else if (!isLocked(evt)) try {
-				if (Pages.getPaginator().isEventLocked()) lock(evt);
-				switch (evt.getChannelType()) {
-					case TEXT:
-						if (events.containsKey(evt.getGuild().getId() + evt.getMessageId()))
-							events.get(evt.getGuild().getId() + evt.getMessageId()).accept(evt);
-						break;
-					case PRIVATE:
-						if (events.containsKey(evt.getPrivateChannel().getId() + evt.getMessageId()))
-							events.get(evt.getPrivateChannel().getId() + evt.getMessageId()).accept(evt);
-						break;
-				}
-				if (Pages.getPaginator().isEventLocked()) unlock(evt);
-			} catch (Exception e) {
-				if (Pages.getPaginator().isEventLocked()) unlock(evt);
-				throw e;
-			}
-		});
+		return Long.toHexString(crc.getValue());
 	}
 }

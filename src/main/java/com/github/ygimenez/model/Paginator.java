@@ -8,7 +8,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.internal.utils.JDALogger;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -39,6 +41,7 @@ public class Paginator {
 		put(GOTO_LAST, "\u23ED\uFE0F");
 	}};
 	private List<String> lookupGuilds = new ArrayList<>();
+	private Logger logger = null;
 
 	/**
 	 * You should not create a {@link Paginator} instance directly, please use {@link PaginatorBuilder}.
@@ -85,6 +88,7 @@ public class Paginator {
 	 */
 	protected void setHandler(Object handler) {
 		this.handler = handler;
+		this.logger = JDALogger.getLog("Pagination-Utils");
 	}
 
 	/**
@@ -207,5 +211,13 @@ public class Paginator {
 	 */
 	protected void finishLookupGuilds() {
 		this.lookupGuilds = Collections.unmodifiableList(lookupGuilds);
+	}
+
+	/**
+	 * Retrieves {@link Logger} instance used by the library.
+	 * <strong>For better maintenance, it's preferred not to use this for outside logging</strong>.
+	 */
+	public Logger getLogger() {
+		return logger;
 	}
 }
