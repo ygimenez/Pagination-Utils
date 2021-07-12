@@ -1348,7 +1348,7 @@ public class Pages {
         if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
         if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-        handler.addEvent((msg.getChannelType().isGuild() ? msg.getGuild().getId() : msg.getPrivateChannel().getId()) + msg.getId(), new Consumer<>() {
+        handler.addEvent(msg, new Consumer<>() {
             private final int maxP = pgs.size() - 1;
             private int p = 0;
             private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
