@@ -216,6 +216,8 @@ public class Paginator {
 	/**
 	 * Retrieves {@link Logger} instance used by the library.
 	 * <strong>For better maintenance, it's preferred not to use this for outside logging</strong>.
+	 *
+	 * @return The logger used by Pagination Utils
 	 */
 	public Logger getLogger() {
 		return logger;
