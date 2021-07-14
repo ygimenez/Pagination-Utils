@@ -145,12 +145,12 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
-					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
@@ -159,17 +159,17 @@ public class Pages {
 							p--;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 					}
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -226,14 +226,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, PREVIOUS)) {
@@ -241,20 +241,20 @@ public class Pages {
 							p--;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 					}
 
-					setTimeout(timeout, success, msg, time, unit);
+					setTimeout(timeout, success, m, time, unit);
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
@@ -300,15 +300,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, PREVIOUS)) {
@@ -316,17 +316,17 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 						}
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -387,14 +387,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, PREVIOUS)) {
@@ -402,20 +402,20 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -464,14 +464,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, PREVIOUS)) {
@@ -479,31 +479,31 @@ public class Pages {
 							p--;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, GOTO_FIRST)) {
 						if (p > 0) {
 							p = 0;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, GOTO_LAST)) {
 						if (p < maxP) {
 							p = maxP;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 					}
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -564,14 +564,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, PREVIOUS)) {
@@ -579,34 +579,34 @@ public class Pages {
 							p--;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, GOTO_FIRST)) {
 						if (p > 0) {
 							p = 0;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, GOTO_LAST)) {
 						if (p < maxP) {
 							p = maxP;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 					}
 
-					setTimeout(timeout, success, msg, time, unit);
+					setTimeout(timeout, success, m, time, unit);
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
@@ -655,15 +655,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, PREVIOUS)) {
@@ -671,31 +671,31 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, GOTO_FIRST)) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 						}
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -759,15 +759,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, PREVIOUS)) {
@@ -775,34 +775,34 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, GOTO_FIRST)) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -851,14 +851,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, PREVIOUS)) {
@@ -866,31 +866,31 @@ public class Pages {
 							p--;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 						if (p > 0) {
 							p -= (p - skipAmount < 0 ? p : skipAmount);
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, SKIP_FORWARD)) {
 						if (p < maxP) {
 							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 					}
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -952,14 +952,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, PREVIOUS)) {
@@ -967,34 +967,34 @@ public class Pages {
 							p--;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, NEXT)) {
 						if (p < maxP) {
 							p++;
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 						if (p > 0) {
 							p -= (p - skipAmount < 0 ? p : skipAmount);
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, SKIP_FORWARD)) {
 						if (p < maxP) {
 							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 							Page pg = pgs.get(p);
 
-							updatePage(msg, pg);
+							updatePage(m, pg);
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 					}
 
-					setTimeout(timeout, success, msg, time, unit);
+					setTimeout(timeout, success, m, time, unit);
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
@@ -1044,15 +1044,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, PREVIOUS)) {
@@ -1060,31 +1060,31 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, SKIP_FORWARD)) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 						}
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -1149,15 +1149,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, PREVIOUS)) {
@@ -1165,34 +1165,34 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, SKIP_FORWARD)) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -1246,15 +1246,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, PREVIOUS)) {
@@ -1262,45 +1262,45 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, SKIP_FORWARD)) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, GOTO_FIRST)) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 						}
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -1366,14 +1366,14 @@ public class Pages {
             @Override
             public void accept(GenericMessageReactionEvent event) {
                 event.retrieveUser().submit().thenAccept(u -> {
-                    Message msg = null;
+                    Message m = null;
                     try {
-                        msg = event.retrieveMessage().submit().get();
+                        m = event.retrieveMessage().submit().get();
                     } catch (InterruptedException | ExecutionException ignore) {
                     }
 
                     MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-                    if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+                    if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
                         return;
 
                     if (checkEmote(reaction, PREVIOUS)) {
@@ -1381,48 +1381,48 @@ public class Pages {
                             p--;
                             Page pg = pgs.get(p);
 
-                            updatePage(msg, pg);
+                            updatePage(m, pg);
                         }
                     } else if (checkEmote(reaction, NEXT)) {
                         if (p < maxP) {
                             p++;
                             Page pg = pgs.get(p);
 
-                            updatePage(msg, pg);
+                            updatePage(m, pg);
                         }
                     } else if (checkEmote(reaction, SKIP_BACKWARD)) {
                         if (p > 0) {
                             p -= (p - skipAmount < 0 ? p : skipAmount);
                             Page pg = pgs.get(p);
 
-                            updatePage(msg, pg);
+                            updatePage(m, pg);
                         }
                     } else if (checkEmote(reaction, SKIP_FORWARD)) {
                         if (p < maxP) {
                             p += (p + skipAmount > maxP ? maxP - p : skipAmount);
                             Page pg = pgs.get(p);
 
-                            updatePage(msg, pg);
+                            updatePage(m, pg);
                         }
                     } else if (checkEmote(reaction, GOTO_FIRST)) {
                         if (p > 0) {
                             p = 0;
                             Page pg = pgs.get(p);
 
-                            updatePage(msg, pg);
+                            updatePage(m, pg);
                         }
                     } else if (checkEmote(reaction, GOTO_LAST)) {
                         if (p < maxP) {
                             p = maxP;
                             Page pg = pgs.get(p);
 
-                            updatePage(msg, pg);
+                            updatePage(m, pg);
                         }
                     } else if (checkEmote(reaction, CANCEL)) {
-                        clearReactions(msg, success);
+                        clearReactions(m, success);
                     }
 
-                    setTimeout(timeout, success, msg, time, unit);
+                    setTimeout(timeout, success, m, time, unit);
 
                     if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
                         event.getReaction().removeReaction(u).submit();
@@ -1488,15 +1488,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, PREVIOUS)) {
@@ -1504,48 +1504,48 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, NEXT)) {
 							if (p < maxP) {
 								p++;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, SKIP_FORWARD)) {
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, GOTO_FIRST)) {
 							if (p > 0) {
 								p = 0;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, GOTO_LAST)) {
 							if (p < maxP) {
 								p = maxP;
 								Page pg = pgs.get(p);
 
-								updatePage(msg, pg);
+								updatePage(m, pg);
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -1600,25 +1600,25 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
 					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 					Page pg = cats.get(code);
 					if (pg != null) {
-						updatePage(msg, pg);
+						updatePage(m, pg);
 						currCat = code;
 					}
 
@@ -1686,27 +1686,27 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
-					setTimeout(timeout, success, msg, time, unit);
+					setTimeout(timeout, success, m, time, unit);
 
 					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 					Page pg = cats.get(code);
 					if (pg != null) {
-						updatePage(msg, pg);
+						updatePage(m, pg);
 						currCat = code;
 					}
 
@@ -1763,26 +1763,26 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
@@ -1853,28 +1853,28 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
@@ -1932,24 +1932,24 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
 					if (reaction.isEmoji())
-						btns.get(reaction.getName()).accept(event.getMember(), msg);
+						btns.get(reaction.getName()).accept(event.getMember(), m);
 					else
-						btns.get(reaction.getId()).accept(event.getMember(), msg);
+						btns.get(reaction.getId()).accept(event.getMember(), m);
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
@@ -2016,26 +2016,26 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
 					if (reaction.isEmoji())
-						btns.get(reaction.getName()).accept(event.getMember(), msg);
+						btns.get(reaction.getName()).accept(event.getMember(), m);
 					else
-						btns.get(reaction.getId()).accept(event.getMember(), msg);
+						btns.get(reaction.getId()).accept(event.getMember(), m);
 
-					setTimeout(timeout, success, msg, time, unit);
+					setTimeout(timeout, success, m, time, unit);
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
@@ -2093,25 +2093,25 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
 						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
+							btns.get(reaction.getName()).accept(event.getMember(), m);
 						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
+							btns.get(reaction.getId()).accept(event.getMember(), m);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -2183,27 +2183,27 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
 						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
+							btns.get(reaction.getName()).accept(event.getMember(), m);
 						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
+							btns.get(reaction.getId()).accept(event.getMember(), m);
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -2263,25 +2263,25 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
 						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
+							btns.get(reaction.getName()).accept(event.getMember(), m);
 						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
+							btns.get(reaction.getId()).accept(event.getMember(), m);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -2354,27 +2354,27 @@ public class Pages {
 			@Override
 			public void accept(@Nonnull GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (canInteract.test(u)) {
-						if (u.isBot() || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
 						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), msg);
+							btns.get(reaction.getName()).accept(event.getMember(), m);
 						else
-							btns.get(reaction.getId()).accept(event.getMember(), msg);
+							btns.get(reaction.getId()).accept(event.getMember(), m);
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -2432,14 +2432,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					boolean update = false;
@@ -2454,7 +2454,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
@@ -2462,21 +2462,21 @@ public class Pages {
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
-							if (face != null) updatePage(msg, face);
+							if (face != null) updatePage(m, face);
 						}
 						currCat = "";
-						clearReactions(msg);
-						msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						clearReactions(m);
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 						for (String k : cats.keySet()) {
 							if (EmojiUtils.containsEmoji(k))
-								msg.addReaction(k).submit();
+								m.addReaction(k).submit();
 							else {
 								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 								if (e == null) throw new InvalidEmoteException();
-								msg.addReaction(e).submit();
+								m.addReaction(e).submit();
 							}
 						}
 					}
@@ -2484,7 +2484,7 @@ public class Pages {
 					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 					Page pg = cats.get(code);
 					if (pg != null) {
-						updatePage(msg, pg);
+						updatePage(m, pg);
 						currCat = code;
 					}
 
@@ -2553,14 +2553,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					boolean update = false;
@@ -2575,7 +2575,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
@@ -2583,21 +2583,21 @@ public class Pages {
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
-							if (face != null) updatePage(msg, face);
+							if (face != null) updatePage(m, face);
 						}
 						currCat = "";
-						clearReactions(msg);
-						msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						clearReactions(m);
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 						for (String k : cats.keySet()) {
 							if (EmojiUtils.containsEmoji(k))
-								msg.addReaction(k).submit();
+								m.addReaction(k).submit();
 							else {
 								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 								if (e == null) throw new InvalidEmoteException();
-								msg.addReaction(e).submit();
+								m.addReaction(e).submit();
 							}
 						}
 					}
@@ -2605,11 +2605,11 @@ public class Pages {
 					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 					Page pg = cats.get(code);
 					if (pg != null) {
-						updatePage(msg, pg);
+						updatePage(m, pg);
 						currCat = code;
 					}
 
-					setTimeout(timeout, success, msg, time, unit);
+					setTimeout(timeout, success, m, time, unit);
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
@@ -2668,15 +2668,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						boolean update = false;
@@ -2691,7 +2691,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
@@ -2699,21 +2699,21 @@ public class Pages {
 						if (update) {
 							if (faces != null && pgs.size() == faces.size()) {
 								Page face = faces.get(p);
-								if (face != null) updatePage(msg, face);
+								if (face != null) updatePage(m, face);
 							}
 							currCat = "";
-							clearReactions(msg);
-							msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+							clearReactions(m);
+							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 							for (String k : cats.keySet()) {
 								if (EmojiUtils.containsEmoji(k))
-									msg.addReaction(k).submit();
+									m.addReaction(k).submit();
 								else {
 									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 									if (e == null) throw new InvalidEmoteException();
-									msg.addReaction(e).submit();
+									m.addReaction(e).submit();
 								}
 							}
 						}
@@ -2721,7 +2721,7 @@ public class Pages {
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
@@ -2794,15 +2794,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						boolean update = false;
@@ -2817,7 +2817,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
@@ -2825,21 +2825,21 @@ public class Pages {
 						if (update) {
 							if (faces != null && pgs.size() == faces.size()) {
 								Page face = faces.get(p);
-								if (face != null) updatePage(msg, face);
+								if (face != null) updatePage(m, face);
 							}
 							currCat = "";
-							clearReactions(msg);
-							msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+							clearReactions(m);
+							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 							for (String k : cats.keySet()) {
 								if (EmojiUtils.containsEmoji(k))
-									msg.addReaction(k).submit();
+									m.addReaction(k).submit();
 								else {
 									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 									if (e == null) throw new InvalidEmoteException();
-									msg.addReaction(e).submit();
+									m.addReaction(e).submit();
 								}
 							}
 						}
@@ -2847,11 +2847,11 @@ public class Pages {
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -2912,14 +2912,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					boolean update = false;
@@ -2944,7 +2944,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
@@ -2952,21 +2952,21 @@ public class Pages {
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
-							if (face != null) updatePage(msg, face);
+							if (face != null) updatePage(m, face);
 						}
 						currCat = "";
-						clearReactions(msg);
-						msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						clearReactions(m);
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 						for (String k : cats.keySet()) {
 							if (EmojiUtils.containsEmoji(k))
-								msg.addReaction(k).submit();
+								m.addReaction(k).submit();
 							else {
 								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 								if (e == null) throw new InvalidEmoteException();
-								msg.addReaction(e).submit();
+								m.addReaction(e).submit();
 							}
 						}
 					}
@@ -2974,7 +2974,7 @@ public class Pages {
 					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 					Page pg = cats.get(code);
 					if (pg != null) {
-						updatePage(msg, pg);
+						updatePage(m, pg);
 						currCat = code;
 					}
 
@@ -3047,14 +3047,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					boolean update = false;
@@ -3079,7 +3079,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
@@ -3087,21 +3087,21 @@ public class Pages {
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
-							if (face != null) updatePage(msg, face);
+							if (face != null) updatePage(m, face);
 						}
 						currCat = "";
-						clearReactions(msg);
-						msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						clearReactions(m);
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 						for (String k : cats.keySet()) {
 							if (EmojiUtils.containsEmoji(k))
-								msg.addReaction(k).submit();
+								m.addReaction(k).submit();
 							else {
 								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 								if (e == null) throw new InvalidEmoteException();
-								msg.addReaction(e).submit();
+								m.addReaction(e).submit();
 							}
 						}
 					}
@@ -3109,11 +3109,11 @@ public class Pages {
 					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 					Page pg = cats.get(code);
 					if (pg != null) {
-						updatePage(msg, pg);
+						updatePage(m, pg);
 						currCat = code;
 					}
 
-					setTimeout(timeout, success, msg, time, unit);
+					setTimeout(timeout, success, m, time, unit);
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
@@ -3175,15 +3175,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						boolean update = false;
@@ -3208,7 +3208,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
@@ -3216,23 +3216,23 @@ public class Pages {
 						if (update) {
 							if (faces != null && pgs.size() == faces.size()) {
 								Page face = faces.get(p);
-								if (face != null) updatePage(msg, face);
+								if (face != null) updatePage(m, face);
 							}
 							currCat = "";
-							clearReactions(msg);
-							if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-							msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
+							clearReactions(m);
+							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 							for (String k : cats.keySet()) {
 								if (EmojiUtils.containsEmoji(k))
-									msg.addReaction(k).submit();
+									m.addReaction(k).submit();
 								else {
 									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 									if (e == null) throw new InvalidEmoteException();
-									msg.addReaction(e).submit();
+									m.addReaction(e).submit();
 								}
 							}
 						}
@@ -3240,7 +3240,7 @@ public class Pages {
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
@@ -3316,15 +3316,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						boolean update = false;
@@ -3349,7 +3349,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
@@ -3357,23 +3357,23 @@ public class Pages {
 						if (update) {
 							if (faces != null && pgs.size() == faces.size()) {
 								Page face = faces.get(p);
-								if (face != null) updatePage(msg, face);
+								if (face != null) updatePage(m, face);
 							}
 							currCat = "";
-							clearReactions(msg);
-							if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-							msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
+							clearReactions(m);
+							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 							for (String k : cats.keySet()) {
 								if (EmojiUtils.containsEmoji(k))
-									msg.addReaction(k).submit();
+									m.addReaction(k).submit();
 								else {
 									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 									if (e == null) throw new InvalidEmoteException();
-									msg.addReaction(e).submit();
+									m.addReaction(e).submit();
 								}
 							}
 						}
@@ -3381,11 +3381,11 @@ public class Pages {
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -3447,14 +3447,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					boolean update = false;
@@ -3479,7 +3479,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
@@ -3487,21 +3487,21 @@ public class Pages {
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
-							if (face != null) updatePage(msg, face);
+							if (face != null) updatePage(m, face);
 						}
 						currCat = "";
-						clearReactions(msg);
-						msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						clearReactions(m);
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 						for (String k : cats.keySet()) {
 							if (EmojiUtils.containsEmoji(k))
-								msg.addReaction(k).submit();
+								m.addReaction(k).submit();
 							else {
 								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 								if (e == null) throw new InvalidEmoteException();
-								msg.addReaction(e).submit();
+								m.addReaction(e).submit();
 							}
 						}
 					}
@@ -3509,7 +3509,7 @@ public class Pages {
 					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 					Page pg = cats.get(code);
 					if (pg != null) {
-						updatePage(msg, pg);
+						updatePage(m, pg);
 						currCat = code;
 					}
 
@@ -3583,14 +3583,14 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					boolean update = false;
@@ -3615,7 +3615,7 @@ public class Pages {
 							update = true;
 						}
 					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(msg, success);
+						clearReactions(m, success);
 						return;
 					}
 
@@ -3623,21 +3623,21 @@ public class Pages {
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
-							if (face != null) updatePage(msg, face);
+							if (face != null) updatePage(m, face);
 						}
 						currCat = "";
-						clearReactions(msg);
-						msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						clearReactions(m);
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
 						for (String k : cats.keySet()) {
 							if (EmojiUtils.containsEmoji(k))
-								msg.addReaction(k).submit();
+								m.addReaction(k).submit();
 							else {
 								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 								if (e == null) throw new InvalidEmoteException();
-								msg.addReaction(e).submit();
+								m.addReaction(e).submit();
 							}
 						}
 					}
@@ -3645,11 +3645,11 @@ public class Pages {
 					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 					Page pg = cats.get(code);
 					if (pg != null) {
-						updatePage(msg, pg);
+						updatePage(m, pg);
 						currCat = code;
 					}
 
-					setTimeout(timeout, success, msg, time, unit);
+					setTimeout(timeout, success, m, time, unit);
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
@@ -3713,15 +3713,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						boolean update = false;
@@ -3746,7 +3746,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
@@ -3754,23 +3754,23 @@ public class Pages {
 						if (update) {
 							if (faces != null && pgs.size() == faces.size()) {
 								Page face = faces.get(p);
-								if (face != null) updatePage(msg, face);
+								if (face != null) updatePage(m, face);
 							}
 							currCat = "";
-							clearReactions(msg);
-							if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-							msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+							clearReactions(m);
+							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
 							for (String k : cats.keySet()) {
 								if (EmojiUtils.containsEmoji(k))
-									msg.addReaction(k).submit();
+									m.addReaction(k).submit();
 								else {
 									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 									if (e == null) throw new InvalidEmoteException();
-									msg.addReaction(e).submit();
+									m.addReaction(e).submit();
 								}
 							}
 						}
@@ -3778,7 +3778,7 @@ public class Pages {
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
@@ -3855,15 +3855,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						boolean update = false;
@@ -3888,7 +3888,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
@@ -3896,23 +3896,23 @@ public class Pages {
 						if (update) {
 							if (faces != null && pgs.size() == faces.size()) {
 								Page face = faces.get(p);
-								if (face != null) updatePage(msg, face);
+								if (face != null) updatePage(m, face);
 							}
 							currCat = "";
-							clearReactions(msg);
-							if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-							msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+							clearReactions(m);
+							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
 							for (String k : cats.keySet()) {
 								if (EmojiUtils.containsEmoji(k))
-									msg.addReaction(k).submit();
+									m.addReaction(k).submit();
 								else {
 									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 									if (e == null) throw new InvalidEmoteException();
-									msg.addReaction(e).submit();
+									m.addReaction(e).submit();
 								}
 							}
 						}
@@ -3920,11 +3920,11 @@ public class Pages {
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
@@ -3991,15 +3991,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						boolean update = false;
@@ -4034,7 +4034,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
@@ -4042,25 +4042,25 @@ public class Pages {
 						if (update) {
 							if (faces != null && pgs.size() == faces.size()) {
 								Page face = faces.get(p);
-								if (face != null) updatePage(msg, face);
+								if (face != null) updatePage(m, face);
 							}
 							currCat = "";
-							clearReactions(msg);
-							if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-							if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-							msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
-							if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
+							clearReactions(m);
+							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 							for (String k : cats.keySet()) {
 								if (EmojiUtils.containsEmoji(k))
-									msg.addReaction(k).submit();
+									m.addReaction(k).submit();
 								else {
 									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 									if (e == null) throw new InvalidEmoteException();
-									msg.addReaction(e).submit();
+									m.addReaction(e).submit();
 								}
 							}
 						}
@@ -4068,7 +4068,7 @@ public class Pages {
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
@@ -4148,15 +4148,15 @@ public class Pages {
 			@Override
 			public void accept(GenericMessageReactionEvent event) {
 				event.retrieveUser().submit().thenAccept(u -> {
-					Message msg = null;
+					Message m = null;
 					try {
-						msg = event.retrieveMessage().submit().get();
+						m = event.retrieveMessage().submit().get();
 					} catch (InterruptedException | ExecutionException ignore) {
 					}
 
 					if (canInteract.test(u)) {
 						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || msg == null || !event.getMessageId().equals(msg.getId()))
+						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 							return;
 
 						boolean update = false;
@@ -4191,7 +4191,7 @@ public class Pages {
 								update = true;
 							}
 						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(msg, success);
+							clearReactions(m, success);
 							return;
 						}
 
@@ -4199,25 +4199,25 @@ public class Pages {
 						if (update) {
 							if (faces != null && pgs.size() == faces.size()) {
 								Page face = faces.get(p);
-								if (face != null) updatePage(msg, face);
+								if (face != null) updatePage(m, face);
 							}
 							currCat = "";
-							clearReactions(msg);
-							if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-							if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-							msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
-							if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
+							clearReactions(m);
+							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
 							for (String k : cats.keySet()) {
 								if (EmojiUtils.containsEmoji(k))
-									msg.addReaction(k).submit();
+									m.addReaction(k).submit();
 								else {
 									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
 									if (e == null) throw new InvalidEmoteException();
-									msg.addReaction(e).submit();
+									m.addReaction(e).submit();
 								}
 							}
 						}
@@ -4225,11 +4225,11 @@ public class Pages {
 						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
 						Page pg = cats.get(code);
 						if (pg != null) {
-							updatePage(msg, pg);
+							updatePage(m, pg);
 							currCat = code;
 						}
 
-						setTimeout(timeout, success, msg, time, unit);
+						setTimeout(timeout, success, m, time, unit);
 
 						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 							event.getReaction().removeReaction(u).submit();
