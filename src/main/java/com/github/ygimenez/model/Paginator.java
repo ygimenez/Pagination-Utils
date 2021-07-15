@@ -1,6 +1,7 @@
 package com.github.ygimenez.model;
 
 import com.coder4.emoji.EmojiUtils;
+import com.github.ygimenez.model.PUtilsConfig.LogLevel;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -217,9 +218,36 @@ public class Paginator {
 	 * Retrieves {@link Logger} instance used by the library.
 	 * <strong>For better maintenance, it's preferred not to use this for outside logging</strong>.
 	 *
-	 * @return The logger used by Pagination Utils
+	 * @return The {@link Logger} used by Pagination Utils.
 	 */
 	public Logger getLogger() {
 		return logger;
+	}
+
+	/**
+	 *
+	 * Utility method to log an error at the supplied {@link LogLevel}.
+	 * <strong>For better maintenance, do not use this outside of the library.</strong>.
+	 *
+	 * @param level The {@link LogLevel} to be used.
+	 * @param msg The message to be logged.
+	 * @param t The {@link Throwable} to be added for more detailed information.
+	 */
+	public void log(LogLevel level, String msg, Throwable t) {
+		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0)
+			logger.error("[" + level.name().replace("_", " ") + "] " + msg, t);
+	}
+
+	/**
+	 *
+	 * Utility method to log an error at the supplied {@link LogLevel}.
+	 * <strong>For better maintenance, do not use this outside of the library.</strong>.
+	 *
+	 * @param level The {@link LogLevel} to be used.
+	 * @param msg The message to be logged.
+	 */
+	public void log(LogLevel level, String msg) {
+		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0)
+			logger.error("[" + level.name().replace("_", " ") + "] " + msg);
 	}
 }

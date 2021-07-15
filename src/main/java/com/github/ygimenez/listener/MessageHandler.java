@@ -1,6 +1,7 @@
 package com.github.ygimenez.listener;
 
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.PUtilsConfig;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
@@ -24,6 +25,7 @@ import java.util.zip.CRC32;
 public class MessageHandler extends ListenerAdapter {
 	private final Map<String, Consumer<GenericMessageReactionEvent>> events = new HashMap<>();
 	private final Set<String> locks = new HashSet<>();
+	private final CRC32 crc = new CRC32();
 
 	/**
 	 * <strong>DEPRECATED:</strong> Please use {@link #addEvent(Message, Consumer)} instead.<br>
@@ -36,6 +38,7 @@ public class MessageHandler extends ListenerAdapter {
 	 */
 	@Deprecated(since = "2.3.0", forRemoval = true)
 	public void addEvent(String id, Consumer<GenericMessageReactionEvent> act) {
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
 		events.put(id, act);
 	}
 
@@ -47,7 +50,9 @@ public class MessageHandler extends ListenerAdapter {
 	 * @param act The action to be executed when the button is pressed.
 	 */
 	public void addEvent(Message msg, Consumer<GenericMessageReactionEvent> act) {
-		events.put(getEventId(msg), act);
+		String id = getEventId(msg);
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
+		events.put(id, act);
 	}
 
 	/**
@@ -56,7 +61,9 @@ public class MessageHandler extends ListenerAdapter {
 	 * @param msg The {@link Message} which had attached events.
 	 */
 	public void removeEvent(Message msg) {
-		events.remove(getEventId(msg));
+		String id = getEventId(msg);
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Removed event with ID " + id);
+		events.remove(id);
 	}
 
 	/**
@@ -75,19 +82,38 @@ public class MessageHandler extends ListenerAdapter {
 	 * <b>WARNING:</b> This will break <u>all</u> active paginations, use with caution.
 	 */
 	public void clear() {
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Cleared all active events");
 		events.clear();
 	}
 
 	private void lock(GenericMessageReactionEvent evt) {
-		locks.add(getEventId(evt));
+		String id = getEventId(evt);
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Locked event with ID " + id);
+		locks.add(id);
+	}
+
+	private void lock(String id) {
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Locked event with ID " + id);
+		locks.add(id);
 	}
 
 	private void unlock(GenericMessageReactionEvent evt) {
-		locks.remove(getEventId(evt));
+		String id = getEventId(evt);
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Unlocked event with ID " + id);
+		locks.remove(id);
+	}
+
+	private void unlock(String id) {
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Unlocked event with ID " + id);
+		locks.remove(id);
 	}
 
 	private boolean isLocked(GenericMessageReactionEvent evt) {
 		return locks.contains(getEventId(evt));
+	}
+
+	private boolean isLocked(String id) {
+		return locks.contains(id);
 	}
 
 	@Override
@@ -108,32 +134,39 @@ public class MessageHandler extends ListenerAdapter {
 
 	private void execute(GenericMessageReactionEvent evt) {
 		evt.retrieveUser().submit().thenAccept(u -> {
-			if (u.isBot() || isLocked(evt)) return;
+			String id = getEventId(evt);
+			if (u.isBot() || isLocked(id)) return;
 
 			try {
-				if (Pages.getPaginator().isEventLocked()) lock(evt);
+				if (Pages.getPaginator().isEventLocked()) lock(id);
 
-				Consumer<GenericMessageReactionEvent> act = events.get(getEventId(evt));
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for event with ID " + id);
+				Consumer<GenericMessageReactionEvent> act = events.get(id);
 
-				if (act != null) act.accept(evt);
+				if (act != null) {
+					act.accept(evt);
+					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event " + id + " found");
+				} else {
+					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event " + id + " not found");
+				}
 			} catch (RuntimeException e) {
-				Pages.getPaginator().getLogger().error("An error occurred when processing event with ID " + getEventId(evt), e);
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + getEventId(evt), e);
 			} finally {
-				if (Pages.getPaginator().isEventLocked()) unlock(evt);
+				if (Pages.getPaginator().isEventLocked()) unlock(id);
 			}
 		});
 	}
 
-	private static String getEventId(GenericMessageEvent evt) {
-		CRC32 crc = new CRC32();
+	private String getEventId(GenericMessageEvent evt) {
+		crc.reset();
 		String rawId = (evt.isFromGuild() ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
 	}
 
-	private static String getEventId(Message msg) {
-		CRC32 crc = new CRC32();
+	private String getEventId(Message msg) {
+		crc.reset();
 		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getPrivateChannel().getId()) + msg.getId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
