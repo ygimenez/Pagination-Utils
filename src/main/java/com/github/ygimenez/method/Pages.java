@@ -137,7 +137,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -146,39 +146,37 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
 					}
-					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < maxP) {
+						p++;
+						Page pg = pgs.get(p);
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < maxP) {
-							p++;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+				}
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -211,7 +209,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -227,42 +225,40 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < maxP) {
+						p++;
+						Page pg = pgs.get(p);
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < maxP) {
-							p++;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+				}
 
-					setTimeout(timeout, success, m, time, unit);
+				setTimeout(timeout, success, m, time, unit);
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -292,7 +288,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -301,42 +297,40 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < maxP) {
+							p++;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < maxP) {
-								p++;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -372,7 +366,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -388,43 +382,41 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
 
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								Page pg = pgs.get(p);
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							Page pg = pgs.get(p);
 
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < maxP) {
-								p++;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
+							updatePage(m, pg);
 						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < maxP) {
+							p++;
+							Page pg = pgs.get(p);
 
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
+							updatePage(m, pg);
 						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
 					}
-				});
+
+					setTimeout(timeout, success, m, time, unit);
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
@@ -455,7 +447,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -465,54 +457,52 @@ public class Pages {
 
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < maxP) {
+						p++;
+						Page pg = pgs.get(p);
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < maxP) {
-							p++;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, GOTO_FIRST)) {
-						if (p > 0) {
-							p = 0;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, GOTO_LAST)) {
-						if (p < maxP) {
-							p = maxP;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, GOTO_FIRST)) {
+					if (p > 0) {
+						p = 0;
+						Page pg = pgs.get(p);
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
+						updatePage(m, pg);
 					}
-				});
+				} else if (checkEmote(reaction, GOTO_LAST)) {
+					if (p < maxP) {
+						p = maxP;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+				}
+
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -549,7 +539,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -565,14 +555,103 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
 
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < maxP) {
+						p++;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, GOTO_FIRST)) {
+					if (p > 0) {
+						p = 0;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, GOTO_LAST)) {
+					if (p < maxP) {
+						p = maxP;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+				}
+
+				setTimeout(timeout, success, m, time, unit);
+
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		if (!isActivated()) throw new InvalidStateException();
+		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
+
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
+
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+			private final int maxP = pgs.size() - 1;
+			private int p = 0;
+			private final Consumer<Void> success = s -> {
+				handler.removeEvent(msg);
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+			};
+
+			@Override
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -609,103 +688,10 @@ public class Pages {
 						clearReactions(m, success);
 					}
 
-					setTimeout(timeout, success, m, time, unit);
-
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
-				});
-			}
-		});
-	}
-
-	/**
-	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
-	 * which will navigate through a given {@link List} of pages.
-	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the {@link List} will
-	 *                    define the order of the pages.
-	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
-	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
-	 *                                         or cannot be accessed when triggering a
-	 *                                         {@link GenericMessageReactionEvent}.
-	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean fastForward, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		if (!isActivated()) throw new InvalidStateException();
-		List<Page> pgs = Collections.unmodifiableList(pages);
-		clearReactions(msg);
-
-		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
-
-		handler.addEvent(msg, new Consumer<>() {
-			private final int maxP = pgs.size() - 1;
-			private int p = 0;
-			private final Consumer<Void> success = s -> {
-				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
-			};
-
-			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < maxP) {
-								p++;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, GOTO_FIRST)) {
-							if (p > 0) {
-								p = 0;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < maxP) {
-								p = maxP;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
-					}
-				});
+				}
 			}
 		});
 	}
@@ -744,7 +730,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -760,58 +746,56 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < maxP) {
+							p++;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
+						if (p > 0) {
+							p = 0;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, GOTO_LAST)) {
+						if (p < maxP) {
+							p = maxP;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
+					setTimeout(timeout, success, m, time, unit);
 
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < maxP) {
-								p++;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, GOTO_FIRST)) {
-							if (p > 0) {
-								p = 0;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < maxP) {
-								p = maxP;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-						}
-
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -843,7 +827,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -852,54 +836,52 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < maxP) {
+						p++;
+						Page pg = pgs.get(p);
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < maxP) {
-							p++;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-						if (p > 0) {
-							p -= (p - skipAmount < 0 ? p : skipAmount);
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, SKIP_FORWARD)) {
-						if (p < maxP) {
-							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+					if (p > 0) {
+						p -= (p - skipAmount < 0 ? p : skipAmount);
+						Page pg = pgs.get(p);
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
+						updatePage(m, pg);
 					}
-				});
+				} else if (checkEmote(reaction, SKIP_FORWARD)) {
+					if (p < maxP) {
+						p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+				}
+
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -937,7 +919,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -953,14 +935,104 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
 
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < maxP) {
+						p++;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+					if (p > 0) {
+						p -= (p - skipAmount < 0 ? p : skipAmount);
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, SKIP_FORWARD)) {
+					if (p < maxP) {
+						p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+				}
+
+				setTimeout(timeout, success, m, time, unit);
+
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		if (!isActivated()) throw new InvalidStateException();
+		List<Page> pgs = Collections.unmodifiableList(pages);
+		clearReactions(msg);
+
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+			private final int maxP = pgs.size() - 1;
+			private int p = 0;
+			private final Consumer<Void> success = s -> {
+				handler.removeEvent(msg);
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+			};
+
+			@Override
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -997,104 +1069,10 @@ public class Pages {
 						clearReactions(m, success);
 					}
 
-					setTimeout(timeout, success, m, time, unit);
-
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
-				});
-			}
-		});
-	}
-
-	/**
-	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
-	 * which will navigate through a given {@link List} of pages.
-	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the {@link List} will
-	 *                    define the order of the pages.
-	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                    and {@link Emote#SKIP_FORWARD} buttons.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
-	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
-	 *                                         or cannot be accessed when triggering a
-	 *                                         {@link GenericMessageReactionEvent}.
-	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		if (!isActivated()) throw new InvalidStateException();
-		List<Page> pgs = Collections.unmodifiableList(pages);
-		clearReactions(msg);
-
-		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
-
-		handler.addEvent(msg, new Consumer<>() {
-			private final int maxP = pgs.size() - 1;
-			private int p = 0;
-			private final Consumer<Void> success = s -> {
-				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
-			};
-
-			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < maxP) {
-								p++;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < maxP) {
-								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
-					}
-				});
+				}
 			}
 		});
 	}
@@ -1134,7 +1112,7 @@ public class Pages {
 		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
@@ -1150,58 +1128,56 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < maxP) {
+							p++;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+						if (p > 0) {
+							p -= (p - skipAmount < 0 ? p : skipAmount);
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
+						if (p < maxP) {
+							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
+					setTimeout(timeout, success, m, time, unit);
 
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < maxP) {
-								p++;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < maxP) {
-								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-						}
-
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -1238,7 +1214,7 @@ public class Pages {
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final Consumer<Void> success = s -> {
@@ -1247,70 +1223,68 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < maxP) {
+							p++;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+						if (p > 0) {
+							p -= (p - skipAmount < 0 ? p : skipAmount);
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
+						if (p < maxP) {
+							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
+						if (p > 0) {
+							p = 0;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, GOTO_LAST)) {
+						if (p < maxP) {
+							p = maxP;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < maxP) {
-								p++;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < maxP) {
-								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, GOTO_FIRST)) {
-							if (p > 0) {
-								p = 0;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < maxP) {
-								p = maxP;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -1351,7 +1325,7 @@ public class Pages {
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
@@ -1367,70 +1341,68 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < maxP) {
+						p++;
+						Page pg = pgs.get(p);
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < maxP) {
-							p++;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-						if (p > 0) {
-							p -= (p - skipAmount < 0 ? p : skipAmount);
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, SKIP_FORWARD)) {
-						if (p < maxP) {
-							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, GOTO_FIRST)) {
-						if (p > 0) {
-							p = 0;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, GOTO_LAST)) {
-						if (p < maxP) {
-							p = maxP;
-							Page pg = pgs.get(p);
-
-							updatePage(m, pg);
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
+						updatePage(m, pg);
 					}
+				} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+					if (p > 0) {
+						p -= (p - skipAmount < 0 ? p : skipAmount);
+						Page pg = pgs.get(p);
 
-					setTimeout(timeout, success, m, time, unit);
-
-					if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
-						event.getReaction().removeReaction(u).submit();
+						updatePage(m, pg);
 					}
-				});
+				} else if (checkEmote(reaction, SKIP_FORWARD)) {
+					if (p < maxP) {
+						p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, GOTO_FIRST)) {
+					if (p > 0) {
+						p = 0;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, GOTO_LAST)) {
+					if (p < maxP) {
+						p = maxP;
+						Page pg = pgs.get(p);
+
+						updatePage(m, pg);
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+				}
+
+				setTimeout(timeout, success, m, time, unit);
+
+				if (event.isFromGuild() && (paginator == null || paginator.isRemoveOnReact())) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -1473,7 +1445,7 @@ public class Pages {
 		if (skipAmount > 1) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 		if (fastForward) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
@@ -1489,72 +1461,70 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < maxP) {
+							p++;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+						if (p > 0) {
+							p -= (p - skipAmount < 0 ? p : skipAmount);
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
+						if (p < maxP) {
+							p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
+						if (p > 0) {
+							p = 0;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, GOTO_LAST)) {
+						if (p < maxP) {
+							p = maxP;
+							Page pg = pgs.get(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
+					setTimeout(timeout, success, m, time, unit);
 
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < maxP) {
-								p++;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < maxP) {
-								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, GOTO_FIRST)) {
-							if (p > 0) {
-								p = 0;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < maxP) {
-								p = maxP;
-								Page pg = pgs.get(p);
-
-								updatePage(m, pg);
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-						}
-
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -1593,7 +1563,7 @@ public class Pages {
 		}
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private String currCat = "";
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
@@ -1601,34 +1571,32 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
 
-					if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
-						return;
-					}
+				if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
 
-					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-					Page pg = cats.get(code);
-					if (pg != null) {
-						updatePage(m, pg);
-						currCat = code;
-					}
+				String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+				Page pg = cats.get(code);
+				if (pg != null) {
+					updatePage(m, pg);
+					currCat = code;
+				}
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -1672,7 +1640,7 @@ public class Pages {
 			}
 		}
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private String currCat = "";
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
@@ -1687,36 +1655,34 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
 
-					if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
-						return;
-					}
+				if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
 
-					setTimeout(timeout, success, m, time, unit);
+				setTimeout(timeout, success, m, time, unit);
 
-					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-					Page pg = cats.get(code);
-					if (pg != null) {
-						updatePage(m, pg);
-						currCat = code;
-					}
+				String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+				Page pg = cats.get(code);
+				if (pg != null) {
+					updatePage(m, pg);
+					currCat = code;
+				}
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -1756,7 +1722,7 @@ public class Pages {
 			}
 		}
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private String currCat = "";
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
@@ -1764,36 +1730,34 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (canInteract.test(u)) {
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (canInteract.test(u)) {
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(m, pg);
+						currCat = code;
 					}
-				});
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
@@ -1839,7 +1803,7 @@ public class Pages {
 			}
 		}
 		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private String currCat = "";
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
@@ -1854,38 +1818,36 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (canInteract.test(u)) {
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
 
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (canInteract.test(u)) {
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
+					setTimeout(timeout, success, m, time, unit);
 
-						if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
-						}
-
-						setTimeout(timeout, success, m, time, unit);
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(m, pg);
+						currCat = code;
 					}
-				});
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
@@ -1926,38 +1888,36 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
 
-					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
-						return;
-					}
+				if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
 
-					if (reaction.isEmoji())
-						btns.get(reaction.getName()).accept(event.getMember(), m);
-					else
-						btns.get(reaction.getId()).accept(event.getMember(), m);
+				if (reaction.isEmoji())
+					btns.get(reaction.getName()).accept(event.getMember(), m);
+				else
+					btns.get(reaction.getId()).accept(event.getMember(), m);
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -2003,7 +1963,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
@@ -2017,33 +1977,31 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
 
-					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
-						return;
-					}
+				if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
 
-					if (reaction.isEmoji())
-						btns.get(reaction.getName()).accept(event.getMember(), m);
-					else
-						btns.get(reaction.getId()).accept(event.getMember(), m);
+				if (reaction.isEmoji())
+					btns.get(reaction.getName()).accept(event.getMember(), m);
+				else
+					btns.get(reaction.getId()).accept(event.getMember(), m);
 
-					setTimeout(timeout, success, m, time, unit);
+				setTimeout(timeout, success, m, time, unit);
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -2087,40 +2045,38 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (canInteract.test(u)) {
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (canInteract.test(u)) {
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
 
-						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
-						}
+					if (reaction.isEmoji())
+						btns.get(reaction.getName()).accept(event.getMember(), m);
+					else
+						btns.get(reaction.getId()).accept(event.getMember(), m);
 
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), m);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), m);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -2170,7 +2126,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
@@ -2184,35 +2140,33 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (canInteract.test(u)) {
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (canInteract.test(u)) {
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
 
-						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
-						}
+					if (reaction.isEmoji())
+						btns.get(reaction.getName()).accept(event.getMember(), m);
+					else
+						btns.get(reaction.getId()).accept(event.getMember(), m);
 
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), m);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), m);
+					setTimeout(timeout, success, m, time, unit);
 
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -2256,7 +2210,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				onCancel.accept(msg);
@@ -2264,33 +2218,31 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (canInteract.test(u)) {
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (canInteract.test(u)) {
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
 
-						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
-						}
+					if (reaction.isEmoji())
+						btns.get(reaction.getName()).accept(event.getMember(), m);
+					else
+						btns.get(reaction.getId()).accept(event.getMember(), m);
 
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), m);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), m);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -2340,7 +2292,7 @@ public class Pages {
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
@@ -2355,35 +2307,33 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(@Nonnull GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (canInteract.test(u)) {
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (canInteract.test(u)) {
-						if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
 
-						if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
-						}
+					if (reaction.isEmoji())
+						btns.get(reaction.getName()).accept(event.getMember(), m);
+					else
+						btns.get(reaction.getId()).accept(event.getMember(), m);
 
-						if (reaction.isEmoji())
-							btns.get(reaction.getName()).accept(event.getMember(), m);
-						else
-							btns.get(reaction.getId()).accept(event.getMember(), m);
+					setTimeout(timeout, success, m, time, unit);
 
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -2423,7 +2373,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -2433,14 +2383,246 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
 
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				boolean update = false;
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						update = true;
+					}
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < pgs.size() - 1) {
+						p++;
+						update = true;
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
+
+				cats = pgs.get(p);
+				if (update) {
+					if (faces != null && pgs.size() == faces.size()) {
+						Page face = faces.get(p);
+						if (face != null) updatePage(m, face);
+					}
+					currCat = "";
+					clearReactions(m);
+					m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+					m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+					m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+
+					for (String k : cats.keySet()) {
+						if (EmojiUtils.containsEmoji(k))
+							m.addReaction(k).submit();
+						else {
+							net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+							if (e == null) throw new InvalidEmoteException();
+							m.addReaction(e).submit();
+						}
+					}
+				}
+
+				String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+				Page pg = cats.get(code);
+				if (pg != null) {
+					updatePage(m, pg);
+					currCat = code;
+				}
+
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param time             The time before the listener automatically stop listening for
+	 *                         further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended: {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+		if (!isActivated()) throw new InvalidStateException();
+		List<Map<String, Page>> pgs = Collections.unmodifiableList(paginocategories);
+		clearReactions(msg);
+
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		for (String k : pgs.get(0).keySet()) {
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else {
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+				if (e == null) throw new InvalidEmoteException();
+				msg.addReaction(e).submit();
+			}
+		}
+
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
+			private int p = 0;
+			private String currCat = "";
+			private Map<String, Page> cats = pgs.get(0);
+			private final Consumer<Void> success = s -> {
+				if (timeout.get() != null)
+					timeout.get().cancel(true);
+				handler.removeEvent(msg);
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+			};
+
+			{
+				setTimeout(timeout, success, msg, time, unit);
+			}
+
+			@Override
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				boolean update = false;
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						update = true;
+					}
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < pgs.size() - 1) {
+						p++;
+						update = true;
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
+
+				cats = pgs.get(p);
+				if (update) {
+					if (faces != null && pgs.size() == faces.size()) {
+						Page face = faces.get(p);
+						if (face != null) updatePage(m, face);
+					}
+					currCat = "";
+					clearReactions(m);
+					m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+					m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+					m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+
+					for (String k : cats.keySet()) {
+						if (EmojiUtils.containsEmoji(k))
+							m.addReaction(k).submit();
+						else {
+							net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+							if (e == null) throw new InvalidEmoteException();
+							m.addReaction(e).submit();
+						}
+					}
+				}
+
+				String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+				Page pg = cats.get(code);
+				if (pg != null) {
+					updatePage(m, pg);
+					currCat = code;
+				}
+
+				setTimeout(timeout, success, m, time, unit);
+
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+		if (!isActivated()) throw new InvalidStateException();
+		List<Map<String, Page>> pgs = Collections.unmodifiableList(paginocategories);
+		clearReactions(msg);
+
+		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		for (String k : pgs.get(0).keySet()) {
+			if (EmojiUtils.containsEmoji(k))
+				msg.addReaction(k).submit();
+			else {
+				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+				if (e == null) throw new InvalidEmoteException();
+				msg.addReaction(e).submit();
+			}
+		}
+
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+			private int p = 0;
+			private String currCat = "";
+			private Map<String, Page> cats = pgs.get(0);
+			private final Consumer<Void> success = s -> {
+				handler.removeEvent(msg);
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+			};
+
+			@Override
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -2494,7 +2676,7 @@ public class Pages {
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
-				});
+				}
 			}
 		});
 	}
@@ -2509,9 +2691,12 @@ public class Pages {
 	 *                         the order of the pages.
 	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
 	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
-	 * @param time             The time before the listener automatically stop listening for
-	 *                         further events (recommended: 60).
-	 * @param unit             The time's {@link TimeUnit} (recommended: {@link TimeUnit#SECONDS}).
+	 * @param time             The time before the listener automatically stop listening
+	 *                         for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -2519,7 +2704,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, @Nonnull TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		if (!isActivated()) throw new InvalidStateException();
 		List<Map<String, Page>> pgs = Collections.unmodifiableList(paginocategories);
 		clearReactions(msg);
@@ -2537,7 +2722,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -2554,14 +2739,14 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
 
+				if (canInteract.test(u)) {
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
@@ -2617,250 +2802,7 @@ public class Pages {
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						event.getReaction().removeReaction(u).submit();
 					}
-				});
-			}
-		});
-	}
-
-	/**
-	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
-	 * which will navigate through a given {@link List} of pages while allowing
-	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
-	 *
-	 * @param msg              The {@link Message} sent which will be paginated.
-	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
-	 *                         the order of the pages.
-	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
-	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
-	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
-	 *                         that pressed the button can interact with it or not.
-	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
-	 *                                         or cannot be accessed when triggering a
-	 *                                         {@link GenericMessageReactionEvent}.
-	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
-		if (!isActivated()) throw new InvalidStateException();
-		List<Map<String, Page>> pgs = Collections.unmodifiableList(paginocategories);
-		clearReactions(msg);
-
-		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-		for (String k : pgs.get(0).keySet()) {
-			if (EmojiUtils.containsEmoji(k))
-				msg.addReaction(k).submit();
-			else {
-				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-				if (e == null) throw new InvalidEmoteException();
-				msg.addReaction(e).submit();
-			}
-		}
-
-		handler.addEvent(msg, new Consumer<>() {
-			private int p = 0;
-			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
-			private final Consumer<Void> success = s -> {
-				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
-			};
-
-			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						boolean update = false;
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size() - 1) {
-								p++;
-								update = true;
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
-						}
-
-						cats = pgs.get(p);
-						if (update) {
-							if (faces != null && pgs.size() == faces.size()) {
-								Page face = faces.get(p);
-								if (face != null) updatePage(m, face);
-							}
-							currCat = "";
-							clearReactions(m);
-							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
-
-							for (String k : cats.keySet()) {
-								if (EmojiUtils.containsEmoji(k))
-									m.addReaction(k).submit();
-								else {
-									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-									if (e == null) throw new InvalidEmoteException();
-									m.addReaction(e).submit();
-								}
-							}
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
-					}
-				});
-			}
-		});
-	}
-
-	/**
-	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
-	 * which will navigate through a given {@link List} of pages while allowing
-	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
-	 *
-	 * @param msg              The {@link Message} sent which will be paginated.
-	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
-	 *                         the order of the pages.
-	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
-	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
-	 * @param time             The time before the listener automatically stop listening
-	 *                         for further events (recommended: 60).
-	 * @param unit             The time's {@link TimeUnit} (recommended:
-	 *                         {@link TimeUnit#SECONDS}).
-	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
-	 *                         that pressed the button can interact with it or not.
-	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
-	 *                                         or cannot be accessed when triggering a
-	 *                                         {@link GenericMessageReactionEvent}.
-	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, @Nonnull TimeUnit unit, @Nonnull Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
-		if (!isActivated()) throw new InvalidStateException();
-		List<Map<String, Page>> pgs = Collections.unmodifiableList(paginocategories);
-		clearReactions(msg);
-
-		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
-		for (String k : pgs.get(0).keySet()) {
-			if (EmojiUtils.containsEmoji(k))
-				msg.addReaction(k).submit();
-			else {
-				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-				if (e == null) throw new InvalidEmoteException();
-				msg.addReaction(e).submit();
-			}
-		}
-
-		handler.addEvent(msg, new Consumer<>() {
-			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
-			private int p = 0;
-			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
-			private final Consumer<Void> success = s -> {
-				if (timeout.get() != null)
-					timeout.get().cancel(true);
-				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
-			};
-
-			{
-				setTimeout(timeout, success, msg, time, unit);
-			}
-
-			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						boolean update = false;
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size() - 1) {
-								p++;
-								update = true;
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
-						}
-
-						cats = pgs.get(p);
-						if (update) {
-							if (faces != null && pgs.size() == faces.size()) {
-								Page face = faces.get(p);
-								if (face != null) updatePage(m, face);
-							}
-							currCat = "";
-							clearReactions(m);
-							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
-
-							for (String k : cats.keySet()) {
-								if (EmojiUtils.containsEmoji(k))
-									m.addReaction(k).submit();
-								else {
-									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-									if (e == null) throw new InvalidEmoteException();
-									m.addReaction(e).submit();
-								}
-							}
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
-						}
-					}
-				});
+				}
 			}
 		});
 	}
@@ -2903,7 +2845,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -2913,78 +2855,76 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				boolean update = false;
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						update = true;
 					}
-
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					boolean update = false;
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							update = true;
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size() - 1) {
-							p++;
-							update = true;
-						}
-					} else if (checkEmote(reaction, GOTO_FIRST)) {
-						if (p > 0) {
-							p = 0;
-							update = true;
-						}
-					} else if (checkEmote(reaction, GOTO_LAST)) {
-						if (p < pgs.size() - 1) {
-							p = pgs.size() - 1;
-							update = true;
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
-						return;
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < pgs.size() - 1) {
+						p++;
+						update = true;
 					}
+				} else if (checkEmote(reaction, GOTO_FIRST)) {
+					if (p > 0) {
+						p = 0;
+						update = true;
+					}
+				} else if (checkEmote(reaction, GOTO_LAST)) {
+					if (p < pgs.size() - 1) {
+						p = pgs.size() - 1;
+						update = true;
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
 
-					cats = pgs.get(p);
-					if (update) {
-						if (faces != null && pgs.size() == faces.size()) {
-							Page face = faces.get(p);
-							if (face != null) updatePage(m, face);
-						}
-						currCat = "";
-						clearReactions(m);
-						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+				cats = pgs.get(p);
+				if (update) {
+					if (faces != null && pgs.size() == faces.size()) {
+						Page face = faces.get(p);
+						if (face != null) updatePage(m, face);
+					}
+					currCat = "";
+					clearReactions(m);
+					m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+					m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+					m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-						for (String k : cats.keySet()) {
-							if (EmojiUtils.containsEmoji(k))
-								m.addReaction(k).submit();
-							else {
-								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-								if (e == null) throw new InvalidEmoteException();
-								m.addReaction(e).submit();
-							}
+					for (String k : cats.keySet()) {
+						if (EmojiUtils.containsEmoji(k))
+							m.addReaction(k).submit();
+						else {
+							net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+							if (e == null) throw new InvalidEmoteException();
+							m.addReaction(e).submit();
 						}
 					}
+				}
 
-					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-					Page pg = cats.get(code);
-					if (pg != null) {
-						updatePage(m, pg);
-						currCat = code;
-					}
+				String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+				Page pg = cats.get(code);
+				if (pg != null) {
+					updatePage(m, pg);
+					currCat = code;
+				}
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -3031,7 +2971,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3048,80 +2988,78 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				boolean update = false;
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						update = true;
 					}
-
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					boolean update = false;
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							update = true;
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size() - 1) {
-							p++;
-							update = true;
-						}
-					} else if (checkEmote(reaction, GOTO_FIRST)) {
-						if (p > 0) {
-							p = 0;
-							update = true;
-						}
-					} else if (checkEmote(reaction, GOTO_LAST)) {
-						if (p < pgs.size() - 1) {
-							p = pgs.size() - 1;
-							update = true;
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
-						return;
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < pgs.size() - 1) {
+						p++;
+						update = true;
 					}
+				} else if (checkEmote(reaction, GOTO_FIRST)) {
+					if (p > 0) {
+						p = 0;
+						update = true;
+					}
+				} else if (checkEmote(reaction, GOTO_LAST)) {
+					if (p < pgs.size() - 1) {
+						p = pgs.size() - 1;
+						update = true;
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
 
-					cats = pgs.get(p);
-					if (update) {
-						if (faces != null && pgs.size() == faces.size()) {
-							Page face = faces.get(p);
-							if (face != null) updatePage(m, face);
-						}
-						currCat = "";
-						clearReactions(m);
-						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+				cats = pgs.get(p);
+				if (update) {
+					if (faces != null && pgs.size() == faces.size()) {
+						Page face = faces.get(p);
+						if (face != null) updatePage(m, face);
+					}
+					currCat = "";
+					clearReactions(m);
+					m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+					m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+					m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-						for (String k : cats.keySet()) {
-							if (EmojiUtils.containsEmoji(k))
-								m.addReaction(k).submit();
-							else {
-								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-								if (e == null) throw new InvalidEmoteException();
-								m.addReaction(e).submit();
-							}
+					for (String k : cats.keySet()) {
+						if (EmojiUtils.containsEmoji(k))
+							m.addReaction(k).submit();
+						else {
+							net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+							if (e == null) throw new InvalidEmoteException();
+							m.addReaction(e).submit();
 						}
 					}
+				}
 
-					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-					Page pg = cats.get(code);
-					if (pg != null) {
-						updatePage(m, pg);
-						currCat = code;
-					}
+				String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+				Page pg = cats.get(code);
+				if (pg != null) {
+					updatePage(m, pg);
+					currCat = code;
+				}
 
-					setTimeout(timeout, success, m, time, unit);
+				setTimeout(timeout, success, m, time, unit);
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -3166,7 +3104,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -3176,82 +3114,80 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					boolean update = false;
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							update = true;
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < pgs.size() - 1) {
+							p++;
+							update = true;
+						}
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
+						if (p > 0) {
+							p = 0;
+							update = true;
+						}
+					} else if (checkEmote(reaction, GOTO_LAST)) {
+						if (p < pgs.size() - 1) {
+							p = pgs.size() - 1;
+							update = true;
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						boolean update = false;
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size() - 1) {
-								p++;
-								update = true;
-							}
-						} else if (checkEmote(reaction, GOTO_FIRST)) {
-							if (p > 0) {
-								p = 0;
-								update = true;
-							}
-						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < pgs.size() - 1) {
-								p = pgs.size() - 1;
-								update = true;
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
+					cats = pgs.get(p);
+					if (update) {
+						if (faces != null && pgs.size() == faces.size()) {
+							Page face = faces.get(p);
+							if (face != null) updatePage(m, face);
 						}
+						currCat = "";
+						clearReactions(m);
+						if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-						cats = pgs.get(p);
-						if (update) {
-							if (faces != null && pgs.size() == faces.size()) {
-								Page face = faces.get(p);
-								if (face != null) updatePage(m, face);
+						for (String k : cats.keySet()) {
+							if (EmojiUtils.containsEmoji(k))
+								m.addReaction(k).submit();
+							else {
+								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+								if (e == null) throw new InvalidEmoteException();
+								m.addReaction(e).submit();
 							}
-							currCat = "";
-							clearReactions(m);
-							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
-
-							for (String k : cats.keySet()) {
-								if (EmojiUtils.containsEmoji(k))
-									m.addReaction(k).submit();
-								else {
-									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-									if (e == null) throw new InvalidEmoteException();
-									m.addReaction(e).submit();
-								}
-							}
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
 						}
 					}
-				});
+
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(m, pg);
+						currCat = code;
+					}
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
@@ -3300,7 +3236,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3317,84 +3253,82 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					boolean update = false;
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							update = true;
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < pgs.size() - 1) {
+							p++;
+							update = true;
+						}
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
+						if (p > 0) {
+							p = 0;
+							update = true;
+						}
+					} else if (checkEmote(reaction, GOTO_LAST)) {
+						if (p < pgs.size() - 1) {
+							p = pgs.size() - 1;
+							update = true;
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						boolean update = false;
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size() - 1) {
-								p++;
-								update = true;
-							}
-						} else if (checkEmote(reaction, GOTO_FIRST)) {
-							if (p > 0) {
-								p = 0;
-								update = true;
-							}
-						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < pgs.size() - 1) {
-								p = pgs.size() - 1;
-								update = true;
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
+					cats = pgs.get(p);
+					if (update) {
+						if (faces != null && pgs.size() == faces.size()) {
+							Page face = faces.get(p);
+							if (face != null) updatePage(m, face);
 						}
+						currCat = "";
+						clearReactions(m);
+						if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-						cats = pgs.get(p);
-						if (update) {
-							if (faces != null && pgs.size() == faces.size()) {
-								Page face = faces.get(p);
-								if (face != null) updatePage(m, face);
+						for (String k : cats.keySet()) {
+							if (EmojiUtils.containsEmoji(k))
+								m.addReaction(k).submit();
+							else {
+								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+								if (e == null) throw new InvalidEmoteException();
+								m.addReaction(e).submit();
 							}
-							currCat = "";
-							clearReactions(m);
-							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
-
-							for (String k : cats.keySet()) {
-								if (EmojiUtils.containsEmoji(k))
-									m.addReaction(k).submit();
-								else {
-									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-									if (e == null) throw new InvalidEmoteException();
-									m.addReaction(e).submit();
-								}
-							}
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
 						}
 					}
-				});
+
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(m, pg);
+						currCat = code;
+					}
+
+					setTimeout(timeout, success, m, time, unit);
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
@@ -3438,7 +3372,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -3448,78 +3382,76 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				boolean update = false;
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						update = true;
 					}
-
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					boolean update = false;
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							update = true;
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size() - 1) {
-							p++;
-							update = true;
-						}
-					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-						if (p > 0) {
-							p -= (p - skipAmount < 0 ? p : skipAmount);
-							update = true;
-						}
-					} else if (checkEmote(reaction, SKIP_FORWARD)) {
-						if (p < pgs.size() - 1) {
-							p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
-							update = true;
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
-						return;
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < pgs.size() - 1) {
+						p++;
+						update = true;
 					}
+				} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+					if (p > 0) {
+						p -= (p - skipAmount < 0 ? p : skipAmount);
+						update = true;
+					}
+				} else if (checkEmote(reaction, SKIP_FORWARD)) {
+					if (p < pgs.size() - 1) {
+						p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
+						update = true;
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
 
-					cats = pgs.get(p);
-					if (update) {
-						if (faces != null && pgs.size() == faces.size()) {
-							Page face = faces.get(p);
-							if (face != null) updatePage(m, face);
-						}
-						currCat = "";
-						clearReactions(m);
-						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+				cats = pgs.get(p);
+				if (update) {
+					if (faces != null && pgs.size() == faces.size()) {
+						Page face = faces.get(p);
+						if (face != null) updatePage(m, face);
+					}
+					currCat = "";
+					clearReactions(m);
+					m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+					m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+					m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-						for (String k : cats.keySet()) {
-							if (EmojiUtils.containsEmoji(k))
-								m.addReaction(k).submit();
-							else {
-								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-								if (e == null) throw new InvalidEmoteException();
-								m.addReaction(e).submit();
-							}
+					for (String k : cats.keySet()) {
+						if (EmojiUtils.containsEmoji(k))
+							m.addReaction(k).submit();
+						else {
+							net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+							if (e == null) throw new InvalidEmoteException();
+							m.addReaction(e).submit();
 						}
 					}
+				}
 
-					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-					Page pg = cats.get(code);
-					if (pg != null) {
-						updatePage(m, pg);
-						currCat = code;
-					}
+				String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+				Page pg = cats.get(code);
+				if (pg != null) {
+					updatePage(m, pg);
+					currCat = code;
+				}
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -3567,7 +3499,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3584,80 +3516,78 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+				if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					return;
+
+				boolean update = false;
+				if (checkEmote(reaction, PREVIOUS)) {
+					if (p > 0) {
+						p--;
+						update = true;
 					}
-
-					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-						return;
-
-					boolean update = false;
-					if (checkEmote(reaction, PREVIOUS)) {
-						if (p > 0) {
-							p--;
-							update = true;
-						}
-					} else if (checkEmote(reaction, NEXT)) {
-						if (p < pgs.size() - 1) {
-							p++;
-							update = true;
-						}
-					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-						if (p > 0) {
-							p -= (p - skipAmount < 0 ? p : skipAmount);
-							update = true;
-						}
-					} else if (checkEmote(reaction, SKIP_FORWARD)) {
-						if (p < pgs.size() - 1) {
-							p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
-							update = true;
-						}
-					} else if (checkEmote(reaction, CANCEL)) {
-						clearReactions(m, success);
-						return;
+				} else if (checkEmote(reaction, NEXT)) {
+					if (p < pgs.size() - 1) {
+						p++;
+						update = true;
 					}
+				} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+					if (p > 0) {
+						p -= (p - skipAmount < 0 ? p : skipAmount);
+						update = true;
+					}
+				} else if (checkEmote(reaction, SKIP_FORWARD)) {
+					if (p < pgs.size() - 1) {
+						p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
+						update = true;
+					}
+				} else if (checkEmote(reaction, CANCEL)) {
+					clearReactions(m, success);
+					return;
+				}
 
-					cats = pgs.get(p);
-					if (update) {
-						if (faces != null && pgs.size() == faces.size()) {
-							Page face = faces.get(p);
-							if (face != null) updatePage(m, face);
-						}
-						currCat = "";
-						clearReactions(m);
-						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+				cats = pgs.get(p);
+				if (update) {
+					if (faces != null && pgs.size() == faces.size()) {
+						Page face = faces.get(p);
+						if (face != null) updatePage(m, face);
+					}
+					currCat = "";
+					clearReactions(m);
+					m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+					m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+					m.addReaction(paginator.getEmotes().get(NEXT)).submit();
 
-						for (String k : cats.keySet()) {
-							if (EmojiUtils.containsEmoji(k))
-								m.addReaction(k).submit();
-							else {
-								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-								if (e == null) throw new InvalidEmoteException();
-								m.addReaction(e).submit();
-							}
+					for (String k : cats.keySet()) {
+						if (EmojiUtils.containsEmoji(k))
+							m.addReaction(k).submit();
+						else {
+							net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+							if (e == null) throw new InvalidEmoteException();
+							m.addReaction(e).submit();
 						}
 					}
+				}
 
-					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-					Page pg = cats.get(code);
-					if (pg != null) {
-						updatePage(m, pg);
-						currCat = code;
-					}
+				String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+				Page pg = cats.get(code);
+				if (pg != null) {
+					updatePage(m, pg);
+					currCat = code;
+				}
 
-					setTimeout(timeout, success, m, time, unit);
+				setTimeout(timeout, success, m, time, unit);
 
-					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						event.getReaction().removeReaction(u).submit();
-					}
-				});
+				if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					event.getReaction().removeReaction(u).submit();
+				}
 			}
 		});
 	}
@@ -3703,7 +3633,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3714,82 +3644,80 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					boolean update = false;
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							update = true;
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < pgs.size() - 1) {
+							p++;
+							update = true;
+						}
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+						if (p > 0) {
+							p -= (p - skipAmount < 0 ? p : skipAmount);
+							update = true;
+						}
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
+						if (p < pgs.size() - 1) {
+							p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
+							update = true;
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						boolean update = false;
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size() - 1) {
-								p++;
-								update = true;
-							}
-						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
-								update = true;
-							}
-						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < pgs.size() - 1) {
-								p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
-								update = true;
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
+					cats = pgs.get(p);
+					if (update) {
+						if (faces != null && pgs.size() == faces.size()) {
+							Page face = faces.get(p);
+							if (face != null) updatePage(m, face);
 						}
+						currCat = "";
+						clearReactions(m);
+						if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-						cats = pgs.get(p);
-						if (update) {
-							if (faces != null && pgs.size() == faces.size()) {
-								Page face = faces.get(p);
-								if (face != null) updatePage(m, face);
+						for (String k : cats.keySet()) {
+							if (EmojiUtils.containsEmoji(k))
+								m.addReaction(k).submit();
+							else {
+								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+								if (e == null) throw new InvalidEmoteException();
+								m.addReaction(e).submit();
 							}
-							currCat = "";
-							clearReactions(m);
-							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
-
-							for (String k : cats.keySet()) {
-								if (EmojiUtils.containsEmoji(k))
-									m.addReaction(k).submit();
-								else {
-									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-									if (e == null) throw new InvalidEmoteException();
-									m.addReaction(e).submit();
-								}
-							}
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
 						}
 					}
-				});
+
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(m, pg);
+						currCat = code;
+					}
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
@@ -3839,7 +3767,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -3856,84 +3784,82 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					boolean update = false;
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							update = true;
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < pgs.size() - 1) {
+							p++;
+							update = true;
+						}
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+						if (p > 0) {
+							p -= (p - skipAmount < 0 ? p : skipAmount);
+							update = true;
+						}
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
+						if (p < pgs.size() - 1) {
+							p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
+							update = true;
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						boolean update = false;
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size() - 1) {
-								p++;
-								update = true;
-							}
-						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
-								update = true;
-							}
-						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < pgs.size() - 1) {
-								p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
-								update = true;
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
+					cats = pgs.get(p);
+					if (update) {
+						if (faces != null && pgs.size() == faces.size()) {
+							Page face = faces.get(p);
+							if (face != null) updatePage(m, face);
 						}
+						currCat = "";
+						clearReactions(m);
+						if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
 
-						cats = pgs.get(p);
-						if (update) {
-							if (faces != null && pgs.size() == faces.size()) {
-								Page face = faces.get(p);
-								if (face != null) updatePage(m, face);
+						for (String k : cats.keySet()) {
+							if (EmojiUtils.containsEmoji(k))
+								m.addReaction(k).submit();
+							else {
+								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+								if (e == null) throw new InvalidEmoteException();
+								m.addReaction(e).submit();
 							}
-							currCat = "";
-							clearReactions(m);
-							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
-
-							for (String k : cats.keySet()) {
-								if (EmojiUtils.containsEmoji(k))
-									m.addReaction(k).submit();
-								else {
-									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-									if (e == null) throw new InvalidEmoteException();
-									m.addReaction(e).submit();
-								}
-							}
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
 						}
 					}
-				});
+
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(m, pg);
+						currCat = code;
+					}
+
+					setTimeout(timeout, success, m, time, unit);
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
@@ -3982,7 +3908,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
 			private Map<String, Page> cats = pgs.get(0);
@@ -3992,94 +3918,92 @@ public class Pages {
 			};
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					boolean update = false;
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							update = true;
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < pgs.size() - 1) {
+							p++;
+							update = true;
+						}
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+						if (p > 0) {
+							p -= (p - skipAmount < 0 ? p : skipAmount);
+							update = true;
+						}
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
+						if (p < pgs.size() - 1) {
+							p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
+							update = true;
+						}
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
+						if (p > 0) {
+							p = 0;
+							update = true;
+						}
+					} else if (checkEmote(reaction, GOTO_LAST)) {
+						if (p < pgs.size() - 1) {
+							p = pgs.size() - 1;
+							update = true;
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						boolean update = false;
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size() - 1) {
-								p++;
-								update = true;
-							}
-						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
-								update = true;
-							}
-						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < pgs.size() - 1) {
-								p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
-								update = true;
-							}
-						} else if (checkEmote(reaction, GOTO_FIRST)) {
-							if (p > 0) {
-								p = 0;
-								update = true;
-							}
-						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < pgs.size() - 1) {
-								p = pgs.size() - 1;
-								update = true;
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
+					cats = pgs.get(p);
+					if (update) {
+						if (faces != null && pgs.size() == faces.size()) {
+							Page face = faces.get(p);
+							if (face != null) updatePage(m, face);
 						}
+						currCat = "";
+						clearReactions(m);
+						if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+						if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+						if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-						cats = pgs.get(p);
-						if (update) {
-							if (faces != null && pgs.size() == faces.size()) {
-								Page face = faces.get(p);
-								if (face != null) updatePage(m, face);
+						for (String k : cats.keySet()) {
+							if (EmojiUtils.containsEmoji(k))
+								m.addReaction(k).submit();
+							else {
+								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+								if (e == null) throw new InvalidEmoteException();
+								m.addReaction(e).submit();
 							}
-							currCat = "";
-							clearReactions(m);
-							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
-							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
-
-							for (String k : cats.keySet()) {
-								if (EmojiUtils.containsEmoji(k))
-									m.addReaction(k).submit();
-								else {
-									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-									if (e == null) throw new InvalidEmoteException();
-									m.addReaction(e).submit();
-								}
-							}
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
 						}
 					}
-				});
+
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(m, pg);
+						currCat = code;
+					}
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
@@ -4132,7 +4056,7 @@ public class Pages {
 			}
 		}
 
-		handler.addEvent(msg, new Consumer<>() {
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
@@ -4149,96 +4073,94 @@ public class Pages {
 			}
 
 			@Override
-			public void accept(GenericMessageReactionEvent event) {
-				event.retrieveUser().submit().thenAccept(u -> {
-					Message m = null;
-					try {
-						m = event.retrieveMessage().submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					boolean update = false;
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							update = true;
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						if (p < pgs.size() - 1) {
+							p++;
+							update = true;
+						}
+					} else if (checkEmote(reaction, SKIP_BACKWARD)) {
+						if (p > 0) {
+							p -= (p - skipAmount < 0 ? p : skipAmount);
+							update = true;
+						}
+					} else if (checkEmote(reaction, SKIP_FORWARD)) {
+						if (p < pgs.size() - 1) {
+							p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
+							update = true;
+						}
+					} else if (checkEmote(reaction, GOTO_FIRST)) {
+						if (p > 0) {
+							p = 0;
+							update = true;
+						}
+					} else if (checkEmote(reaction, GOTO_LAST)) {
+						if (p < pgs.size() - 1) {
+							p = pgs.size() - 1;
+							update = true;
+						}
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
+						return;
 					}
 
-					if (canInteract.test(u)) {
-						MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-						if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
-							return;
-
-						boolean update = false;
-						if (checkEmote(reaction, PREVIOUS)) {
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-						} else if (checkEmote(reaction, NEXT)) {
-							if (p < pgs.size() - 1) {
-								p++;
-								update = true;
-							}
-						} else if (checkEmote(reaction, SKIP_BACKWARD)) {
-							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
-								update = true;
-							}
-						} else if (checkEmote(reaction, SKIP_FORWARD)) {
-							if (p < pgs.size() - 1) {
-								p += (p + skipAmount > pgs.size() ? pgs.size() - p : skipAmount);
-								update = true;
-							}
-						} else if (checkEmote(reaction, GOTO_FIRST)) {
-							if (p > 0) {
-								p = 0;
-								update = true;
-							}
-						} else if (checkEmote(reaction, GOTO_LAST)) {
-							if (p < pgs.size() - 1) {
-								p = pgs.size() - 1;
-								update = true;
-							}
-						} else if (checkEmote(reaction, CANCEL)) {
-							clearReactions(m, success);
-							return;
+					cats = pgs.get(p);
+					if (update) {
+						if (faces != null && pgs.size() == faces.size()) {
+							Page face = faces.get(p);
+							if (face != null) updatePage(m, face);
 						}
+						currCat = "";
+						clearReactions(m);
+						if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
+						if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+						m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
+						m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+						m.addReaction(paginator.getEmotes().get(NEXT)).submit();
+						if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
+						if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
 
-						cats = pgs.get(p);
-						if (update) {
-							if (faces != null && pgs.size() == faces.size()) {
-								Page face = faces.get(p);
-								if (face != null) updatePage(m, face);
+						for (String k : cats.keySet()) {
+							if (EmojiUtils.containsEmoji(k))
+								m.addReaction(k).submit();
+							else {
+								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
+								if (e == null) throw new InvalidEmoteException();
+								m.addReaction(e).submit();
 							}
-							currCat = "";
-							clearReactions(m);
-							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
-							m.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-							m.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-							m.addReaction(paginator.getEmotes().get(NEXT)).submit();
-							if (skipAmount > 1) m.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
-							if (fastForward) m.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
-
-							for (String k : cats.keySet()) {
-								if (EmojiUtils.containsEmoji(k))
-									m.addReaction(k).submit();
-								else {
-									net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-									if (e == null) throw new InvalidEmoteException();
-									m.addReaction(e).submit();
-								}
-							}
-						}
-
-						String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-						Page pg = cats.get(code);
-						if (pg != null) {
-							updatePage(m, pg);
-							currCat = code;
-						}
-
-						setTimeout(timeout, success, m, time, unit);
-
-						if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-							event.getReaction().removeReaction(u).submit();
 						}
 					}
-				});
+
+					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
+					Page pg = cats.get(code);
+					if (pg != null) {
+						updatePage(m, pg);
+						currCat = code;
+					}
+
+					setTimeout(timeout, success, m, time, unit);
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
 			}
 		});
 	}
