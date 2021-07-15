@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.CRC32;
 
 /**
@@ -24,8 +25,8 @@ import java.util.zip.CRC32;
  * Only one event is added to the handler to prevent cluttering and unnecessary listeners.
  */
 public class MessageHandler extends ListenerAdapter {
-	private final Map<String, ThrowingBiConsumer<User, GenericMessageReactionEvent>> events = new HashMap<>();
-	private final Set<String> locks = new HashSet<>();
+	private final Map<String, ThrowingBiConsumer<User, GenericMessageReactionEvent>> events = new ConcurrentHashMap<>();
+	private final Set<String> locks = ConcurrentHashMap.newKeySet();
 	private final CRC32 crc = new CRC32();
 
 	/**
@@ -87,21 +88,9 @@ public class MessageHandler extends ListenerAdapter {
 		events.clear();
 	}
 
-	private void lock(GenericMessageReactionEvent evt) {
-		String id = getEventId(evt);
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Locked event with ID " + id);
-		locks.add(id);
-	}
-
 	private void lock(String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Locked event with ID " + id);
 		locks.add(id);
-	}
-
-	private void unlock(GenericMessageReactionEvent evt) {
-		String id = getEventId(evt);
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Unlocked event with ID " + id);
-		locks.remove(id);
 	}
 
 	private void unlock(String id) {
