@@ -135,19 +135,23 @@ public class MessageHandler extends ListenerAdapter {
 	private void execute(GenericMessageReactionEvent evt) {
 		evt.retrieveUser().submit().thenAccept(u -> {
 			String id = getEventId(evt);
-			if (u.isBot() || isLocked(id)) return;
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
+			if (u.isBot() || isLocked(id)) {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Triggered by a bot or event is locked. Ignored");
+				return;
+			}
 
 			try {
 				if (Pages.getPaginator().isEventLocked()) lock(id);
 
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for event with ID " + id);
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for action for event with ID " + id);
 				Consumer<GenericMessageReactionEvent> act = events.get(id);
 
 				if (act != null) {
+					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action found");
 					act.accept(evt);
-					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event " + id + " found");
 				} else {
-					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event " + id + " not found");
+					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action not found");
 				}
 			} catch (RuntimeException e) {
 				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + getEventId(evt), e);
