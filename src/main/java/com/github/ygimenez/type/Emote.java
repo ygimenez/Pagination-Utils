@@ -32,9 +32,7 @@ public enum Emote implements EmoteWorker {
         public int doWork(Message message, int pageIndex, int lastPageIndex, List<Page> pageList) {
             if (pageIndex < lastPageIndex) {
                 pageIndex++;
-                Page newPage = pageList.get(pageIndex);
-
-                updatePage(message, newPage);
+                nowUpdatePage(message, pageList, pageIndex);
             }
             return pageIndex;
         }
@@ -48,9 +46,7 @@ public enum Emote implements EmoteWorker {
         public int doWork(Message message, int pageIndex, int lastPageIndex, List<Page> pageList) {
             if (pageIndex > 0) {
                 pageIndex--;
-                Page newPage = pageList.get(pageIndex);
-
-                updatePage(message, newPage);
+                nowUpdatePage(message, pageList, pageIndex);
             }
             return pageIndex;
         }
@@ -74,9 +70,7 @@ public enum Emote implements EmoteWorker {
         public int doWork(Message message, int pageIndex, int lastPageIndex, int skipAmount, List<Page> pageList) {
             if (pageIndex < lastPageIndex) {
                 pageIndex += (pageIndex + skipAmount > lastPageIndex ? lastPageIndex - pageIndex : skipAmount);
-                Page page = pageList.get(pageIndex);
-
-                updatePage(message, page);
+                nowUpdatePage(message, pageList, pageIndex);
             }
             return pageIndex;
         }
@@ -90,9 +84,7 @@ public enum Emote implements EmoteWorker {
         public int doWork(Message message, int pageIndex, int lastPageIndex, int skipAmount, List<Page> pageList) {
             if (pageIndex > 0) {
                 pageIndex -= (pageIndex - skipAmount < 0 ? pageIndex : skipAmount);
-                Page page = pageList.get(pageIndex);
-
-                updatePage(message, page);
+                nowUpdatePage(message, pageList, pageIndex);
             }
             return pageIndex;
         }
@@ -106,9 +98,7 @@ public enum Emote implements EmoteWorker {
         public int doWork(Message message, int pageIndex, int lastPageIndex, List<Page> pageList) {
             if (pageIndex > 0) {
                 pageIndex = 0;
-                Page page = pageList.get(pageIndex);
-
-                updatePage(message, page);
+                nowUpdatePage(message, pageList, pageIndex);
             }
             return pageIndex;
         }
@@ -122,11 +112,14 @@ public enum Emote implements EmoteWorker {
         public int doWork(Message message, int pageIndex, int lastPageIndex, List<Page> pageList) {
             if (pageIndex < lastPageIndex) {
                 pageIndex = lastPageIndex;
-                Page page = pageList.get(pageIndex);
-
-                updatePage(message, page);
+                nowUpdatePage(message, pageList, pageIndex);
             }
             return pageIndex;
         }
+    };
+
+    void nowUpdatePage(Message message, List<Page> pageList, int pageIndex) {
+        Page page = pageList.get(pageIndex);
+        updatePage(message, page);
     }
 }
