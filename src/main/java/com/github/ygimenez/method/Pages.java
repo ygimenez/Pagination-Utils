@@ -2376,7 +2376,6 @@ public class Pages {
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -2410,7 +2409,7 @@ public class Pages {
 					return;
 				}
 
-				cats = pgs.get(p);
+				Map<String, Page> cats = pgs.get(p);
 				if (update) {
 					if (faces != null && pgs.size() == faces.size()) {
 						Page face = faces.get(p);
@@ -2489,7 +2488,6 @@ public class Pages {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
@@ -2529,7 +2527,7 @@ public class Pages {
 					return;
 				}
 
-				cats = pgs.get(p);
+				Map<String, Page> cats = pgs.get(p);
 				if (update) {
 					if (faces != null && pgs.size() == faces.size()) {
 						Page face = faces.get(p);
@@ -2608,7 +2606,6 @@ public class Pages {
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -2643,7 +2640,8 @@ public class Pages {
 						return;
 					}
 
-					cats = pgs.get(p);
+
+					Map<String, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
@@ -2726,7 +2724,6 @@ public class Pages {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
@@ -2767,7 +2764,7 @@ public class Pages {
 						return;
 					}
 
-					cats = pgs.get(p);
+					Map<String, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
@@ -2848,7 +2845,6 @@ public class Pages {
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -2892,7 +2888,7 @@ public class Pages {
 					return;
 				}
 
-				cats = pgs.get(p);
+				Map<String, Page> cats = pgs.get(p);
 				if (update) {
 					if (faces != null && pgs.size() == faces.size()) {
 						Page face = faces.get(p);
@@ -2975,7 +2971,6 @@ public class Pages {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
@@ -3025,7 +3020,7 @@ public class Pages {
 					return;
 				}
 
-				cats = pgs.get(p);
+				Map<String, Page> cats = pgs.get(p);
 				if (update) {
 					if (faces != null && pgs.size() == faces.size()) {
 						Page face = faces.get(p);
@@ -3107,7 +3102,6 @@ public class Pages {
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -3152,7 +3146,7 @@ public class Pages {
 						return;
 					}
 
-					cats = pgs.get(p);
+					Map<String, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
@@ -3240,7 +3234,6 @@ public class Pages {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
@@ -3291,7 +3284,7 @@ public class Pages {
 						return;
 					}
 
-					cats = pgs.get(p);
+					Map<String, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
@@ -3375,7 +3368,6 @@ public class Pages {
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -3419,7 +3411,7 @@ public class Pages {
 					return;
 				}
 
-				cats = pgs.get(p);
+				Map<String, Page> cats = pgs.get(p);
 				if (update) {
 					if (faces != null && pgs.size() == faces.size()) {
 						Page face = faces.get(p);
@@ -3503,7 +3495,6 @@ public class Pages {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
@@ -3553,7 +3544,7 @@ public class Pages {
 					return;
 				}
 
-				cats = pgs.get(p);
+				Map<String, Page> cats = pgs.get(p);
 				if (update) {
 					if (faces != null && pgs.size() == faces.size()) {
 						Page face = faces.get(p);
@@ -3634,10 +3625,8 @@ public class Pages {
 		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
-			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -3682,7 +3671,7 @@ public class Pages {
 						return;
 					}
 
-					cats = pgs.get(p);
+					Map<String, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
@@ -3771,7 +3760,6 @@ public class Pages {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
@@ -3822,7 +3810,7 @@ public class Pages {
 						return;
 					}
 
-					cats = pgs.get(p);
+					Map<String, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
@@ -3911,7 +3899,6 @@ public class Pages {
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
@@ -3966,7 +3953,7 @@ public class Pages {
 						return;
 					}
 
-					cats = pgs.get(p);
+					Map<String, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
@@ -4060,7 +4047,6 @@ public class Pages {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
 			private String currCat = "";
-			private Map<String, Page> cats = pgs.get(0);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
@@ -4121,7 +4107,7 @@ public class Pages {
 						return;
 					}
 
-					cats = pgs.get(p);
+					Map<String, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);

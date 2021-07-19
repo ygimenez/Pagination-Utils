@@ -1,5 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="EntryPointsManager">
+    <entry_points version="2.0">
+      <entry_point TYPE="method" FQNAME="com.github.ygimenez.method.Pages$20 void acceptThrows(net.dv8tion.jda.api.entities.User u, net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent event)" />
+      <entry_point TYPE="method" FQNAME="com.github.ygimenez.method.Pages$18 void acceptThrows(net.dv8tion.jda.api.entities.User u, net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent event)" />
+      <entry_point TYPE="method" FQNAME="com.github.ygimenez.method.Pages$1 void acceptThrows(net.dv8tion.jda.api.entities.User u, net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent event)" />
+      <entry_point TYPE="method" FQNAME="com.github.ygimenez.method.Pages$26 void acceptThrows(net.dv8tion.jda.api.entities.User u, net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent event)" />
+      <entry_point TYPE="field" FQNAME="com.github.ygimenez.model.PUtilsConfig.LogLevel NONE" />
+    </entry_points>
+    <pattern value="com.github.ygimenez.method.Pages" method="buttonize" />
+    <pattern value="com.github.ygimenez.method.Pages" method="categorize" />
+    <pattern value="com.github.ygimenez.method.Pages" method="paginate" />
+    <pattern value="com.github.ygimenez.method.Pages" method="paginoCategorize" />
+    <pattern value="com.github.ygimenez.method.Pages" method="deactivate" />
+    <pattern value="com.github.ygimenez.exception.AlreadyActivatedException" />
+    <pattern value="com.github.ygimenez.exception.AlreadyActivatedException" method="AlreadyActivatedException" />
+    <pattern value="com.github.ygimenez.exception.InvalidGuildException" />
+    <pattern value="com.github.ygimenez.exception.InvalidGuildException" method="InvalidGuildException" />
+    <pattern value="com.github.ygimenez.exception.InvalidHandlerException" />
+    <pattern value="com.github.ygimenez.exception.InvalidHandlerException" method="InvalidHandlerException" />
+    <pattern value="com.github.ygimenez.listener.MessageHandler" method="clear" />
+    <pattern value="com.github.ygimenez.listener.MessageHandler" method="getEventMap" />
+    <pattern value="com.github.ygimenez.listener.MessageHandler" method="isLocked" />
+    <pattern value="com.github.ygimenez.listener.MessageHandler" />
+    <pattern value="com.github.ygimenez.model.Page" />
+    <pattern value="com.github.ygimenez.model.Page" method="Page" />
+    <pattern value="com.github.ygimenez.method.Pages" method="getHandler" />
+    <pattern value="com.github.ygimenez.method.Pages" />
+    <pattern value="com.github.ygimenez.model.Paginator" method="getEmote" />
+    <pattern value="com.github.ygimenez.model.Paginator" method="getEmotes" />
+    <pattern value="com.github.ygimenez.model.Paginator" method="getHandler" />
+    <pattern value="com.github.ygimenez.model.Paginator" method="getLogger" />
+    <pattern value="com.github.ygimenez.model.Paginator" method="getLookupGuilds" />
+    <pattern value="com.github.ygimenez.model.Paginator" method="isEventLocked" />
+    <pattern value="com.github.ygimenez.model.Paginator" method="log" />
+    <pattern value="com.github.ygimenez.model.Paginator" />
+    <pattern value="com.github.ygimenez.model.Paginator" method="Paginator" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="activate" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="build" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="createPaginator" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="createSimplePaginator" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="getEmote" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="getHandler" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="isEventLocking" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="PaginatorBuilder" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="setDeleteOnCancel" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="setEmote" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="setHandler" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="setLookupGuilds" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="shouldDeleteOnCancel" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="shouldEventLock" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="shouldRemoveOnReact" />
+    <pattern value="com.github.ygimenez.model.PaginatorBuilder" method="willRemoveOnReact" />
+    <pattern value="com.github.ygimenez.model.PUtilsConfig.LogLevel" />
+    <pattern value="com.github.ygimenez.model.PUtilsConfig" />
+    <pattern value="com.github.ygimenez.model.PUtilsConfig" method="setLogLevel" />
+  </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
@@ -11,7 +68,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="15" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="15" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
