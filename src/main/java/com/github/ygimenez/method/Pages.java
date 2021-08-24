@@ -115,98 +115,326 @@ public class Pages {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, 0, null, 0, false, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You can specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, time, unit, 0, false, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, 0, null, 0, false, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You can specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, time, unit, 0, false, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, 0, null, 0, fastForward, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You can specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, TimeUnit unit, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, time, unit, 0, fastForward, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, 0, null, 0, fastForward, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You can specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, TimeUnit unit, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, time, unit, 0, fastForward, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, 0, null, skipAmount, false, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You can specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, time, unit, skipAmount, false, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, 0, null, skipAmount, false, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You can specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, time, unit, skipAmount, false, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, 0, null, skipAmount, fastForward, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. You can specify
+	 * how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pages       The pages to be shown. The order of the {@link List} will
+	 *                    define the order of the pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, int time, TimeUnit unit, int skipAmount, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
 		paginate(msg, pages, time, unit, skipAmount, fastForward, null);
@@ -328,21 +556,74 @@ public class Pages {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will browse through a given {@link Map} of pages. You may only specify
+	 * one {@link Page} per button, adding another button with an existing unicode
+	 * will overwrite the current button's {@link Page}.
+	 *
+	 * @param msg         The {@link Message} sent which will be categorized.
+	 * @param categories  The categories to be shown. The categories are defined by
+	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
+	 *                    {@link Pages} as values.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		categorize(msg, categories, 0, null, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will browse through a given {@link Map} of pages. You may only specify
+	 * one {@link Page} per button, adding another button with an existing unicode
+	 * will overwrite the current button's {@link Page}. You can specify how long
+	 * the listener will stay active before shutting down itself after a no-activity
+	 * interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be categorized.
+	 * @param categories  The categories to be shown. The categories are defined by
+	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
+	 *                    {@link Pages} as values.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		categorize(msg, categories, time, unit, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will browse through a given {@link Map} of pages. You may only specify
+	 * one {@link Page} per button, adding another button with an existing unicode
+	 * will overwrite the current button's {@link Page}.
+	 *
+	 * @param msg         The {@link Message} sent which will be categorized.
+	 * @param categories  The categories to be shown. The categories are defined by
+	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
+	 *                    {@link Pages} as values.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		categorize(msg, categories, 0, null, canInteract);
@@ -439,35 +720,140 @@ public class Pages {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}.
+	 *
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         Map containing emoji unicodes or emote ids as keys and
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		buttonize(msg, buttons, showCancelButton, 0, null, null, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
+	 *
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         Map containing emoji unicodes or emote ids as keys and
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param time             The time before the listener automatically stop
+	 *                         listening for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		buttonize(msg, buttons, showCancelButton, time, unit, null, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}.
+	 *
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         Map containing emoji unicodes or emote ids as keys and
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param canInteract      {@link Predicate} to determine whether the
+	 *                         {@link User} that pressed the button can interact
+	 *                         with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		buttonize(msg, buttons, showCancelButton, 0, null, canInteract, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
+	 *
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         Map containing emoji unicodes or emote ids as keys and
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param time             The time before the listener automatically stop
+	 *                         listening for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param canInteract      {@link Predicate} to determine whether the
+	 *                         {@link User} that pressed the button can interact
+	 *                         with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		buttonize(msg, buttons, showCancelButton, time, unit, canInteract, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}.
+	 *
+	 * @param msg              The {@link Message} sent which will be buttoned.
+	 * @param buttons          The buttons to be shown. The buttons are defined by a
+	 *                         Map containing emoji unicodes or emote ids as keys and
+	 *                         {@link ThrowingBiConsumer}&lt;{@link Member}, {@link Message}&gt;
+	 *                         containing desired behavior as value.
+	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param canInteract      {@link Predicate} to determine whether the
+	 *                         {@link User} that pressed the button can interact
+	 *                         with it or not.
+	 * @param onCancel         Action to be run after the listener is removed.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		buttonize(msg, buttons, showCancelButton, 0, null, canInteract, onCancel);
@@ -565,91 +951,332 @@ public class Pages {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, 0, false, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param time             The time before the listener automatically stop listening
+	 *                         for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, 0, false, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, 0, false, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param time             The time before the listener automatically stop listening
+	 *                         for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, 0, false, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param fastForward      Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, 0, fastForward, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param time             The time before the listener automatically stop listening
+	 *                         for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param fastForward      Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, 0, fastForward, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param fastForward      Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, 0, fastForward, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param time             The time before the listener automatically stop listening
+	 *                         for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param fastForward      Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, 0, fastForward, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param skipAmount       The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                         and {@link Emote#SKIP_FORWARD} buttons.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, skipAmount, false, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param time             The time before the listener automatically stop listening
+	 *                         for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param skipAmount       The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                         and {@link Emote#SKIP_FORWARD} buttons.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, skipAmount, false, null);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param skipAmount       The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                         and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, skipAmount, false, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param time             The time before the listener automatically stop listening
+	 *                         for further events (recommended: 60).
+	 * @param unit             The time's {@link TimeUnit} (recommended:
+	 *                         {@link TimeUnit#SECONDS}).
+	 * @param skipAmount       The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                         and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, skipAmount, false, canInteract);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages while allowing
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 *
+	 * @param msg              The {@link Message} sent which will be paginated.
+	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
+	 *                         the order of the pages.
+	 * @param faces            The pages to be shown as default for each index. The {@link List} must have the
+	 *                         same amount of indexes as the category {@link List}, else it'll be ignored (can be null).
+	 * @param skipAmount       The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                         and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param fastForward      Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param canInteract      {@link Predicate} to determine whether the {@link User}
+	 *                         that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, skipAmount, fastForward, canInteract);
@@ -658,7 +1285,8 @@ public class Pages {
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages while allowing
-	 * menu-like navigation akin to {@link #categorize(Message, Map)}.
+	 * menu-like navigation akin to {@link #categorize(Message, Map)}. You can specify the time in which the
+	 * listener will automatically stop itself after a no-activity interval.
 	 *
 	 * @param msg              The {@link Message} sent which will be paginated.
 	 * @param paginocategories The pages to be shown. The order of the {@link List} will define
