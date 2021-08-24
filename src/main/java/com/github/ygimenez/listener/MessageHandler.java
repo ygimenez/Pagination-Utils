@@ -81,7 +81,7 @@ public class MessageHandler extends ListenerAdapter {
 	/**
 	 * Purge events map.<br>
 	 * <br>
-	 * <b>WARNING:</b> This will break <u>all</u> active paginations, use with caution.
+	 * <b>WARNING:</b> This will break <u>all</u> active pagination, use with caution.
 	 */
 	public void clear() {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Cleared all active events");

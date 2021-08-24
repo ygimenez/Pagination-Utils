@@ -31,7 +31,7 @@ import java.util.function.Predicate;
 import static com.github.ygimenez.type.Emote.*;
 
 /**
- * The main class containing all pagination-related methods, including but not futurely limited
+ * The main class containing all pagination-related methods, including but not limited
  * to {@link #paginate(Message, List)}, {@link #categorize(Message, Map)} and
  * {@link #buttonize(Message, Map, boolean)}.
  */
@@ -493,7 +493,7 @@ public class Pages {
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
 	 *                         with it or not.
-	 * @param onCancel         Action to be ran after the listener is removed.
+	 * @param onCancel         Action to be run after the listener is removed.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.

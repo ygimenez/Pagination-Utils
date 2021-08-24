@@ -173,8 +173,8 @@ public class PaginatorBuilder {
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
 	 * object.
-	 * @throws InvalidEmoteException If the supplied {@link net.dv8tion.jda.api.entities.Emote} is not from
-	 * a guild your bot's in and is not unicode.
+	 * @throws InvalidEmoteException If the supplied {@link net.dv8tion.jda.api.entities.Emote} is from
+	 * a guild your bot is not in or is a unicode emoji.
 	 */
 	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
 		if (StringUtils.isNumeric(code)) {
