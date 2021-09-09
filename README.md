@@ -160,7 +160,7 @@ A new feature in version 1.0.3, is that you're able to add buttons with custom f
 ```java
 //THE BICONSUMER IS A CALLBACK FUNCTION THAT USES TWO ARGUMENTS INSTEAD OF ONE
 //HERE, THE MEMBER IS THE ONE THAT PRESSED THE BUTTON, AND MESSAGE IS THE BUTTONIZED MESSAGE ITSELF
-BiConsumer<Member, Message> customFunction = (mb, ms) -> {
+ThrowingBiConsumer<Member, Message> customFunction = (mb, ms) -> {
     //EXAMPLE OF GIVING A ROLE TO ANYONE WHO PRESSES THIS BUTTON
     guild.addRoleToMember(mb, guild.getRoleById("123456789")).queue();
 };
