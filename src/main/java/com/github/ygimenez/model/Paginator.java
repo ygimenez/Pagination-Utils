@@ -1,21 +1,18 @@
 package com.github.ygimenez.model;
 
-import com.coder4.emoji.EmojiUtils;
 import com.github.ygimenez.model.PUtilsConfig.LogLevel;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.JDALogger;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.*;
-
-import static com.github.ygimenez.type.Emote.*;
 
 /**
  * This is the core object for Pagination-Utils' settings.<br>
@@ -31,16 +28,7 @@ public class Paginator {
 	private boolean removeOnReact = false;
 	private boolean eventLocked = false;
 	private boolean deleteOnCancel = false;
-	private Map<Emote, String> emotes = new HashMap<>() {{
-		put(NEXT, "\u25B6");
-		put(PREVIOUS, "\u25C0");
-		put(ACCEPT, "\u2705");
-		put(CANCEL, "\u274E");
-		put(SKIP_FORWARD, "\u23E9");
-		put(SKIP_BACKWARD, "\u23EA");
-		put(GOTO_FIRST, "\u23EE\uFE0F");
-		put(GOTO_LAST, "\u23ED\uFE0F");
-	}};
+	private Map<Emote, Emoji> emotes = new EnumMap<>(Emote.class);
 	private List<String> lookupGuilds = new ArrayList<>();
 	private Logger logger = null;
 
@@ -160,7 +148,7 @@ public class Paginator {
 	 *
 	 * @return The {@link Map} containing configured {@link Emote}s for this {@link Paginator}.
 	 */
-	public Map<Emote, String> getEmotes() {
+	public Map<Emote, Emoji> getEmotes() {
 		return emotes;
 	}
 
@@ -169,14 +157,21 @@ public class Paginator {
 	 * into IDs.
 	 *
 	 * @param emote The {@link Emote} to be defined.
-	 * @return Either the unicode (if it is an emoji) or the ID (if it is an emote).
+	 * @return The {@link Emoji} representing this {@link Emote}.
 	 */
-	public String getEmote(Emote emote) {
-		String emt = emotes.get(emote);
-		return EmojiUtils.containsEmoji(emt) ? emt : Arrays.stream(emt.split(":"))
-				.filter(StringUtils::isNumeric)
-				.max(Comparator.comparingInt(String::length))
-				.orElse(null);
+	public Emoji getEmote(Emote emote) {
+		return emotes.getOrDefault(emote, emote.getDefault());
+	}
+
+	/**
+	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
+	 * into IDs.
+	 *
+	 * @param emote The {@link Emote} to be defined.
+	 * @return The {@link Emoji} representing this {@link Emote}.
+	 */
+	public String getStringEmote(Emote emote) {
+		return getEmote(emote).getAsMention().replaceAll("[<>]", "");
 	}
 
 	/**

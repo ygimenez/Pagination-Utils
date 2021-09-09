@@ -1,17 +1,18 @@
 package com.github.ygimenez.model;
 
-import com.coder4.emoji.EmojiUtils;
-import com.github.ygimenez.exception.*;
+import com.github.ygimenez.exception.AlreadyActivatedException;
+import com.github.ygimenez.exception.InvalidGuildException;
+import com.github.ygimenez.exception.InvalidHandlerException;
+import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -159,13 +160,13 @@ public class PaginatorBuilder {
 	 * @param emote The {@link Emote} to be retrieved.
 	 * @return The {@link Emote}'s code.
 	 */
-	public String getEmote(@Nonnull Emote emote) {
-		return paginator.getEmotes().get(emote);
+	public Emoji getEmote(@Nonnull Emote emote) {
+		return paginator.getEmote(emote);
 	}
 
 	/**
 	 * Modify an {@link Emote}'s code from the {@link Map}. Beware, the code must be either unicode or
-	 * {@link net.dv8tion.jda.api.entities.Emote}'s ID,
+	 * {@link net.dv8tion.jda.api.entities.Emote}'s mention,
 	 * else the buttons <strong>WILL NOT BE ADDED</strong> and will lead to errors.
 	 *
 	 * @param emote The {@link Emote} to be set.
@@ -173,57 +174,10 @@ public class PaginatorBuilder {
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
 	 * object.
-	 * @throws InvalidEmoteException If the supplied {@link net.dv8tion.jda.api.entities.Emote} is from
-	 * a guild your bot is not in or is a unicode emoji.
 	 */
 	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
-		if (StringUtils.isNumeric(code)) {
-			net.dv8tion.jda.api.entities.Emote e = null;
-			if (paginator.getHandler() instanceof JDA) {
-				JDA handler = (JDA) paginator.getHandler();
-
-				if (handler.getEmotes().isEmpty()) {
-					Guild g = handler.getGuildById(paginator.getEmoteCache().getOrDefault(code, "0"));
-
-					if (g != null) {
-						e = g.retrieveEmoteById(code).complete();
-					} else for (Guild guild : handler.getGuilds()) {
-						try {
-							e = guild.retrieveEmoteById(code).complete();
-							break;
-						} catch (ErrorResponseException ignore) {
-						}
-					}
-
-					if (e != null && e.getGuild() != null)
-						paginator.getEmoteCache().put(code, e.getGuild().getId());
-				} else e = handler.getEmoteById(code);
-			} else if (paginator.getHandler() instanceof ShardManager) {
-				ShardManager handler = (ShardManager) paginator.getHandler();
-
-				if (handler.getEmotes().isEmpty()) {
-					Guild g = handler.getGuildById(paginator.getEmoteCache().getOrDefault(code, "0"));
-
-					if (g != null) {
-						e = g.retrieveEmoteById(code).complete();
-					} else for (Guild guild : handler.getGuilds()) {
-						try {
-							e = guild.retrieveEmoteById(code).complete();
-							break;
-						} catch (ErrorResponseException ignore) {
-						}
-					}
-
-					if (e != null && e.getGuild() != null)
-						paginator.getEmoteCache().put(code, e.getGuild().getId());
-				} else e = handler.getEmoteById(code);
-			} else throw new InvalidHandlerException();
-
-			if (e == null) throw new InvalidEmoteException();
-			paginator.getEmotes().put(emote, e.getName() + ":" + e.getId());
-		} else if (EmojiUtils.containsEmoji(code)) {
-			paginator.getEmotes().put(emote, code);
-		} else throw new InvalidEmoteException();
+		if (paginator.getHandler() == null) throw new InvalidHandlerException();
+		paginator.getEmotes().put(emote, Emoji.fromMarkdown(code));
 		return this;
 	}
 

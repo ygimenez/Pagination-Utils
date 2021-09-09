@@ -123,8 +123,9 @@
             <url>https://jcenter.bintray.com</url>
         </repository>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
         </repository>
     </repositories>
 
@@ -132,17 +133,12 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.0_214</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.liheyuan</groupId>
-            <artifactId>simple-emoji-4j</artifactId>
-            <version>f26d3b39be</version>
+            <version>4.3.0_324</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.11</version>
+            <version>3.12.0</version>
         </dependency>
     </dependencies>
 

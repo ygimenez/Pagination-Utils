@@ -1,6 +1,5 @@
 package com.github.ygimenez.method;
 
-import com.coder4.emoji.EmojiUtils;
 import com.github.ygimenez.exception.*;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.*;
@@ -569,9 +568,8 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories) throws ErrorResponseException, InsufficientPermissionException {
 		categorize(msg, categories, 0, null, null);
 	}
 
@@ -597,9 +595,8 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		categorize(msg, categories, time, unit, null);
 	}
 
@@ -621,9 +618,8 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		categorize(msg, categories, 0, null, canInteract);
 	}
 
@@ -651,25 +647,18 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void categorize(@Nonnull Message msg, @Nonnull Map<String, Page> categories, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, Page> cats = Collections.unmodifiableMap(categories);
+		Map<Emoji, Page> cats = Collections.unmodifiableMap(categories);
 		clearReactions(msg);
 
-		for (String k : cats.keySet()) {
-			if (EmojiUtils.containsEmoji(k))
-				msg.addReaction(k).submit();
-			else {
-				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-				if (e == null) throw new InvalidEmoteException();
-				msg.addReaction(e).submit();
-			}
+		for (Emoji k : cats.keySet()) {
+			msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 		}
-		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+		msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
-			private String currCat = "";
+			private Emoji currCat = null;
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
@@ -692,7 +681,7 @@ public class Pages {
 
 				MessageReaction.ReactionEmote reaction = event.getReactionEmote();
 				if (canInteract == null || canInteract.test(u)) {
-					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || toEmoji(reaction).equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					if (checkEmote(reaction, CANCEL)) {
@@ -702,11 +691,11 @@ public class Pages {
 
 					setTimeout(timeout, success, m, time, unit);
 
-					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-					Page pg = cats.get(code);
+					Emoji emoji = toEmoji(reaction);
+					Page pg = cats.get(emoji);
 					if (pg != null) {
 						updatePage(m, pg);
-						currCat = code;
+						currCat = emoji;
 					}
 
 					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -735,9 +724,8 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException {
 		buttonize(msg, buttons, showCancelButton, 0, null, null, null);
 	}
 
@@ -764,9 +752,8 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		buttonize(msg, buttons, showCancelButton, time, unit, null, null);
 	}
 
@@ -791,9 +778,8 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		buttonize(msg, buttons, showCancelButton, 0, null, canInteract, null);
 	}
 
@@ -823,9 +809,8 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		buttonize(msg, buttons, showCancelButton, time, unit, canInteract, null);
 	}
 
@@ -851,9 +836,8 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		buttonize(msg, buttons, showCancelButton, 0, null, canInteract, onCancel);
 	}
 
@@ -884,24 +868,17 @@ public class Pages {
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 * @throws InvalidEmoteException           Thrown if one of the custom emotes' ID is invalid or not from a guild your bot is member of.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<String, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingBiConsumer<Member, Message>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
-		Map<String, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
+		Map<Emoji, ThrowingBiConsumer<Member, Message>> btns = Collections.unmodifiableMap(buttons);
 		clearReactions(msg);
 
-		for (String k : btns.keySet()) {
-			if (EmojiUtils.containsEmoji(k))
-				msg.addReaction(k).submit();
-			else {
-				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-				if (e == null) throw new InvalidEmoteException();
-				msg.addReaction(e).submit();
-			}
+		for (Emoji k : btns.keySet()) {
+			msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 		}
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-			msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
+			msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
@@ -933,10 +910,7 @@ public class Pages {
 						return;
 					}
 
-					if (reaction.isEmoji())
-						btns.get(reaction.getName()).accept(event.getMember(), m);
-					else
-						btns.get(reaction.getId()).accept(event.getMember(), m);
+					btns.get(toEmoji(reaction)).accept(event.getMember(), m);
 
 					setTimeout(timeout, success, m, time, unit);
 
@@ -965,7 +939,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, 0, false, null);
 	}
 
@@ -991,7 +965,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, 0, false, null);
 	}
 
@@ -1014,7 +988,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, 0, false, canInteract);
 	}
 
@@ -1042,7 +1016,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, 0, false, canInteract);
 	}
 
@@ -1064,7 +1038,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, 0, fastForward, null);
 	}
 
@@ -1091,7 +1065,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, 0, fastForward, null);
 	}
 
@@ -1115,7 +1089,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, 0, fastForward, canInteract);
 	}
 
@@ -1144,7 +1118,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, 0, fastForward, canInteract);
 	}
 
@@ -1167,7 +1141,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, skipAmount, false, null);
 	}
 
@@ -1195,7 +1169,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, skipAmount, false, null);
 	}
 
@@ -1220,7 +1194,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, skipAmount, false, canInteract);
 	}
 
@@ -1250,7 +1224,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, time, unit, skipAmount, false, canInteract);
 	}
 
@@ -1276,7 +1250,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		paginoCategorize(msg, paginocategories, faces, 0, null, skipAmount, fastForward, canInteract);
 	}
 
@@ -1307,26 +1281,20 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<String, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException, InvalidEmoteException {
+	public static void paginoCategorize(@Nonnull Message msg, @Nonnull List<Map<Emoji, Page>> paginocategories, @Nullable List<Page> faces, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
-		List<Map<String, Page>> pgs = Collections.unmodifiableList(paginocategories);
+		List<Map<Emoji, Page>> pgs = Collections.unmodifiableList(paginocategories);
 		clearReactions(msg);
 
 		addReactions(msg, skipAmount > 1, fastForward);
-		for (String k : pgs.get(0).keySet()) {
-			if (EmojiUtils.containsEmoji(k))
-				msg.addReaction(k).submit();
-			else {
-				net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-				if (e == null) throw new InvalidEmoteException();
-				msg.addReaction(e).submit();
-			}
+		for (Emoji k : pgs.get(0).keySet()) {
+				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private int p = 0;
-			private String currCat = "";
+			private Emoji currCat = null;
 			private final Consumer<Void> success = s -> {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
@@ -1348,7 +1316,7 @@ public class Pages {
 
 				if (canInteract == null || canInteract.test(u)) {
 					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
-					if (u.isBot() || reaction.getName().equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
+					if (u.isBot() || toEmoji(reaction).equals(currCat) || m == null || !event.getMessageId().equals(msg.getId()))
 						return;
 
 					boolean update = false;
@@ -1387,32 +1355,26 @@ public class Pages {
 						return;
 					}
 
-					Map<String, Page> cats = pgs.get(p);
+					Map<Emoji, Page> cats = pgs.get(p);
 					if (update) {
 						if (faces != null && pgs.size() == faces.size()) {
 							Page face = faces.get(p);
 							if (face != null) updatePage(m, face);
 						}
-						currCat = "";
+						currCat = null;
 						clearReactions(m);
 						addReactions(msg, skipAmount > 1, fastForward);
 
-						for (String k : cats.keySet()) {
-							if (EmojiUtils.containsEmoji(k))
-								m.addReaction(k).submit();
-							else {
-								net.dv8tion.jda.api.entities.Emote e = getOrRetrieveEmote(k);
-								if (e == null) throw new InvalidEmoteException();
-								m.addReaction(e).submit();
-							}
+						for (Emoji k : cats.keySet()) {
+							msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 						}
 					}
 
-					String code = reaction.isEmoji() ? reaction.getName() : reaction.getId();
-					Page pg = cats.get(code);
+					Emoji emoji = toEmoji(reaction);
+					Page pg = cats.get(emoji);
 					if (pg != null) {
 						updatePage(m, pg);
-						currCat = code;
+						currCat = emoji;
 					}
 
 					setTimeout(timeout, success, m, time, unit);
@@ -1430,9 +1392,9 @@ public class Pages {
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
 	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1451,13 +1413,13 @@ public class Pages {
 	 * You can specify how long the listener will stay active before shutting down itself after a
 	 * no-activity interval.
 	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param time        The time before the listener automatically stop listening
-	 *                    for further events (recommended: 60).
-	 * @param unit        The time's {@link TimeUnit} (recommended:
-	 *                    {@link TimeUnit#SECONDS}).
+	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param time       The time before the listener automatically stop listening
+	 *                   for further events (recommended: 60).
+	 * @param unit       The time's {@link TimeUnit} (recommended:
+	 *                   {@link TimeUnit#SECONDS}).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1522,10 +1484,10 @@ public class Pages {
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
 	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param cache	      Enables {@link Page} caching, saving previously visited pages.
+	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param cache      Enables {@link Page} caching, saving previously visited pages.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1544,14 +1506,14 @@ public class Pages {
 	 * You can specify how long the listener will stay active before shutting down itself after a
 	 * no-activity interval.
 	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param cache	      Enables {@link Page} caching, saving previously visited pages.
-	 * @param time        The time before the listener automatically stop listening
-	 *                    for further events (recommended: 60).
-	 * @param unit        The time's {@link TimeUnit} (recommended:
-	 *                    {@link TimeUnit#SECONDS}).
+	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param cache      Enables {@link Page} caching, saving previously visited pages.
+	 * @param time       The time before the listener automatically stop listening
+	 *                   for further events (recommended: 60).
+	 * @param unit       The time's {@link TimeUnit} (recommended:
+	 *                   {@link TimeUnit#SECONDS}).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1571,7 +1533,7 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param cache	      Enables {@link Page} caching, saving previously visited pages.
+	 * @param cache       Enables {@link Page} caching, saving previously visited pages.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -1595,7 +1557,7 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param cache	      Enables {@link Page} caching, saving previously visited pages.
+	 * @param cache       Enables {@link Page} caching, saving previously visited pages.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -1691,7 +1653,7 @@ public class Pages {
 		if (p.getContent() instanceof Message) {
 			msg.editMessage((Message) p.getContent()).submit();
 		} else if (p.getContent() instanceof MessageEmbed) {
-			msg.editMessage((MessageEmbed) p.getContent()).submit();
+			msg.editMessageEmbeds((MessageEmbed) p.getContent()).submit();
 		}
 	}
 
@@ -1750,9 +1712,11 @@ public class Pages {
 	 * @return Whether the reaction's name or ID equals to the {@link Emote}'s definition.
 	 */
 	private static boolean checkEmote(MessageReaction.ReactionEmote reaction, Emote emote) {
-		if (reaction.isEmoji() && reaction.getName().equals(paginator.getEmote(emote)))
-			return true;
-		else return reaction.isEmote() && reaction.getId().equals(paginator.getEmote(emote));
+		return toEmoji(reaction).equals(paginator.getEmote(emote));
+	}
+
+	private static Emoji toEmoji(MessageReaction.ReactionEmote reaction) {
+		return reaction.isEmoji() ? Emoji.fromUnicode(reaction.getEmoji()) : Emoji.fromEmote(reaction.getEmote());
 	}
 
 	/**
@@ -1883,14 +1847,14 @@ public class Pages {
 	 * @param msg The {@link Message} to have reactions removed from.
 	 */
 	public static void addReactions(Message msg, boolean withSkip, boolean withGoto) {
-		if (withGoto) msg.addReaction(paginator.getEmotes().get(GOTO_FIRST)).submit();
-		if (withSkip) msg.addReaction(paginator.getEmotes().get(SKIP_BACKWARD)).submit();
+		if (withGoto) msg.addReaction(paginator.getStringEmote(GOTO_FIRST)).submit();
+		if (withSkip) msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)).submit();
 
-		msg.addReaction(paginator.getEmotes().get(PREVIOUS)).submit();
-		msg.addReaction(paginator.getEmotes().get(CANCEL)).submit();
-		msg.addReaction(paginator.getEmotes().get(NEXT)).submit();
+		msg.addReaction(paginator.getStringEmote(PREVIOUS)).submit();
+		msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+		msg.addReaction(paginator.getStringEmote(NEXT)).submit();
 
-		if (withSkip) msg.addReaction(paginator.getEmotes().get(SKIP_FORWARD)).submit();
-		if (withGoto) msg.addReaction(paginator.getEmotes().get(GOTO_LAST)).submit();
+		if (withSkip) msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)).submit();
+		if (withGoto) msg.addReaction(paginator.getStringEmote(GOTO_LAST)).submit();
 	}
 }
