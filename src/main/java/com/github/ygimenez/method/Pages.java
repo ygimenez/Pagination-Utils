@@ -1,6 +1,9 @@
 package com.github.ygimenez.method;
 
-import com.github.ygimenez.exception.*;
+import com.github.ygimenez.exception.AlreadyActivatedException;
+import com.github.ygimenez.exception.InvalidHandlerException;
+import com.github.ygimenez.exception.InvalidStateException;
+import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.Emote;
@@ -11,7 +14,6 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
@@ -1717,87 +1719,6 @@ public class Pages {
 
 	private static Emoji toEmoji(MessageReaction.ReactionEmote reaction) {
 		return reaction.isEmoji() ? Emoji.fromUnicode(reaction.getEmoji()) : Emoji.fromEmote(reaction.getEmote());
-	}
-
-	/**
-	 * Utility method to either retrieve the Emote by using a {@link RestAction} or get from
-	 * the cache.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
-	 *
-	 * @param id The {@link net.dv8tion.jda.api.entities.Emote}'s ID.
-	 * @return The {@link net.dv8tion.jda.api.entities.Emote} object if found, else returns null.
-	 */
-	public static net.dv8tion.jda.api.entities.Emote getOrRetrieveEmote(String id) {
-		net.dv8tion.jda.api.entities.Emote e = null;
-		if (paginator.getHandler() instanceof JDA) {
-			JDA handler = (JDA) paginator.getHandler();
-
-			if (handler.getEmotes().isEmpty()) {
-				Guild g = handler.getGuildById(paginator.getEmoteCache().getOrDefault(id, "0"));
-
-				if (g != null) {
-					try {
-						e = g.retrieveEmoteById(id).submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-				} else if (!paginator.getLookupGuilds().isEmpty()) {
-					for (String gid : paginator.getLookupGuilds()) {
-						try {
-							Guild guild = handler.getGuildById(gid);
-							if (guild == null) continue;
-
-							e = guild.retrieveEmoteById(id).submit().get();
-							break;
-						} catch (ErrorResponseException | InterruptedException | ExecutionException ignore) {
-						}
-					}
-				} else for (Guild guild : handler.getGuilds()) {
-					try {
-						e = guild.retrieveEmoteById(id).submit().get();
-						break;
-					} catch (ErrorResponseException | InterruptedException | ExecutionException ignore) {
-					}
-				}
-
-				if (e != null && e.getGuild() != null)
-					paginator.getEmoteCache().put(id, e.getGuild().getId());
-			} else e = handler.getEmoteById(id);
-		} else if (paginator.getHandler() instanceof ShardManager) {
-			ShardManager handler = (ShardManager) paginator.getHandler();
-
-			if (handler.getEmotes().isEmpty()) {
-				Guild g = handler.getGuildById(paginator.getEmoteCache().getOrDefault(id, "0"));
-
-				if (g != null) {
-					try {
-						e = g.retrieveEmoteById(id).submit().get();
-					} catch (InterruptedException | ExecutionException ignore) {
-					}
-				} else if (!paginator.getLookupGuilds().isEmpty()) {
-					for (String gid : paginator.getLookupGuilds()) {
-						try {
-							Guild guild = handler.getGuildById(gid);
-							if (guild == null) continue;
-
-							e = guild.retrieveEmoteById(id).submit().get();
-							break;
-						} catch (ErrorResponseException | InterruptedException | ExecutionException ignore) {
-						}
-					}
-				} else for (Guild guild : handler.getGuilds()) {
-					try {
-						e = guild.retrieveEmoteById(id).submit().get();
-						break;
-					} catch (ErrorResponseException | InterruptedException | ExecutionException ignore) {
-					}
-				}
-
-				if (e != null && e.getGuild() != null)
-					paginator.getEmoteCache().put(id, e.getGuild().getId());
-			} else e = handler.getEmoteById(id);
-		}
-
-		return e;
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package com.github.ygimenez.model;
 
 import com.github.ygimenez.exception.AlreadyActivatedException;
-import com.github.ygimenez.exception.InvalidGuildException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.method.Pages;
@@ -9,15 +8,11 @@ import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * {@link Paginator}'s builder, this class allows you to customize Pagination-Utils' behavior
@@ -182,39 +177,6 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Defines the guild IDs to be used for {@link net.dv8tion.jda.api.entities.Emote} lookup. This has no
-	 * effect when {@link CacheFlag#EMOTE} is enabled.
-	 *
-	 * @param lookupGuilds The {@link List} containing guild IDs to be used for {@link net.dv8tion.jda.api.entities.Emote} lookup.
-	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
-	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
-	 * object.
-	 * @throws InvalidGuildException If one of the supplied guild IDs is invalid or from a guild your bot is not member of.
-	 */
-	public PaginatorBuilder setLookupGuilds(List<String> lookupGuilds) throws InvalidHandlerException {
-		if (paginator.getHandler() instanceof JDA) {
-			JDA handler = (JDA) paginator.getHandler();
-
-			List<String> guilds = handler.getGuilds().stream()
-					.map(Guild::getId)
-					.collect(Collectors.toList());
-
-			if (!guilds.containsAll(lookupGuilds)) throw new InvalidGuildException();
-		} else if (paginator.getHandler() instanceof ShardManager) {
-			ShardManager handler = (ShardManager) paginator.getHandler();
-
-			List<String> guilds = handler.getGuilds().stream()
-					.map(Guild::getId)
-					.collect(Collectors.toList());
-
-			if (!guilds.containsAll(lookupGuilds)) throw new InvalidGuildException();
-		} else throw new InvalidHandlerException();
-
-		paginator.setLookupGuilds(lookupGuilds);
-		return this;
-	}
-
-	/**
 	 * Finishes building the {@link Paginator} instance, locking further modifications.
 	 *
 	 * @return The {@link Paginator} instance.
@@ -224,7 +186,6 @@ public class PaginatorBuilder {
 			throw new InvalidStateException();
 
 		paginator.finishEmotes();
-		paginator.finishLookupGuilds();
 		return paginator;
 	}
 
@@ -239,7 +200,6 @@ public class PaginatorBuilder {
 			throw new InvalidStateException();
 
 		paginator.finishEmotes();
-		paginator.finishLookupGuilds();
 		Pages.activate(paginator);
 	}
 }

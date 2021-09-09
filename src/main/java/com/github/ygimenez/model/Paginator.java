@@ -5,10 +5,8 @@ import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
 
@@ -23,13 +21,11 @@ import java.util.*;
  * <strong>This class must only be instantiated by {@link PaginatorBuilder}</strong>.
  */
 public class Paginator {
-	private final HashMap<String, String> emoteCache = new HashMap<>();
 	private Object handler = null;
 	private boolean removeOnReact = false;
 	private boolean eventLocked = false;
 	private boolean deleteOnCancel = false;
 	private Map<Emote, Emoji> emotes = new EnumMap<>(Emote.class);
-	private List<String> lookupGuilds = new ArrayList<>();
 	private Logger logger = null;
 
 	/**
@@ -46,17 +42,6 @@ public class Paginator {
 	 */
 	public Paginator(Object handler) {
 		this.handler = handler;
-	}
-
-	/**
-	 * Retrieves the mapped {@link net.dv8tion.jda.api.entities.Emote} sources. This will be empty if
-	 * the configured handler has {@link CacheFlag#EMOTE} enabled.
-	 *
-	 * @return The {@link Map} containing {@link net.dv8tion.jda.api.entities.Emote} IDs with their
-	 * respective {@link Guild}s.
-	 */
-	public HashMap<String, String> getEmoteCache() {
-		return emoteCache;
 	}
 
 	/**
@@ -180,33 +165,6 @@ public class Paginator {
 	 */
 	protected void finishEmotes() {
 		emotes = Collections.unmodifiableMap(emotes);
-	}
-
-	/**
-	 * The {@link List} containing configured guilds IDs for {@link net.dv8tion.jda.api.entities.Emote} lookup.
-	 *
-	 * @return The {@link List} containing lookup guild IDs.
-	 */
-	public List<String> getLookupGuilds() {
-		return lookupGuilds;
-	}
-
-	/**
-	 * Defines the guild IDs to be used for {@link net.dv8tion.jda.api.entities.Emote} lookup.
-	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
-	 *
-	 * @param lookupGuilds The {@link List} containing guild IDs to be used for {@link net.dv8tion.jda.api.entities.Emote} lookup.
-	 */
-	protected void setLookupGuilds(List<String> lookupGuilds) {
-		this.lookupGuilds = lookupGuilds;
-	}
-
-	/**
-	 * Make configured lookup guilds final.
-	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
-	 */
-	protected void finishLookupGuilds() {
-		this.lookupGuilds = Collections.unmodifiableList(lookupGuilds);
 	}
 
 	/**

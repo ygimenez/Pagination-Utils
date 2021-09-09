@@ -7,6 +7,7 @@
       <entry_point TYPE="method" FQNAME="com.github.ygimenez.method.Pages$1 void acceptThrows(net.dv8tion.jda.api.entities.User u, net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent event)" />
       <entry_point TYPE="method" FQNAME="com.github.ygimenez.method.Pages$26 void acceptThrows(net.dv8tion.jda.api.entities.User u, net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent event)" />
       <entry_point TYPE="field" FQNAME="com.github.ygimenez.model.PUtilsConfig.LogLevel NONE" />
+      <entry_point TYPE="method" FQNAME="com.github.ygimenez.method.Pages$5 void acceptThrows(net.dv8tion.jda.api.entities.User u, net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent event)" />
     </entry_points>
     <pattern value="com.github.ygimenez.method.Pages" method="buttonize" />
     <pattern value="com.github.ygimenez.method.Pages" method="categorize" />
@@ -56,6 +57,13 @@
     <pattern value="com.github.ygimenez.model.PUtilsConfig.LogLevel" />
     <pattern value="com.github.ygimenez.model.PUtilsConfig" />
     <pattern value="com.github.ygimenez.model.PUtilsConfig" method="setLogLevel" />
+    <pattern value="com.github.ygimenez.method.Pages" method="lazyPaginate" />
+    <pattern value="com.github.ygimenez.model.InteractPage" method="getCaptions" />
+    <pattern value="com.github.ygimenez.model.InteractPage" method="getStyles" />
+    <pattern value="com.github.ygimenez.model.InteractPage" />
+    <pattern value="com.github.ygimenez.model.InteractPage" method="InteractPage" />
+    <pattern value="com.github.ygimenez.model.InteractPage" method="makeButton" />
+    <pattern value="com.github.ygimenez.model.InteractPage" method="overrideStyle" />
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="JavaScriptSettings">
