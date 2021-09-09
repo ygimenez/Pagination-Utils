@@ -31,7 +31,7 @@ public interface ThrowingBiConsumer<A, B> extends BiConsumer<A, B> {
 		try {
 			acceptThrows(a, b);
 		} catch (final Exception e) {
-			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred during button event execution.", e);
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred during consumer execution.", e);
 
 			throw new RuntimeException(e);
 		}

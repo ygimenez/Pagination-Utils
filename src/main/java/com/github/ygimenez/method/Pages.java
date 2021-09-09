@@ -3,10 +3,7 @@ package com.github.ygimenez.method;
 import com.coder4.emoji.EmojiUtils;
 import com.github.ygimenez.exception.*;
 import com.github.ygimenez.listener.MessageHandler;
-import com.github.ygimenez.model.PUtilsConfig;
-import com.github.ygimenez.model.Page;
-import com.github.ygimenez.model.Paginator;
-import com.github.ygimenez.model.ThrowingBiConsumer;
+import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -20,6 +17,7 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -118,9 +116,9 @@ public class Pages {
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages.
 	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the {@link List} will
-	 *                    define the order of the pages.
+	 * @param msg   The {@link Message} sent which will be paginated.
+	 * @param pages The pages to be shown. The order of the {@link List} will
+	 *              define the order of the pages.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -138,13 +136,13 @@ public class Pages {
 	 * how long the listener will stay active before shutting down itself after a
 	 * no-activity interval.
 	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the {@link List} will
-	 *                    define the order of the pages.
-	 * @param time        The time before the listener automatically stop listening
-	 *                    for further events (recommended: 60).
-	 * @param unit        The time's {@link TimeUnit} (recommended:
-	 *                    {@link TimeUnit#SECONDS}).
+	 * @param msg   The {@link Message} sent which will be paginated.
+	 * @param pages The pages to be shown. The order of the {@link List} will
+	 *              define the order of the pages.
+	 * @param time  The time before the listener automatically stop listening
+	 *              for further events (recommended: 60).
+	 * @param unit  The time's {@link TimeUnit} (recommended:
+	 *              {@link TimeUnit#SECONDS}).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -298,11 +296,11 @@ public class Pages {
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages.
 	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the {@link List} will
-	 *                    define the order of the pages.
-	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pages      The pages to be shown. The order of the {@link List} will
+	 *                   define the order of the pages.
+	 * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                   and {@link Emote#SKIP_FORWARD} buttons.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -320,15 +318,15 @@ public class Pages {
 	 * how long the listener will stay active before shutting down itself after a
 	 * no-activity interval.
 	 *
-	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pages       The pages to be shown. The order of the {@link List} will
-	 *                    define the order of the pages.
-	 * @param time        The time before the listener automatically stop listening
-	 *                    for further events (recommended: 60).
-	 * @param unit        The time's {@link TimeUnit} (recommended:
-	 *                    {@link TimeUnit#SECONDS}).
-	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pages      The pages to be shown. The order of the {@link List} will
+	 *                   define the order of the pages.
+	 * @param time       The time before the listener automatically stop listening
+	 *                   for further events (recommended: 60).
+	 * @param unit       The time's {@link TimeUnit} (recommended:
+	 *                   {@link TimeUnit#SECONDS}).
+	 * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 *                   and {@link Emote#SKIP_FORWARD} buttons.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -561,10 +559,10 @@ public class Pages {
 	 * one {@link Page} per button, adding another button with an existing unicode
 	 * will overwrite the current button's {@link Page}.
 	 *
-	 * @param msg         The {@link Message} sent which will be categorized.
-	 * @param categories  The categories to be shown. The categories are defined by
-	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
-	 *                    {@link Pages} as values.
+	 * @param msg        The {@link Message} sent which will be categorized.
+	 * @param categories The categories to be shown. The categories are defined by
+	 *                   a {@link Map} containing emoji unicodes or emote ids as keys and
+	 *                   {@link Pages} as values.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -585,14 +583,14 @@ public class Pages {
 	 * the listener will stay active before shutting down itself after a no-activity
 	 * interval.
 	 *
-	 * @param msg         The {@link Message} sent which will be categorized.
-	 * @param categories  The categories to be shown. The categories are defined by
-	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
-	 *                    {@link Pages} as values.
-	 * @param time        The time before the listener automatically stop listening
-	 *                    for further events (recommended: 60).
-	 * @param unit        The time's {@link TimeUnit} (recommended:
-	 *                    {@link TimeUnit#SECONDS}).
+	 * @param msg        The {@link Message} sent which will be categorized.
+	 * @param categories The categories to be shown. The categories are defined by
+	 *                   a {@link Map} containing emoji unicodes or emote ids as keys and
+	 *                   {@link Pages} as values.
+	 * @param time       The time before the listener automatically stop listening
+	 *                   for further events (recommended: 60).
+	 * @param unit       The time's {@link TimeUnit} (recommended:
+	 *                   {@link TimeUnit#SECONDS}).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1415,6 +1413,259 @@ public class Pages {
 					if (pg != null) {
 						updatePage(m, pg);
 						currCat = code;
+					}
+
+					setTimeout(timeout, success, m, time, unit);
+
+					if (event.isFromGuild() && event instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+						event.getReaction().removeReaction(u).submit();
+					}
+				}
+			}
+		});
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageLoader, false, 0, null, null);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * You can specify how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageLoader, false, time, unit, null);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageLoader, false, 0, null, canInteract);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * You can specify how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageLoader, false, time, unit, canInteract);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param cache	      Enables {@link Page} caching, saving previously visited pages.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean cache) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageLoader, cache, 0, null, null);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * You can specify how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param cache	      Enables {@link Page} caching, saving previously visited pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean cache, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageLoader, cache, time, unit, null);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param cache	      Enables {@link Page} caching, saving previously visited pages.
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean cache, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageLoader, cache, 0, null, canInteract);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * You can specify how long the listener will stay active before shutting down itself after a
+	 * no-activity interval.
+	 *
+	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
+	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 * @param cache	      Enables {@link Page} caching, saving previously visited pages.
+	 * @param time        The time before the listener automatically stop listening
+	 *                    for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param canInteract {@link Predicate} to determine whether the {@link User}
+	 *                    that pressed the button can interact with it or not.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean cache, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		if (!isActivated()) throw new InvalidStateException();
+		clearReactions(msg);
+
+		List<Page> pageCache = cache ? new ArrayList<>() : null;
+		addReactions(msg, false, false);
+		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+			private int p = 0;
+			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
+			private final Consumer<Void> success = s -> {
+				if (timeout.get() != null)
+					timeout.get().cancel(true);
+				handler.removeEvent(msg);
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+			};
+
+			{
+				setTimeout(timeout, success, msg, time, unit);
+			}
+
+			@Override
+			public void acceptThrows(@Nonnull User u, @Nonnull GenericMessageReactionEvent event) {
+				Message m = null;
+				try {
+					m = event.retrieveMessage().submit().get();
+				} catch (InterruptedException | ExecutionException ignore) {
+				}
+
+				if (canInteract == null || canInteract.test(u)) {
+					MessageReaction.ReactionEmote reaction = event.getReactionEmote();
+					if (u.isBot() || m == null || !event.getMessageId().equals(msg.getId()))
+						return;
+
+					if (checkEmote(reaction, PREVIOUS)) {
+						if (p > 0) {
+							p--;
+							Page pg = cache ? pageCache.get(p) : pageLoader.apply(p);
+
+							updatePage(m, pg);
+						}
+					} else if (checkEmote(reaction, NEXT)) {
+						p++;
+						Page pg;
+						if (cache && pageCache.size() > p) {
+							pg = pageCache.get(p);
+						} else {
+							pg = pageLoader.apply(p);
+							if (pg == null) {
+								p--;
+								return;
+							}
+						}
+
+						if (cache) pageCache.add(pg);
+						updatePage(m, pg);
+					} else if (checkEmote(reaction, CANCEL)) {
+						clearReactions(m, success);
 					}
 
 					setTimeout(timeout, success, m, time, unit);
