@@ -578,13 +578,12 @@ public class Pages {
 							break;
 					}
 
+					m = reloadMessage(m);
 					modifyButtons(m, Map.of(
 							PREVIOUS.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
 							SKIP_BACKWARD.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
-							GOTO_FIRST.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled()
-					));
+							GOTO_FIRST.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
 
-					modifyButtons(m, Map.of(
 							NEXT.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled(),
 							SKIP_FORWARD.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled(),
 							GOTO_LAST.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled()
@@ -1536,13 +1535,12 @@ public class Pages {
 							break;
 					}
 
+					m = reloadMessage(m);
 					modifyButtons(m, Map.of(
 							PREVIOUS.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
 							SKIP_BACKWARD.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
-							GOTO_FIRST.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled()
-					));
+							GOTO_FIRST.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
 
-					modifyButtons(m, Map.of(
 							NEXT.name(), b -> p == pgs.size() - 1 ? b.asDisabled() : b.asEnabled(),
 							SKIP_FORWARD.name(), b -> p == pgs.size() - 1 ? b.asDisabled() : b.asEnabled(),
 							GOTO_LAST.name(), b -> p == pgs.size() - 1 ? b.asDisabled() : b.asEnabled()
@@ -1903,16 +1901,16 @@ public class Pages {
 		}
 	}
 
-	private static void updateButtons(Message m, Page pg, boolean withSkip, boolean withGoto) {
+	private static void updateButtons(Message msg, Page pg, boolean withSkip, boolean withGoto) {
 		if (pg instanceof InteractPage) {
-			if (!m.getReactions().isEmpty()) {
-				clearButtons(m);
-				addButtons((InteractPage) pg, m, withSkip, withGoto);
+			if (!msg.getReactions().isEmpty()) {
+				clearButtons(msg);
+				addButtons((InteractPage) pg, msg, withSkip, withGoto);
 			}
 		} else {
-			if (!m.getActionRows().isEmpty()) {
-				clearButtons(m);
-				addReactions(m, withSkip, withGoto);
+			if (!msg.getActionRows().isEmpty()) {
+				clearButtons(msg);
+				addReactions(msg, withSkip, withGoto);
 			}
 		}
 	}
@@ -1959,6 +1957,14 @@ public class Pages {
 								});
 					}, time, unit)
 			);
+		}
+	}
+
+	public static Message reloadMessage(Message msg) {
+		try {
+			return msg.getChannel().retrieveMessageById(msg.getId()).submit().get();
+		} catch (InterruptedException | ExecutionException e) {
+			return msg;
 		}
 	}
 
