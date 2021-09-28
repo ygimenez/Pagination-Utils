@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
 
 /**
  * Class representing either a {@link Message} or {@link MessageEmbed} object.
@@ -49,7 +49,7 @@ public class InteractPage extends Page {
 		ButtonStyle style = styles.getOrDefault(emt.getStyle(), emt.getStyle());
 
 		if (emt == Emote.NONE) {
-			return Button.secondary(emt.name() + "." + UUID.randomUUID(), "\u200B").asDisabled();
+			return Button.secondary(emt.name() + "." + Objects.hash(Math.random()), "\u200B").asDisabled();
 		} else {
 			return Button.of(style, (ephemeral ? "*" : "") + emt.name(), caption.get(emt), pag.getEmote(emt));
 		}
