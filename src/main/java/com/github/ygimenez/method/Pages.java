@@ -521,8 +521,8 @@ public class Pages {
 								p--;
 								Page pg = pgs.get(p);
 
-								updateButtons(m, pg, skipAmount > 1, fastForward);
 								updatePage(m, pg);
+								updateButtons(m, pg, skipAmount > 1, fastForward);
 							}
 							break;
 						case NEXT:
@@ -530,8 +530,8 @@ public class Pages {
 								p++;
 								Page pg = pgs.get(p);
 
-								updateButtons(m, pg, skipAmount > 1, fastForward);
 								updatePage(m, pg);
+								updateButtons(m, pg, skipAmount > 1, fastForward);
 							}
 							break;
 						case SKIP_BACKWARD:
@@ -539,8 +539,8 @@ public class Pages {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updateButtons(m, pg, skipAmount > 1, fastForward);
 								updatePage(m, pg);
+								updateButtons(m, pg, skipAmount > 1, fastForward);
 							}
 							break;
 						case SKIP_FORWARD:
@@ -548,8 +548,8 @@ public class Pages {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
 								Page pg = pgs.get(p);
 
-								updateButtons(m, pg, skipAmount > 1, fastForward);
 								updatePage(m, pg);
+								updateButtons(m, pg, skipAmount > 1, fastForward);
 							}
 							break;
 						case GOTO_FIRST:
@@ -557,8 +557,8 @@ public class Pages {
 								p = 0;
 								Page pg = pgs.get(p);
 
-								updateButtons(m, pg, skipAmount > 1, fastForward);
 								updatePage(m, pg);
+								updateButtons(m, pg, skipAmount > 1, fastForward);
 							}
 							break;
 						case GOTO_LAST:
@@ -566,8 +566,8 @@ public class Pages {
 								p = maxP;
 								Page pg = pgs.get(p);
 
-								updateButtons(m, pg, skipAmount > 1, fastForward);
 								updatePage(m, pg);
+								updateButtons(m, pg, skipAmount > 1, fastForward);
 							}
 							break;
 						case CANCEL:
@@ -766,7 +766,6 @@ public class Pages {
 						return;
 					}
 
-					modifyButtons(m, Map.of(currCat.getId(), Button::asEnabled));
 
 					setTimeout(timeout, success, m, time, unit);
 
@@ -776,7 +775,10 @@ public class Pages {
 						currCat = emoji;
 					}
 
-					modifyButtons(m, Map.of(currCat.getId(), Button::asDisabled));
+					modifyButtons(m, Map.of(
+							emoji.getId(), Button::asEnabled,
+							currCat.getId(), Button::asDisabled
+					));
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1569,8 +1571,6 @@ public class Pages {
 						}
 					}
 
-					modifyButtons(m, Map.of(currCat.getId(), Button::asEnabled));
-
 					Page pg = cats.get(emoji);
 					if (pg != null) {
 						updatePage(m, pg);
@@ -1579,7 +1579,10 @@ public class Pages {
 
 					setTimeout(timeout, success, m, time, unit);
 
-					modifyButtons(m, Map.of(currCat.getId(), Button::asDisabled));
+					modifyButtons(m, Map.of(
+							emoji.getId(), Button::asEnabled,
+							currCat.getId(), Button::asDisabled
+					));
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1828,8 +1831,8 @@ public class Pages {
 								p--;
 								Page pg = cache ? pageCache.get(p) : pageLoader.apply(p);
 
-								updateButtons(m, pg, false, false);
 								updatePage(m, pg);
+								updateButtons(m, pg, false, false);
 							}
 							break;
 						case NEXT:
@@ -1847,8 +1850,8 @@ public class Pages {
 
 							if (cache) pageCache.add(pg);
 
-							updateButtons(m, pg, false, false);
 							updatePage(m, pg);
+							updateButtons(m, pg, false, false);
 							break;
 						case CANCEL:
 							clearButtons(m, success);
