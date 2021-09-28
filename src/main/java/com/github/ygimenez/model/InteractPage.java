@@ -55,11 +55,11 @@ public class InteractPage extends Page {
 	}
 
 	public Button makeButton(Emoji emj) {
-		return Button.secondary((ephemeral ? "*" : "") + Emote.NONE.name() + "." + System.currentTimeMillis(), emj);
+		return Button.secondary((ephemeral ? "*" : "") + emj.getId(), emj);
 	}
 
 	public Button makeButton(Emoji emj, String caption) {
-		return Button.of(ButtonStyle.SECONDARY, (ephemeral ? "*" : "") + Emote.NONE.name() + "." + System.currentTimeMillis(), caption, emj);
+		return Button.of(ButtonStyle.SECONDARY, (ephemeral ? "*" : "") + emj.getId(), caption, emj);
 	}
 
 	public boolean isEphemeral() {

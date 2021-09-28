@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.ygimenez.type.Emote.*;
@@ -577,6 +578,18 @@ public class Pages {
 							break;
 					}
 
+					modifyButtons(m, Map.of(
+							PREVIOUS.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
+							SKIP_BACKWARD.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
+							GOTO_FIRST.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled()
+					));
+
+					modifyButtons(m, Map.of(
+							NEXT.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled(),
+							SKIP_FORWARD.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled(),
+							GOTO_LAST.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled()
+					));
+
 					setTimeout(timeout, success, m, time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -702,10 +715,10 @@ public class Pages {
 					row = new ArrayList<>();
 				}
 
-				row.add(Button.secondary(k.getName() + "." + System.currentTimeMillis(), k));
+				row.add(Button.secondary(k.getId(), k));
 			}
 
-			msg.editMessage(msg).setActionRows(rows).submit();
+			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : cats.keySet()) {
 				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
@@ -761,6 +774,8 @@ public class Pages {
 						return;
 					}
 
+					modifyButtons(m, Map.of(currCat.getId(), Button::asEnabled));
+
 					setTimeout(timeout, success, m, time, unit);
 
 					Page pg = cats.get(emoji);
@@ -768,6 +783,8 @@ public class Pages {
 						updatePage(m, pg);
 						currCat = emoji;
 					}
+
+					modifyButtons(m, Map.of(currCat.getId(), Button::asDisabled));
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
@@ -948,8 +965,10 @@ public class Pages {
 		for (Emoji k : btns.keySet()) {
 			msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 		}
+
 		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
 			msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
 			private final Consumer<Void> success = s -> {
@@ -1390,10 +1409,10 @@ public class Pages {
 						row = new ArrayList<>();
 					}
 
-					row.add(Button.secondary(k.getName() + "." + System.currentTimeMillis(), k));
+					row.add(Button.secondary(k.getId(), k));
 				}
 
-				msg.editMessage(msg).setActionRows(rows).submit();
+				msg.editMessageComponents(rows).submit();
 			} else {
 				addReactions(msg, skipAmount > 1, fastForward);
 				for (Emoji k : pgs.get(0).keySet()) {
@@ -1494,6 +1513,18 @@ public class Pages {
 							break;
 					}
 
+					modifyButtons(m, Map.of(
+							PREVIOUS.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
+							SKIP_BACKWARD.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
+							GOTO_FIRST.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled()
+					));
+
+					modifyButtons(m, Map.of(
+							NEXT.name(), b -> p == pgs.size() - 1 ? b.asDisabled() : b.asEnabled(),
+							SKIP_FORWARD.name(), b -> p == pgs.size() - 1 ? b.asDisabled() : b.asEnabled(),
+							GOTO_LAST.name(), b -> p == pgs.size() - 1 ? b.asDisabled() : b.asEnabled()
+					));
+
 					Map<Emoji, Page> cats = pgs.get(p);
 					if (update) {
 						currCat = null;
@@ -1514,10 +1545,10 @@ public class Pages {
 										row = new ArrayList<>();
 									}
 
-									row.add(Button.secondary(k.getName() + "." + System.currentTimeMillis(), k));
+									row.add(Button.secondary(k.getId(), k));
 								}
 
-								msg.editMessage(msg).setActionRows(rows).submit();
+								msg.editMessageComponents(rows).submit();
 							} else {
 								addReactions(msg, skipAmount > 1, fastForward);
 								for (Emoji k : cats.keySet()) {
@@ -1532,6 +1563,8 @@ public class Pages {
 						}
 					}
 
+					modifyButtons(m, Map.of(currCat.getId(), Button::asEnabled));
+
 					Page pg = cats.get(emoji);
 					if (pg != null) {
 						updatePage(m, pg);
@@ -1539,6 +1572,8 @@ public class Pages {
 					}
 
 					setTimeout(timeout, success, m, time, unit);
+
+					modifyButtons(m, Map.of(currCat.getId(), Button::asDisabled));
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
@@ -1920,7 +1955,7 @@ public class Pages {
 	public static void clearButtons(Message msg) {
 		if (!msg.getActionRows().isEmpty())
 			try {
-				msg.editMessage(msg).setActionRows().submit();
+				msg.editMessageComponents().submit();
 			} catch (InsufficientPermissionException | IllegalStateException ignore) {
 			}
 
@@ -1957,6 +1992,22 @@ public class Pages {
 		}
 
 		callback.accept(null);
+	}
+
+	public static void modifyButtons(Message msg, Map<String, Function<Button, Button>> changes) {
+		List<ActionRow> rows = new ArrayList<>(msg.getActionRows());
+
+		for (ActionRow ar : rows) {
+			List<Component> row = ar.getComponents();
+			for (int i = 0; i < row.size(); i++) {
+				Component c = row.get(i);
+				if (c instanceof Button && changes.containsKey(c.getId())) {
+					row.set(i, changes.get(c.getId()).apply((Button) c));
+				}
+			}
+		}
+
+		msg.editMessageComponents(rows).submit();
 	}
 
 	/**
@@ -2008,6 +2059,6 @@ public class Pages {
 			rows.add(ActionRow.of(row));
 		}
 
-		msg.editMessage(msg).setActionRows(rows).submit();
+		msg.editMessageComponents(rows).submit();
 	}
 }
