@@ -490,7 +490,7 @@ public class Pages {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
@@ -716,14 +716,21 @@ public class Pages {
 				row.add(Button.secondary(k.getId(), k));
 			}
 
-			subGet(msg.editMessageComponents(rows));
+			if (rows.size() == 5) {
+				ActionRow ar = rows.get(4);
+				ar.getComponents().add(Button.danger(CANCEL.name(), paginator.getEmote(CANCEL)));
+				rows.set(4, ar);
+			}
+
+			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : cats.keySet()) {
-				subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
+				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 			}
+
+			msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 		}
 
-		subGet(msg.addReaction(paginator.getStringEmote(CANCEL)));
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private Emoji currCat = null;
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
@@ -731,7 +738,7 @@ public class Pages {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
@@ -979,14 +986,14 @@ public class Pages {
 					rows.set(4, ar);
 				}
 
-			subGet(msg.editMessageComponents(rows));
+			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : btns.keySet()) {
-				subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
+				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 			}
 
 			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-				subGet(msg.addReaction(paginator.getStringEmote(CANCEL)));
+				msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -996,7 +1003,7 @@ public class Pages {
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
 				if (onCancel != null) onCancel.accept(msg);
-				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
@@ -1429,18 +1436,28 @@ public class Pages {
 					row.add(Button.secondary(k.getId(), k));
 				}
 
-				subGet(msg.editMessageComponents(rows));
+				if (rows.size() == 5) {
+					ActionRow ar = rows.get(4);
+					ar.getComponents().add(Button.danger(CANCEL.name(), paginator.getEmote(CANCEL)));
+					rows.set(4, ar);
+				}
+
+				msg.editMessageComponents(rows).submit();
 			} else {
 				addReactions(msg, skipAmount > 1, fastForward);
 				for (Emoji k : pgs.get(0).keySet()) {
-					subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
+					msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 				}
+
+				msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 			}
 		} else {
 			addReactions(msg, skipAmount > 1, fastForward);
 			for (Emoji k : pgs.get(0).keySet()) {
-				subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
+				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 			}
+
+			msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -1451,7 +1468,7 @@ public class Pages {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
@@ -1561,18 +1578,28 @@ public class Pages {
 									row.add(Button.secondary(k.getId(), k));
 								}
 
+								if (rows.size() == 5) {
+									ActionRow ar = rows.get(4);
+									ar.getComponents().add(Button.danger(CANCEL.name(), paginator.getEmote(CANCEL)));
+									rows.set(4, ar);
+								}
+
 								subGet(msg.editMessageComponents(rows));
 							} else {
 								addReactions(msg, skipAmount > 1, fastForward);
 								for (Emoji k : cats.keySet()) {
-									subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
+									msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 								}
+
+								msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 							}
 						} else {
 							addReactions(msg, skipAmount > 1, fastForward);
 							for (Emoji k : cats.keySet()) {
-								subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
+								msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 							}
+
+							msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 						}
 					}
 
@@ -1805,7 +1832,7 @@ public class Pages {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
+				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
@@ -1885,9 +1912,9 @@ public class Pages {
 		if (p == null) throw new NullPageException();
 
 		if (p.getContent() instanceof Message) {
-			subGet(msg.editMessage((Message) p.getContent()));
+			msg.editMessage((Message) p.getContent()).submit();
 		} else if (p.getContent() instanceof MessageEmbed) {
-			subGet(msg.editMessageEmbeds((MessageEmbed) p.getContent()));
+			msg.editMessageEmbeds((MessageEmbed) p.getContent()).submit();
 		}
 	}
 
@@ -1980,13 +2007,13 @@ public class Pages {
 	public static void clearReactions(Message msg) {
 		try {
 			if (msg.getChannel().getType().isGuild())
-				subGet(msg.clearReactions());
+				msg.clearReactions().submit();
 			else for (MessageReaction r : msg.getReactions()) {
-				subGet(r.removeReaction());
+				r.removeReaction().submit();
 			}
 		} catch (InsufficientPermissionException | IllegalStateException e) {
 			for (MessageReaction r : msg.getReactions()) {
-				subGet(r.removeReaction());
+				r.removeReaction().submit();
 			}
 		}
 	}
