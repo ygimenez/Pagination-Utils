@@ -572,7 +572,7 @@ public class Pages {
 							}
 							break;
 						case CANCEL:
-							clearButtons(m, success);
+							finalizeEvent(m, success);
 							break;
 					}
 
@@ -764,7 +764,7 @@ public class Pages {
 					if (emoji == null || emoji.equals(currCat)) return;
 
 					if (emt == CANCEL) {
-						clearButtons(m, success);
+						finalizeEvent(m, success);
 						return;
 					}
 
@@ -1027,7 +1027,7 @@ public class Pages {
 					}
 
 					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && emt == CANCEL) {
-						clearButtons(m, success);
+						finalizeEvent(m, success);
 						return;
 					}
 
@@ -1522,7 +1522,7 @@ public class Pages {
 							}
 							break;
 						case CANCEL:
-							clearButtons(m, success);
+							finalizeEvent(m, success);
 							break;
 					}
 
@@ -1860,7 +1860,7 @@ public class Pages {
 							updateButtons(m, pg, false, false);
 							break;
 						case CANCEL:
-							clearButtons(m, success);
+							finalizeEvent(m, success);
 							break;
 					}
 
@@ -2009,18 +2009,9 @@ public class Pages {
 	 * @param msg      The {@link Message} to have reactions removed from.
 	 * @param callback Action to be executed after removing reactions.
 	 */
-	public static void clearButtons(Message msg, Consumer<Void> callback) {
-		try {
-			if (msg.getChannel().getType().isGuild())
-				subGet(msg.clearReactions());
-			else for (MessageReaction r : msg.getReactions()) {
-				subGet(r.removeReaction());
-			}
-		} catch (InsufficientPermissionException | IllegalStateException e) {
-			for (MessageReaction r : msg.getReactions()) {
-				subGet(r.removeReaction());
-			}
-		}
+	public static void finalizeEvent(Message msg, Consumer<Void> callback) {
+		clearButtons(msg);
+		clearReactions(msg);
 
 		callback.accept(null);
 	}
