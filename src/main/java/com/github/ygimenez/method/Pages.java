@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -488,7 +489,7 @@ public class Pages {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
 			};
 
 			{
@@ -497,11 +498,7 @@ public class Pages {
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
-				Message m = null;
-				try {
-					m = wrapper.retrieveMessage().submit().get();
-				} catch (InterruptedException | ExecutionException ignore) {
-				}
+				Message m = subGet(wrapper.retrieveMessage());
 
 				if (canInteract == null || canInteract.test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
@@ -592,7 +589,7 @@ public class Pages {
 					setTimeout(timeout, success, m, time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
+						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
 					}
 				}
 			}
@@ -717,14 +714,14 @@ public class Pages {
 				row.add(Button.secondary(k.getId(), k));
 			}
 
-			msg.editMessageComponents(rows).submit();
+			subGet(msg.editMessageComponents(rows));
 		} else {
 			for (Emoji k : cats.keySet()) {
-				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+				subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
 			}
 		}
 
-		msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+		subGet(msg.addReaction(paginator.getStringEmote(CANCEL)));
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private Emoji currCat = null;
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
@@ -732,7 +729,7 @@ public class Pages {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
 			};
 
 			{
@@ -741,11 +738,7 @@ public class Pages {
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
-				Message m = null;
-				try {
-					m = wrapper.retrieveMessage().submit().get();
-				} catch (InterruptedException | ExecutionException ignore) {
-				}
+				Message m = subGet(wrapper.retrieveMessage());
 
 				if (canInteract == null || canInteract.test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
@@ -786,7 +779,7 @@ public class Pages {
 					modifyButtons(m, Map.of(currCat.getId(), Button::asDisabled));
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
+						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
 					}
 				}
 			}
@@ -981,14 +974,14 @@ public class Pages {
 					rows.set(4, ar);
 				}
 
-			msg.editMessageComponents(rows).submit();
+			subGet(msg.editMessageComponents(rows));
 		} else {
 			for (Emoji k : btns.keySet()) {
-				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+				subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
 			}
 
 			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-				msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+				subGet(msg.addReaction(paginator.getStringEmote(CANCEL)));
 		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -998,7 +991,7 @@ public class Pages {
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
 				if (onCancel != null) onCancel.accept(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
 			};
 
 			{
@@ -1007,11 +1000,7 @@ public class Pages {
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
-				Message m = null;
-				try {
-					m = wrapper.retrieveMessage().submit().get();
-				} catch (InterruptedException | ExecutionException ignore) {
-				}
+				Message m = subGet(wrapper.retrieveMessage());
 
 				if (canInteract == null || canInteract.test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
@@ -1046,7 +1035,7 @@ public class Pages {
 					setTimeout(timeout, success, m, time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
+						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
 					}
 				}
 			}
@@ -1434,17 +1423,17 @@ public class Pages {
 					row.add(Button.secondary(k.getId(), k));
 				}
 
-				msg.editMessageComponents(rows).submit();
+				subGet(msg.editMessageComponents(rows));
 			} else {
 				addReactions(msg, skipAmount > 1, fastForward);
 				for (Emoji k : pgs.get(0).keySet()) {
-					msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+					subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
 				}
 			}
 		} else {
 			addReactions(msg, skipAmount > 1, fastForward);
 			for (Emoji k : pgs.get(0).keySet()) {
-				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+				subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
 			}
 		}
 
@@ -1456,7 +1445,7 @@ public class Pages {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
 			};
 
 			{
@@ -1465,11 +1454,7 @@ public class Pages {
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
-				Message m = null;
-				try {
-					m = wrapper.retrieveMessage().submit().get();
-				} catch (InterruptedException | ExecutionException ignore) {
-				}
+				Message m = subGet(wrapper.retrieveMessage());
 
 				if (canInteract == null || canInteract.test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
@@ -1569,17 +1554,17 @@ public class Pages {
 									row.add(Button.secondary(k.getId(), k));
 								}
 
-								msg.editMessageComponents(rows).submit();
+								subGet(msg.editMessageComponents(rows));
 							} else {
 								addReactions(msg, skipAmount > 1, fastForward);
 								for (Emoji k : cats.keySet()) {
-									msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+									subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
 								}
 							}
 						} else {
 							addReactions(msg, skipAmount > 1, fastForward);
 							for (Emoji k : cats.keySet()) {
-								msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+								subGet(msg.addReaction(k.getAsMention().replaceAll("[<>]", "")));
 							}
 						}
 					}
@@ -1597,7 +1582,7 @@ public class Pages {
 					modifyButtons(m, Map.of(currCat.getId(), Button::asDisabled));
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
+						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
 					}
 				}
 			}
@@ -1811,7 +1796,7 @@ public class Pages {
 				if (timeout.get() != null)
 					timeout.get().cancel(true);
 				handler.removeEvent(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
+				if (paginator.isDeleteOnCancel()) subGet(msg.delete());
 			};
 
 			{
@@ -1820,11 +1805,7 @@ public class Pages {
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
-				Message m = null;
-				try {
-					m = wrapper.retrieveMessage().submit().get();
-				} catch (InterruptedException | ExecutionException ignore) {
-				}
+				Message m = subGet(wrapper.retrieveMessage());
 
 				if (canInteract == null || canInteract.test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
@@ -1877,7 +1858,7 @@ public class Pages {
 					setTimeout(timeout, success, m, time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
+						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
 					}
 				}
 			}
@@ -1895,9 +1876,9 @@ public class Pages {
 		if (p == null) throw new NullPageException();
 
 		if (p.getContent() instanceof Message) {
-			msg.editMessage((Message) p.getContent()).submit();
+			subGet(msg.editMessage((Message) p.getContent()));
 		} else if (p.getContent() instanceof MessageEmbed) {
-			msg.editMessageEmbeds((MessageEmbed) p.getContent()).submit();
+			subGet(msg.editMessageEmbeds((MessageEmbed) p.getContent()));
 		}
 	}
 
@@ -1961,10 +1942,22 @@ public class Pages {
 	}
 
 	public static Message reloadMessage(Message msg) {
+		return subGet(msg.getChannel().retrieveMessageById(msg.getId()), msg);
+	}
+
+	public static <T> T subGet(RestAction<T> future) {
 		try {
-			return msg.getChannel().retrieveMessageById(msg.getId()).submit().get();
-		} catch (InterruptedException | ExecutionException e) {
-			return msg;
+			return future.submit().get();
+		} catch (InterruptedException | ExecutionException ignore) {
+			return null;
+		}
+	}
+
+	public static <T> T subGet(RestAction<T> future, T or) {
+		try {
+			return future.submit().get();
+		} catch (InterruptedException | ExecutionException ignore) {
+			return or;
 		}
 	}
 
@@ -1984,19 +1977,19 @@ public class Pages {
 	public static void clearButtons(Message msg) {
 		if (!msg.getActionRows().isEmpty())
 			try {
-				msg.editMessageComponents().submit();
+				subGet(msg.editMessageComponents());
 			} catch (InsufficientPermissionException | IllegalStateException ignore) {
 			}
 
 		try {
 			if (msg.getChannel().getType().isGuild())
-				msg.clearReactions().submit();
+				subGet(msg.clearReactions());
 			else for (MessageReaction r : msg.getReactions()) {
-				r.removeReaction().submit();
+				subGet(r.removeReaction());
 			}
 		} catch (InsufficientPermissionException | IllegalStateException e) {
 			for (MessageReaction r : msg.getReactions()) {
-				r.removeReaction().submit();
+				subGet(r.removeReaction());
 			}
 		}
 	}
@@ -2010,13 +2003,13 @@ public class Pages {
 	public static void clearButtons(Message msg, Consumer<Void> callback) {
 		try {
 			if (msg.getChannel().getType().isGuild())
-				msg.clearReactions().submit();
+				subGet(msg.clearReactions());
 			else for (MessageReaction r : msg.getReactions()) {
-				r.removeReaction().submit();
+				subGet(r.removeReaction());
 			}
 		} catch (InsufficientPermissionException | IllegalStateException e) {
 			for (MessageReaction r : msg.getReactions()) {
-				r.removeReaction().submit();
+				subGet(r.removeReaction());
 			}
 		}
 
@@ -2036,7 +2029,7 @@ public class Pages {
 			}
 		}
 
-		msg.editMessageComponents(rows).submit();
+		subGet(msg.editMessageComponents(rows));
 	}
 
 	/**
@@ -2047,15 +2040,15 @@ public class Pages {
 	public static void addReactions(Message msg, boolean withSkip, boolean withGoto) {
 		if (!msg.getActionRows().isEmpty()) clearButtons(msg);
 
-		if (withGoto) msg.addReaction(paginator.getStringEmote(GOTO_FIRST)).submit();
-		if (withSkip) msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)).submit();
+		if (withGoto) subGet(msg.addReaction(paginator.getStringEmote(GOTO_FIRST)));
+		if (withSkip) subGet(msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)));
 
-		msg.addReaction(paginator.getStringEmote(PREVIOUS)).submit();
-		msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
-		msg.addReaction(paginator.getStringEmote(NEXT)).submit();
+		subGet(msg.addReaction(paginator.getStringEmote(PREVIOUS)));
+		subGet(msg.addReaction(paginator.getStringEmote(CANCEL)));
+		subGet(msg.addReaction(paginator.getStringEmote(NEXT)));
 
-		if (withSkip) msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)).submit();
-		if (withGoto) msg.addReaction(paginator.getStringEmote(GOTO_LAST)).submit();
+		if (withSkip) subGet(msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)));
+		if (withGoto) subGet(msg.addReaction(paginator.getStringEmote(GOTO_LAST)));
 	}
 
 	/**
@@ -2088,6 +2081,6 @@ public class Pages {
 			rows.add(ActionRow.of(row));
 		}
 
-		msg.editMessageComponents(rows).submit();
+		subGet(msg.editMessageComponents(rows));
 	}
 }
