@@ -1,6 +1,7 @@
 package com.github.ygimenez.model;
 
 import com.github.ygimenez.type.Emote;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class InteractPage extends Page {
 	private final Map<ButtonStyle, ButtonStyle> styles = new EnumMap<>(ButtonStyle.class);
 	private final Map<Emote, String> caption = new EnumMap<>(Emote.class);
+	private final boolean ephemeral;
 
 	/**
 	 * An {@link InteractPage} object to be used in this library's methods. Currently, only {@link Message}
@@ -25,8 +27,9 @@ public class InteractPage extends Page {
 	 * @param content The {@link Message}/{@link MessageEmbed} object to be used as pages.
 	 * @throws IllegalArgumentException Thrown if argument is not a {@link Message} nor {@link MessageEmbed}.
 	 */
-	public InteractPage(@NotNull Object content) throws IllegalArgumentException {
+	public InteractPage(@NotNull Object content, boolean ephemeral) throws IllegalArgumentException {
 		super(content);
+		this.ephemeral = ephemeral;
 	}
 
 	public Map<ButtonStyle, ButtonStyle> getStyles() {
@@ -45,9 +48,21 @@ public class InteractPage extends Page {
 		ButtonStyle style = styles.getOrDefault(emt.getStyle(), emt.getStyle());
 
 		if (emt == Emote.NONE) {
-			return Button.secondary(emt.name() + System.currentTimeMillis(), "").asDisabled();
+			return Button.secondary(emt.name() + "." + System.currentTimeMillis(), "").asDisabled();
 		} else {
-			return Button.of(style, emt.name(), caption.get(emt), pag.getEmote(emt));
+			return Button.of(style, (ephemeral ? "*" : "") + emt.name(), caption.get(emt), pag.getEmote(emt));
 		}
+	}
+
+	public Button makeButton(Emoji emj) {
+		return Button.secondary((ephemeral ? "*" : "") + Emote.NONE.name() + "." + System.currentTimeMillis(), emj);
+	}
+
+	public Button makeButton(Emoji emj, String caption) {
+		return Button.of(ButtonStyle.SECONDARY, (ephemeral ? "*" : "") + Emote.NONE.name() + "." + System.currentTimeMillis(), caption, emj);
+	}
+
+	public boolean isEphemeral() {
+		return ephemeral;
 	}
 }

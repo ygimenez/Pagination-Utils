@@ -133,7 +133,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.3.0_324</version>
+            <version>4.3.0_331</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

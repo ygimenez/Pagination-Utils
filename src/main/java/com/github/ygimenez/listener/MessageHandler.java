@@ -2,21 +2,26 @@ package com.github.ygimenez.listener;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.PUtilsConfig;
+import com.github.ygimenez.model.PaginationEventWrapper;
 import com.github.ygimenez.model.ThrowingBiConsumer;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.CRC32;
 
@@ -25,24 +30,9 @@ import java.util.zip.CRC32;
  * Only one event is added to the handler to prevent cluttering and unnecessary listeners.
  */
 public class MessageHandler extends ListenerAdapter {
-	private final Map<String, ThrowingBiConsumer<User, GenericMessageReactionEvent>> events = new ConcurrentHashMap<>();
+	private final Map<String, ThrowingBiConsumer<User, PaginationEventWrapper>> events = new ConcurrentHashMap<>();
 	private final Set<String> locks = ConcurrentHashMap.newKeySet();
 	private final CRC32 crc = new CRC32();
-
-	/**
-	 * <strong>DEPRECATED:</strong> Please use {@link #addEvent(Message, ThrowingBiConsumer)} instead.<br>
-	 * <br>
-	 * Adds an event to the handler, which will be executed whenever a button with the same
-	 * ID is pressed.
-	 *
-	 * @param id  The ID of the event.
-	 * @param act The action to be executed when the button is pressed.
-	 */
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	public void addEvent(String id, ThrowingBiConsumer<User, GenericMessageReactionEvent> act) {
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
-		events.put(id, act);
-	}
 
 	/**
 	 * Adds an event to the handler, which will be executed whenever a button with the same
@@ -51,7 +41,7 @@ public class MessageHandler extends ListenerAdapter {
 	 * @param msg The {@link Message} to hold the event.
 	 * @param act The action to be executed when the button is pressed.
 	 */
-	public void addEvent(Message msg, ThrowingBiConsumer<User, GenericMessageReactionEvent> act) {
+	public void addEvent(Message msg, ThrowingBiConsumer<User, PaginationEventWrapper> act) {
 		String id = getEventId(msg);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
 		events.put(id, act);
@@ -74,7 +64,7 @@ public class MessageHandler extends ListenerAdapter {
 	 *
 	 * @return An unmodifiable {@link Map} containing events handled by the library.
 	 */
-	public Map<String, ThrowingBiConsumer<User, GenericMessageReactionEvent>> getEventMap() {
+	public Map<String, ThrowingBiConsumer<User, PaginationEventWrapper>> getEventMap() {
 		return Collections.unmodifiableMap(events);
 	}
 
@@ -124,12 +114,13 @@ public class MessageHandler extends ListenerAdapter {
 
 	private void execute(GenericMessageReactionEvent evt) {
 		evt.retrieveUser().submit().whenComplete((u, t) -> {
+			String id = getEventId(evt);
+
 			if (t != null) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + getEventId(evt), t);
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + id, t);
 				return;
 			}
 
-			String id = getEventId(evt);
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
 			if (u.isBot() || isLocked(id)) {
 				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Triggered by a bot or event is locked. Ignored");
@@ -140,11 +131,48 @@ public class MessageHandler extends ListenerAdapter {
 				if (Pages.getPaginator().isEventLocked()) lock(id);
 
 				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for action for event with ID " + id);
-				ThrowingBiConsumer<User, GenericMessageReactionEvent> act = events.get(id);
+				ThrowingBiConsumer<User, PaginationEventWrapper> act = events.get(id);
 
 				if (act != null) {
 					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action found");
-					act.accept(u, evt);
+					act.accept(u, new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getReaction(), evt.isFromGuild()));
+				} else {
+					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action not found");
+				}
+			} catch (RuntimeException e) {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + getEventId(evt), e);
+			} finally {
+				if (Pages.getPaginator().isEventLocked()) unlock(id);
+			}
+		});
+	}
+
+	@Override
+	public void onButtonClick(@NotNull ButtonClickEvent evt) {
+		evt.deferEdit().submit().whenComplete((hook, t) -> {
+			User u = evt.getUser();
+			String id = getEventId(evt);
+
+			if (t != null) {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + id, t);
+				return;
+			}
+
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
+			if (u.isBot() || isLocked(id)) {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Triggered by a bot or event is locked. Ignored");
+				return;
+			}
+
+			try {
+				if (Pages.getPaginator().isEventLocked()) lock(id);
+
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for action for event with ID " + id);
+				ThrowingBiConsumer<User, PaginationEventWrapper> act = events.get(id);
+
+				if (act != null) {
+					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action found");
+					act.accept(u, new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getButton(), evt.isFromGuild()));
 				} else {
 					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action not found");
 				}
@@ -159,6 +187,14 @@ public class MessageHandler extends ListenerAdapter {
 	private String getEventId(GenericMessageEvent evt) {
 		crc.reset();
 		String rawId = (evt.isFromGuild() ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + evt.getMessageId();
+		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
+
+		return Long.toHexString(crc.getValue());
+	}
+
+	private String getEventId(ButtonClickEvent evt) {
+		crc.reset();
+		String rawId = (evt.getGuild() != null ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());

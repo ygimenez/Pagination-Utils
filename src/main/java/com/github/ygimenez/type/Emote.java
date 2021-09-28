@@ -59,4 +59,12 @@ public enum Emote {
 	public ButtonStyle getStyle() {
 		return style;
 	}
+
+	public static Emote getByEmoji(Emoji emoji) {
+		for (Emote emt : values()) {
+			if (emt.emj.equals(emoji)) return emt;
+		}
+
+		return NONE;
+	}
 }
