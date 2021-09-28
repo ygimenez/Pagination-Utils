@@ -38,7 +38,7 @@ import static com.github.ygimenez.type.Emote.*;
 /**
  * The main class containing all pagination-related methods, including but not limited
  * to {@link #paginate(Message, List)}, {@link #categorize(Message, Map, boolean)},
- * {@link #buttonize(Message, Map, boolean)}, {@link #paginoCategorize(Message, List, List)} and
+ * {@link #buttonize(Message, Map, boolean, boolean)}, {@link #paginoCategorize(Message, List, List)} and
  * {@link #lazyPaginate(Message, ThrowingFunction)}.
  */
 public class Pages {
@@ -813,8 +813,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, showCancelButton, 0, null, null, null);
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean useButtons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException {
+		buttonize(msg, buttons, useButtons, showCancelButton, 0, null, null, null);
 	}
 
 	/**
@@ -841,8 +841,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, showCancelButton, time, unit, null, null);
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		buttonize(msg, buttons, useButtons, showCancelButton, time, unit, null, null);
 	}
 
 	/**
@@ -867,8 +867,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, showCancelButton, 0, null, canInteract, null);
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, null);
 	}
 
 	/**
@@ -898,8 +898,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, showCancelButton, time, unit, canInteract, null);
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		buttonize(msg, buttons, useButtons, showCancelButton, time, unit, canInteract, null);
 	}
 
 	/**
@@ -925,8 +925,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, showCancelButton, 0, null, canInteract, onCancel);
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+		buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, onCancel);
 	}
 
 	/**
@@ -957,17 +957,40 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> btns = Collections.unmodifiableMap(buttons);
 		clearButtons(msg);
 
-		for (Emoji k : btns.keySet()) {
-			msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
-		}
+		if (useButtons) {
+			List<ActionRow> rows = new ArrayList<>();
 
-		if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-			msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+			List<Component> row = new ArrayList<>();
+			for (Emoji k : btns.keySet()) {
+				if (row.size() == 5) {
+					rows.add(ActionRow.of(row));
+					row = new ArrayList<>();
+				}
+
+				row.add(Button.secondary(k.getId(), k));
+			}
+
+			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
+				if (rows.size() == 5) {
+					ActionRow ar = rows.get(4);
+					ar.getComponents().add(Button.danger(CANCEL.name(), paginator.getEmote(CANCEL)));
+					rows.set(4, ar);
+				}
+
+			msg.editMessageComponents(rows).submit();
+		} else {
+			for (Emoji k : btns.keySet()) {
+				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+			}
+
+			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
+				msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
