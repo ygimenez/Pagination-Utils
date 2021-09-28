@@ -1887,13 +1887,11 @@ public class Pages {
 
 	private static void updateButtons(Message msg, Page pg, boolean withSkip, boolean withGoto) {
 		if (pg instanceof InteractPage) {
-			if (!msg.getReactions().isEmpty()) {
-				clearButtons(msg);
+			if (msg.getActionRows().isEmpty()) {
 				addButtons((InteractPage) pg, msg, withSkip, withGoto);
 			}
 		} else {
 			if (!msg.getActionRows().isEmpty()) {
-				clearButtons(msg);
 				addReactions(msg, withSkip, withGoto);
 			}
 		}
