@@ -476,6 +476,7 @@ public class Pages {
 		if (!isActivated() || pages.isEmpty()) throw new InvalidStateException();
 		List<Page> pgs = Collections.unmodifiableList(pages);
 		clearButtons(msg);
+		clearReactions(msg);
 
 		Page pg = pgs.get(0);
 		if (pg instanceof InteractPage) addButtons((InteractPage) pg, msg, skipAmount > 1, fastForward);
@@ -700,6 +701,7 @@ public class Pages {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<Emoji, Page> cats = Collections.unmodifiableMap(categories);
 		clearButtons(msg);
+		clearReactions(msg);
 
 		if (useButtons) {
 			List<ActionRow> rows = new ArrayList<>();
@@ -955,6 +957,7 @@ public class Pages {
 		if (!isActivated()) throw new InvalidStateException();
 		Map<Emoji, ThrowingTriConsumer<Member, Message, InteractionHook>> btns = Collections.unmodifiableMap(buttons);
 		clearButtons(msg);
+		clearReactions(msg);
 
 		if (useButtons) {
 			List<ActionRow> rows = new ArrayList<>();
@@ -1408,6 +1411,7 @@ public class Pages {
 		List<Map<Emoji, Page>> pgs = Collections.unmodifiableList(paginocategories);
 		List<Page> fcs = Collections.unmodifiableList(faces == null ? List.of() : faces);
 		clearButtons(msg);
+		clearReactions(msg);
 
 		if (!fcs.isEmpty()) {
 			Page pg = fcs.get(0);
@@ -1537,6 +1541,7 @@ public class Pages {
 					if (update) {
 						currCat = null;
 						clearButtons(m);
+						clearReactions(m);
 
 						if (!fcs.isEmpty() && pgs.size() == fcs.size()) {
 							Page face = fcs.get(p);
@@ -1779,6 +1784,7 @@ public class Pages {
 	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean cache, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		clearButtons(msg);
+		clearReactions(msg);
 
 		List<Page> pageCache = cache ? new ArrayList<>() : null;
 
@@ -1887,13 +1893,9 @@ public class Pages {
 
 	private static void updateButtons(Message msg, Page pg, boolean withSkip, boolean withGoto) {
 		if (pg instanceof InteractPage) {
-			if (msg.getActionRows().isEmpty()) {
-				addButtons((InteractPage) pg, msg, withSkip, withGoto);
-			}
+			addButtons((InteractPage) pg, msg, withSkip, withGoto);
 		} else {
-			if (!msg.getActionRows().isEmpty()) {
-				addReactions(msg, withSkip, withGoto);
-			}
+			addReactions(msg, withSkip, withGoto);
 		}
 	}
 
@@ -1971,17 +1973,11 @@ public class Pages {
 	}
 
 	/**
-	 * Utility method to clear all reactions and buttons of a message.
+	 * Utility method to clear all reactions of a message.
 	 *
 	 * @param msg The {@link Message} to have reactions/buttons removed from.
 	 */
-	public static void clearButtons(Message msg) {
-		if (!msg.getActionRows().isEmpty())
-			try {
-				subGet(msg.editMessageComponents());
-			} catch (InsufficientPermissionException | IllegalStateException ignore) {
-			}
-
+	public static void clearReactions(Message msg) {
 		try {
 			if (msg.getChannel().getType().isGuild())
 				subGet(msg.clearReactions());
@@ -1992,6 +1988,18 @@ public class Pages {
 			for (MessageReaction r : msg.getReactions()) {
 				subGet(r.removeReaction());
 			}
+		}
+	}
+
+	/**
+	 * Utility method to clear all buttons of a message.
+	 *
+	 * @param msg The {@link Message} to have reactions/buttons removed from.
+	 */
+	public static void clearButtons(Message msg) {
+		try {
+			subGet(msg.editMessageComponents());
+		} catch (InsufficientPermissionException | IllegalStateException ignore) {
 		}
 	}
 
@@ -2039,17 +2047,17 @@ public class Pages {
 	 * @param msg The {@link Message} to have reactions removed from.
 	 */
 	public static void addReactions(Message msg, boolean withSkip, boolean withGoto) {
-		if (!msg.getActionRows().isEmpty()) clearButtons(msg);
+		clearButtons(msg);
 
-		if (withGoto) subGet(msg.addReaction(paginator.getStringEmote(GOTO_FIRST)));
-		if (withSkip) subGet(msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)));
+		if (withGoto) msg.addReaction(paginator.getStringEmote(GOTO_FIRST)).submit();
+		if (withSkip) msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)).submit();
 
-		subGet(msg.addReaction(paginator.getStringEmote(PREVIOUS)));
-		subGet(msg.addReaction(paginator.getStringEmote(CANCEL)));
-		subGet(msg.addReaction(paginator.getStringEmote(NEXT)));
+		msg.addReaction(paginator.getStringEmote(PREVIOUS)).submit();
+		msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+		msg.addReaction(paginator.getStringEmote(NEXT)).submit();
 
-		if (withSkip) subGet(msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)));
-		if (withGoto) subGet(msg.addReaction(paginator.getStringEmote(GOTO_LAST)));
+		if (withSkip) msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)).submit();
+		if (withGoto) msg.addReaction(paginator.getStringEmote(GOTO_LAST)).submit();
 	}
 
 	/**
@@ -2058,7 +2066,7 @@ public class Pages {
 	 * @param msg The {@link Message} to have reactions removed from.
 	 */
 	public static void addButtons(InteractPage page, Message msg, boolean withSkip, boolean withGoto) {
-		if (!msg.getReactions().isEmpty()) clearButtons(msg);
+		clearReactions(msg);
 
 		List<ActionRow> rows = new ArrayList<>();
 
