@@ -1978,7 +1978,8 @@ public class Pages {
 	public static <T> T subGet(RestAction<T> future) {
 		try {
 			return future.submit().get();
-		} catch (InterruptedException | ExecutionException ignore) {
+		} catch (InterruptedException | ExecutionException e) {
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Exception during future execution:", e);
 			return null;
 		}
 	}
@@ -1986,7 +1987,8 @@ public class Pages {
 	public static <T> T subGet(RestAction<T> future, T or) {
 		try {
 			return future.submit().get();
-		} catch (InterruptedException | ExecutionException ignore) {
+		} catch (InterruptedException | ExecutionException e) {
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Exception during future execution:", e);
 			return or;
 		}
 	}
@@ -2026,7 +2028,8 @@ public class Pages {
 	public static void clearButtons(Message msg) {
 		try {
 			subGet(msg.editMessageComponents());
-		} catch (InsufficientPermissionException | IllegalStateException ignore) {
+		} catch (InsufficientPermissionException | IllegalStateException e) {
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Not enough permissions to clear message reactions:", e);
 		}
 	}
 
