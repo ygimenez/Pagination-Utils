@@ -123,7 +123,7 @@ public class MessageHandler extends ListenerAdapter {
 
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
 			if (u.isBot() || isLocked(id)) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Triggered by a bot or event is locked. Ignored");
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event" + id + " was triggered by a bot or is locked. Ignored");
 				return;
 			}
 
@@ -160,7 +160,7 @@ public class MessageHandler extends ListenerAdapter {
 
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
 			if (u.isBot() || isLocked(id)) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Triggered by a bot or event is locked. Ignored");
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event" + id + " was triggered by a bot or is locked. Ignored");
 				return;
 			}
 

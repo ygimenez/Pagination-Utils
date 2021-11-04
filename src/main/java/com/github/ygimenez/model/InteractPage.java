@@ -28,9 +28,9 @@ public class InteractPage extends Page {
 	 * @param content The {@link Message}/{@link MessageEmbed} object to be used as pages.
 	 * @throws IllegalArgumentException Thrown if argument is not a {@link Message} nor {@link MessageEmbed}.
 	 */
-	public InteractPage(@NotNull Object content, boolean ephemeral) throws IllegalArgumentException {
+	public InteractPage(@NotNull Object content) throws IllegalArgumentException {
 		super(content);
-		this.ephemeral = ephemeral;
+		this.ephemeral = false; //Attribute currently unused
 	}
 
 	public Map<ButtonStyle, ButtonStyle> getStyles() {

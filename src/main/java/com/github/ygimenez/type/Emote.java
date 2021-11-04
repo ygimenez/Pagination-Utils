@@ -3,6 +3,8 @@ package com.github.ygimenez.type;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
+import java.util.Objects;
+
 /**
  * Enumerator representing values required by non-dynamic buttons.
  */
@@ -62,7 +64,7 @@ public enum Emote {
 
 	public static Emote getByEmoji(Emoji emoji) {
 		for (Emote emt : values()) {
-			if (emt.emj.equals(emoji)) return emt;
+			if (Objects.equals(emt.emj, emoji)) return emt;
 		}
 
 		return NONE;
