@@ -977,13 +977,13 @@ public class Pages {
 				row.add(Button.secondary(k.getId(), k));
 			}
 
-			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-				if (rows.size() == 5) {
-					ActionRow ar = rows.get(4);
-					ar.getComponents().add(Button.danger(CANCEL.name(), paginator.getEmote(CANCEL)));
-					rows.set(4, ar);
+			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) {
+				if (row.size() == 5) {
+					row.set(4, Button.danger(CANCEL.name(), paginator.getEmote(CANCEL)));
 				}
+			}
 
+			rows.add(ActionRow.of(row));
 			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : btns.keySet()) {
