@@ -1,6 +1,8 @@
 package com.github.ygimenez.type;
 
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 import java.util.Objects;
@@ -68,5 +70,23 @@ public enum Emote {
 		}
 
 		return NONE;
+	}
+
+	public static boolean isCustom(Button btn) {
+		if (btn.getId() == null) return true;
+		else for (Emote emt : values()) {
+			if (emt.name().equals(btn.getId())) return false;
+		}
+
+		return true;
+	}
+
+	public static boolean isCustom(MessageReaction.ReactionEmote react) {
+		Emoji emj = Emoji.fromMarkdown(react.getAsReactionCode());
+		for (Emote emt : values()) {
+			if (emt.emj.equals(emj)) return false;
+		}
+
+		return true;
 	}
 }
