@@ -89,4 +89,8 @@ public enum Emote {
 
 		return true;
 	}
+
+	public static String getId(Emoji emj) {
+			return emj.isCustom() ? emj.getId() : emj.getName();
+	}
 }

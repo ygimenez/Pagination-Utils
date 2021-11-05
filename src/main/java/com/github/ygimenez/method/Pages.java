@@ -504,9 +504,10 @@ public class Pages {
 						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
-						String id = ((Button) wrapper.getContent()).getId();
-						if (id != null && !id.contains(".")) {
-							emt = Emote.valueOf(id.replace("*", ""));
+						Button btn = (Button) wrapper.getContent();
+
+						if (btn.getId() != null && !Emote.isCustom(btn) && !btn.getId().contains(".")) {
+							emt = Emote.valueOf(btn.getId().replace("*", ""));
 						}
 					}
 
@@ -707,14 +708,7 @@ public class Pages {
 					row = new ArrayList<>();
 				}
 
-				String id;
-				if (k.isCustom()) {
-					id = k.getId();
-				} else {
-					id = k.getName();
-				}
-
-				row.add(Button.secondary(id, k));
+				row.add(Button.secondary(Emote.getId(k), k));
 			}
 
 			Button button = Button.danger(CANCEL.name(), paginator.getEmote(CANCEL));
@@ -787,8 +781,8 @@ public class Pages {
 					}
 
 					modifyButtons(m, Map.of(
-							emoji.getId(), Button::asEnabled,
-							currCat.getId(), Button::asDisabled
+							Emote.getId(emoji), Button::asEnabled,
+							Emote.getId(currCat), Button::asDisabled
 					));
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -978,14 +972,7 @@ public class Pages {
 					row = new ArrayList<>();
 				}
 
-				String id;
-				if (k.isCustom()) {
-					id = k.getId();
-				} else {
-					id = k.getName();
-				}
-
-				Button button = Button.secondary(id, k);
+				Button button = Button.secondary(Emote.getId(k), k);
 				row.add(button);
 			}
 
@@ -1299,9 +1286,10 @@ public class Pages {
 						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
-						String id = ((Button) wrapper.getContent()).getId();
-						if (id != null && !id.contains(".")) {
-							emt = Emote.valueOf(id.replace("*", ""));
+						Button btn = (Button) wrapper.getContent();
+
+						if (btn.getId() != null && !Emote.isCustom(btn) && !btn.getId().contains(".")) {
+							emt = Emote.valueOf(btn.getId().replace("*", ""));
 						}
 					}
 
