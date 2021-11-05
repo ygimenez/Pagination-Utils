@@ -57,9 +57,8 @@
                 <configuration>
                     <source>9</source>
                     <target>9</target>
-                    <fork>true</fork>
                     <compilerArgs>
-                        <arg>-J--add-opens=java.base/java.util=ALL-UNNAMED</arg>
+                        <arg>--add-opens java.base/java.util=ALL-UNNAMED</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
