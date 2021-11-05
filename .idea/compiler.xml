@@ -9,6 +9,15 @@
         <module name="Pagination-Utils" />
         <module name="PaginationUtils" />
       </profile>
+      <profile name="Annotation profile for Unknown" enabled="true">
+        <sourceOutputDir name="../target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name=".mvn" />
+      </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name=".mvn" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
