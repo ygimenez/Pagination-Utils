@@ -717,12 +717,14 @@ public class Pages {
 				row.add(Button.secondary(id, k));
 			}
 
-			if (rows.size() == 5) {
-				ActionRow ar = rows.get(4);
-				ar.getComponents().add(Button.danger(CANCEL.name(), paginator.getEmote(CANCEL)));
-				rows.set(4, ar);
+			Button button = Button.danger(CANCEL.name(), paginator.getEmote(CANCEL));
+			if (row.size() == 5) {
+				row.set(4, button);
+			} else {
+				row.add(button);
 			}
 
+			rows.add(ActionRow.of(row));
 			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : cats.keySet()) {
