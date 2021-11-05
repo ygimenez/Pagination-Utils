@@ -276,6 +276,9 @@ This library is available for manual installation and through Jitpack:
 Gradle:
 
 ```gradle
+repositories {
+    maven { url 'https://jitpack.io' }
+}
 dependencies {
     implementation group: 'com.github.ygimenez', name: 'Pagination-Utils', version: 'VERSION'
 }
