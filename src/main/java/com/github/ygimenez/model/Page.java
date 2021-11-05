@@ -12,7 +12,7 @@ public class Page {
 	private final Object content;
 
 	/**
-	 * A {@link Page} object to be used in this library's methods. Currently only {@link Message}
+	 * A {@link Page} object to be used in this library's methods. Currently, only {@link Message}
 	 * and {@link MessageEmbed} are supported.
 	 * 
 	 * @param content The {@link Message}/{@link MessageEmbed} object to be used as pages.
