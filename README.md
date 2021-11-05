@@ -297,5 +297,5 @@ Maven:
 
 ## Feedback
 
-If you have any issues using this library, feel free to create a new issue on this repository and I'll review it as soon
+If you have any issues using this library, feel free to create a new issue or contact me on [my server](https://discord.com/invite/9sgkzna) and I'll review it as soon
 as possible!

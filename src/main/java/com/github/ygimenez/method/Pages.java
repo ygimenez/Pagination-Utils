@@ -772,7 +772,10 @@ public class Pages {
 						return;
 					}
 
-					setTimeout(timeout, success, m, time, unit);
+					modifyButtons(m, Map.of(
+							Emote.getId(emoji), Button::asEnabled,
+							Emote.getId(currCat), Button::asDisabled
+					));
 
 					Page pg = cats.get(emoji);
 					if (pg != null) {
@@ -780,10 +783,7 @@ public class Pages {
 						currCat = emoji;
 					}
 
-					modifyButtons(m, Map.of(
-							Emote.getId(emoji), Button::asEnabled,
-							Emote.getId(currCat), Button::asDisabled
-					));
+					setTimeout(timeout, success, m, time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
