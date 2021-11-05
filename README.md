@@ -153,7 +153,7 @@ To categorize it's almost the same process as paginating, however, the type of c
 of `ArrayList`:
 
 ```java
-HashMap<String, Page> categories = new HashMap<>();
+HashMap<Emoji, Page> categories = new HashMap<>();
 MessageBuilder mb = new MessageBuilder();
 
 // Manually adding 3 categories to the map, you could use some kind of loop to fill it (see https://emojipedia.org/ for unicodes)
