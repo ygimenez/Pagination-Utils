@@ -772,15 +772,15 @@ public class Pages {
 						return;
 					}
 
-					modifyButtons(m, Map.of(
-							Emote.getId(emoji), Button::asEnabled,
-							Emote.getId(currCat), Button::asDisabled
-					));
-
 					Page pg = cats.get(emoji);
 					if (pg != null) {
+						if (currCat != null) {
+							modifyButtons(m, Map.of(Emote.getId(currCat), Button::asEnabled));
+						}
+
 						updatePage(m, pg);
 						currCat = emoji;
+						modifyButtons(m, Map.of(Emote.getId(currCat), Button::asDisabled));
 					}
 
 					setTimeout(timeout, success, m, time, unit);
