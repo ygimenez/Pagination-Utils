@@ -11,8 +11,8 @@ import java.util.function.BiConsumer;
  * <p>This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #accept(Object, Object)}.
  *
- * @param <A> the type of the first argument to the operation
- * @param <B> the type of the second argument to the operation
+ * @param <A> the type of the first argument to the operation.
+ * @param <B> the type of the second argument to the operation.
  */
 @FunctionalInterface
 public interface ThrowingBiConsumer<A, B> extends BiConsumer<A, B> {
@@ -20,8 +20,8 @@ public interface ThrowingBiConsumer<A, B> extends BiConsumer<A, B> {
 	/**
 	 * Performs this operation on the given arguments.
 	 *
-	 * @param a the first input argument
-	 * @param b the second input argument
+	 * @param a the first input argument.
+	 * @param b the second input argument.
 	 * @throws RuntimeException Thrown if any exception happens during lambda execution.
 	 */
 	void acceptThrows(A a, B b) throws RuntimeException;

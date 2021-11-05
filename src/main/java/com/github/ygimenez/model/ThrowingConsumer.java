@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  * <p>This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #accept(Object)}.
  *
- * @param <A> the type of the first argument to the operation
+ * @param <A> the type of the first argument to the operation.
  */
 @FunctionalInterface
 public interface ThrowingConsumer<A> extends Consumer<A> {
@@ -19,7 +19,7 @@ public interface ThrowingConsumer<A> extends Consumer<A> {
 	/**
 	 * Performs this operation on the given arguments.
 	 *
-	 * @param a the first input argument
+	 * @param a the first input argument.
 	 * @throws RuntimeException Thrown if any exception happens during lambda execution.
 	 */
 	void acceptThrows(A a) throws RuntimeException;

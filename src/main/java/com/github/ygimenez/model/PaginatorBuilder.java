@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * {@link Paginator}'s builder, this class allows you to customize Pagination-Utils' behavior
- * as you like. <br>
+ * as you like.<br>
  * If you want a quick setup, use {@link #createSimplePaginator(Object)}.
  */
 public class PaginatorBuilder {

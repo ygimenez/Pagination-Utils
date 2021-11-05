@@ -33,8 +33,7 @@ import static com.github.ygimenez.type.Emote.*;
 
 /**
  * The main class containing all pagination-related methods, including but not limited
- * to {@link #paginate(Message, List, boolean)}, {@link #categorize(Message, Map, boolean)},
- * {@link #buttonize(Message, Map, boolean, boolean)} and {@link #lazyPaginate(Message, ThrowingFunction, boolean)}.
+ * to {@link #paginate}, {@link #categorize}, {@link #buttonize} and {@link #lazyPaginate}.
  */
 public class Pages {
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -70,7 +69,7 @@ public class Pages {
 	}
 
 	/**
-	 * Removes current button handler, allowing another {@link #activate(Paginator)} call. <br>
+	 * Removes current button handler, allowing another {@link #activate(Paginator)} call.<br>
 	 * <br>
 	 * Using this method without activating beforehand will do nothing.
 	 */
@@ -799,6 +798,7 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
@@ -823,6 +823,7 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
 	 *                         listening for further events (recommended: 60).
@@ -850,6 +851,7 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
@@ -877,6 +879,7 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
 	 *                         listening for further events (recommended: 60).
@@ -907,6 +910,7 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
@@ -935,6 +939,7 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
 	 *                         listening for further events (recommended: 60).
@@ -1041,7 +1046,7 @@ public class Pages {
 						hook = null;
 					}
 
-					btns.get(emoji).accept(new ButtonWrapper(wrapper.getMember(), hook, m));
+					btns.get(emoji).accept(new ButtonWrapper(wrapper.getUser(), hook, m));
 
 					setTimeout(timeout, success, m, time, unit);
 
@@ -1409,10 +1414,23 @@ public class Pages {
 		}
 	}
 
+	/**
+	 * Utility method for re-fetching a message.
+	 *
+	 * @param msg The {@link Message} to be reloaded.
+	 * @return The updated message instance.
+	 */
 	public static Message reloadMessage(Message msg) {
 		return subGet(msg.getChannel().retrieveMessageById(msg.getId()), msg);
 	}
 
+	/**
+	 * Utility method for submitting a {@link RestAction} and awaiting its result.
+	 *
+	 * @param future The {@link RestAction} to be executed.
+	 * @param <T>    Return type for the {@link RestAction}.
+	 * @return The {@link RestAction} result, or null should it fail.
+	 */
 	public static <T> T subGet(RestAction<T> future) {
 		try {
 			return future.submit().get();
@@ -1422,6 +1440,14 @@ public class Pages {
 		}
 	}
 
+	/**
+	 * Utility method for submitting a {@link RestAction} and awaiting its result.
+	 *
+	 * @param future The {@link RestAction} to be executed.
+	 * @param or     Fallback value to be returned should it fail.
+	 * @param <T>    Return type for the {@link RestAction}.
+	 * @return The {@link RestAction} result.
+	 */
 	public static <T> T subGet(RestAction<T> future, T or) {
 		try {
 			return future.submit().get();
@@ -1484,6 +1510,12 @@ public class Pages {
 		callback.accept(null);
 	}
 
+	/**
+	 * Utility method for modifying message buttons.
+	 *
+	 * @param msg     The {@link Message} holding the buttons.
+	 * @param changes {@link Map} containing desired changes, indexed by {@link Button} ID.
+	 */
 	public static void modifyButtons(Message msg, Map<String, Function<Button, Button>> changes) {
 		List<ActionRow> rows = new ArrayList<>(msg.getActionRows());
 
@@ -1503,7 +1535,9 @@ public class Pages {
 	/**
 	 * Utility method to add navigation buttons.
 	 *
-	 * @param msg The {@link Message} to have reactions removed from.
+	 * @param msg      The {@link Message} to have reactions removed from.
+	 * @param withSkip Whether to include {@link Emote#SKIP_BACKWARD} and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param withGoto Whether to include {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons.
 	 */
 	public static void addReactions(Message msg, boolean withSkip, boolean withGoto) {
 		clearButtons(msg);
@@ -1522,7 +1556,10 @@ public class Pages {
 	/**
 	 * Utility method to add navigation buttons.
 	 *
-	 * @param msg The {@link Message} to have reactions removed from.
+	 * @param page     The {@link InteractPage} containing button styles and captions.
+	 * @param msg      The {@link Message} to have reactions removed from.
+	 * @param withSkip Whether to include {@link Emote#SKIP_BACKWARD} and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param withGoto Whether to include {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons.
 	 */
 	public static void addButtons(InteractPage page, Message msg, boolean withSkip, boolean withGoto) {
 		clearReactions(msg);
@@ -1530,21 +1567,21 @@ public class Pages {
 		List<ActionRow> rows = new ArrayList<>();
 
 		List<Component> row = List.of(
-				page.makeButton(paginator, NONE),
-				page.makeButton(paginator, PREVIOUS),
-				page.makeButton(paginator, CANCEL),
-				page.makeButton(paginator, NEXT),
-				page.makeButton(paginator, NONE)
+				page.makeButton(NONE),
+				page.makeButton(PREVIOUS),
+				page.makeButton(CANCEL),
+				page.makeButton(NEXT),
+				page.makeButton(NONE)
 		);
 		rows.add(ActionRow.of(row));
 
 		if (withSkip || withGoto) {
 			row = List.of(
-					page.makeButton(paginator, withGoto ? GOTO_FIRST : NONE),
-					page.makeButton(paginator, withSkip ? SKIP_BACKWARD : NONE),
-					page.makeButton(paginator, NONE),
-					page.makeButton(paginator, withSkip ? SKIP_FORWARD : NONE),
-					page.makeButton(paginator, withGoto ? GOTO_LAST : NONE)
+					page.makeButton(withGoto ? GOTO_FIRST : NONE),
+					page.makeButton(withSkip ? SKIP_BACKWARD : NONE),
+					page.makeButton(NONE),
+					page.makeButton(withSkip ? SKIP_FORWARD : NONE),
+					page.makeButton(withGoto ? GOTO_LAST : NONE)
 			);
 			rows.add(ActionRow.of(row));
 		}

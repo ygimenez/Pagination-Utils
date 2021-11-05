@@ -56,14 +56,30 @@ public enum Emote {
 		this.style = style;
 	}
 
+	/**
+	 * Retrieves this {@link Emote}'s default {@link Emoji}.
+	 *
+	 * @return This {@link Emote}'s default {@link Emoji}.
+	 */
 	public Emoji getDefault() {
 		return emj;
 	}
 
+	/**
+	 * Retrieves this {@link Emote}'s {@link ButtonStyle}.
+	 *
+	 * @return This {@link Emote}'s {@link ButtonStyle}.
+	 */
 	public ButtonStyle getStyle() {
 		return style;
 	}
 
+	/**
+	 * Retrieves the {@link Emote} linked to supplied {@link Emoji}.
+	 *
+	 * @param emoji The {@link Emoji} to be searched for.
+	 * @return The respective {@link Emote}, or {@link #NONE} if it didn't match any.
+	 */
 	public static Emote getByEmoji(Emoji emoji) {
 		for (Emote emt : values()) {
 			if (Objects.equals(emt.emj, emoji)) return emt;
@@ -72,6 +88,12 @@ public enum Emote {
 		return NONE;
 	}
 
+	/**
+	 * Checks whether the supplied {@link Button} is referenced by a custom emote or not.
+	 *
+	 * @param btn The {@link Button} to be checked.
+	 * @return Whether it uses custom emote or not.
+	 */
 	public static boolean isCustom(Button btn) {
 		if (btn.getId() == null) return true;
 		else for (Emote emt : values()) {
@@ -81,8 +103,14 @@ public enum Emote {
 		return true;
 	}
 
-	public static boolean isCustom(MessageReaction.ReactionEmote react) {
-		Emoji emj = Emoji.fromMarkdown(react.getAsReactionCode());
+	/**
+	 * Checks whether the supplied {@link MessageReaction} is referenced by a custom emote or not.
+	 *
+	 * @param react The {@link MessageReaction} to be checked.
+	 * @return Whether it uses custom emote or not.
+	 */
+	public static boolean isCustom(MessageReaction react) {
+		Emoji emj = Emoji.fromMarkdown(react.getReactionEmote().getAsReactionCode());
 		for (Emote emt : values()) {
 			if (emt.emj.equals(emj)) return false;
 		}
@@ -90,6 +118,12 @@ public enum Emote {
 		return true;
 	}
 
+	/**
+	 * Utility method for retrieving an {@link Emoji}'s effective ID.
+	 *
+	 * @param emj The {@link Emoji} to be used.
+	 * @return The supplied {@link Emoji}'s effective ID.
+	 */
 	public static String getId(Emoji emj) {
 			return emj.isCustom() ? emj.getId() : emj.getName();
 	}

@@ -1,10 +1,13 @@
 package com.github.ygimenez.model;
 
+/**
+ * Utility class holding library-wide settings.
+ */
 public class PUtilsConfig {
 	private static LogLevel logLevel = LogLevel.LEVEL_1;
 
 	/**
-	 * Levels used to filter what events are logged to the console by the library
+	 * Levels used to filter what events are logged to the console by the library.
 	 */
 	public enum LogLevel {
 		/**

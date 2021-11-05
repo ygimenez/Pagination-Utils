@@ -29,13 +29,13 @@ public class Paginator {
 	private Logger logger = null;
 
 	/**
-	 * You should not create a {@link Paginator} instance directly, please use {@link PaginatorBuilder}.
+	 * You shouldn't create a {@link Paginator} instance directly, please use {@link PaginatorBuilder}.
 	 */
 	protected Paginator() {
 	}
 
 	/**
-	 * You should not create a {@link Paginator} instance directly, please use {@link PaginatorBuilder}.
+	 * You shouldn't create a {@link Paginator} instance directly, please use {@link PaginatorBuilder}.
 	 *
 	 * @param handler The handler that'll be used for event processing
 	 *                (must be either {@link JDA} or {@link ShardManager}).

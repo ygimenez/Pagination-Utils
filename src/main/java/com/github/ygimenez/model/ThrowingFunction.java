@@ -11,8 +11,8 @@ import java.util.function.Function;
  * <p>This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #apply(Object)}.
  *
- * @param <T> the type of the input to the function
- * @param <R> the type of the result of the function
+ * @param <T> the type of the input to the function.
+ * @param <R> the type of the result of the function.
  */
 @FunctionalInterface
 public interface ThrowingFunction<T, R> extends Function<T, R> {
@@ -20,8 +20,8 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
     /**
      * Performs this operation on the given arguments.
      *
-     * @param t the function argument
-     * @return the function result
+     * @param t the function argument.
+     * @return the function result.
      * @throws RuntimeException Thrown if any exception happens during lambda execution.
      */
     R applyThrows(T t) throws RuntimeException;
