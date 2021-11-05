@@ -707,7 +707,14 @@ public class Pages {
 					row = new ArrayList<>();
 				}
 
-				row.add(Button.secondary(k.getId(), k));
+				String id;
+				if (k.isCustom()) {
+					id = k.getId();
+				} else {
+					id = k.getName();
+				}
+
+				row.add(Button.secondary(id, k));
 			}
 
 			if (rows.size() == 5) {
@@ -970,7 +977,14 @@ public class Pages {
 					row = new ArrayList<>();
 				}
 
-				Button button = Button.secondary(k.getId(), k);
+				String id;
+				if (k.isCustom()) {
+					id = k.getId();
+				} else {
+					id = k.getName();
+				}
+
+				Button button = Button.secondary(id, k);
 				row.add(button);
 			}
 
