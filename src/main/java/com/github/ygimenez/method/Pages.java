@@ -121,7 +121,8 @@ public class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pages      The pages to be shown. The order of the {@link List} will
 	 *                   define the order of the pages.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -142,7 +143,8 @@ public class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pages      The pages to be shown. The order of the {@link List} will
 	 *                   define the order of the pages.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @param time       The time before the listener automatically stop listening
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
@@ -165,7 +167,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -188,7 +191,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -213,7 +217,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
@@ -235,7 +240,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -259,7 +265,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
@@ -283,7 +290,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -309,7 +317,8 @@ public class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pages      The pages to be shown. The order of the {@link List} will
 	 *                   define the order of the pages.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                   and {@link Emote#SKIP_FORWARD} buttons.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -332,7 +341,8 @@ public class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pages      The pages to be shown. The order of the {@link List} will
 	 *                   define the order of the pages.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @param time       The time before the listener automatically stop listening
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
@@ -357,7 +367,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
@@ -382,7 +393,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -409,7 +421,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
@@ -435,7 +448,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -463,7 +477,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pages       The pages to be shown. The order of the {@link List} will
 	 *                    define the order of the pages.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -482,12 +497,14 @@ public class Pages {
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated() || pages.isEmpty()) throw new InvalidStateException();
+		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+
 		List<Page> pgs = Collections.unmodifiableList(pages);
 		clearButtons(msg);
 		clearReactions(msg);
 
 		Page pg = pgs.get(0);
-		if (useButtons) addButtons((InteractPage) pg, msg, skipAmount > 1, fastForward);
+		if (useBtns) addButtons((InteractPage) pg, msg, skipAmount > 1, fastForward);
 		else addReactions(msg, skipAmount > 1, fastForward);
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -564,7 +581,7 @@ public class Pages {
 
 					pg = pgs.get(p);
 					updatePage(m, pg);
-					updateButtons(m, pg, useButtons, skipAmount > 1, fastForward);
+					updateButtons(m, pg, useBtns, skipAmount > 1, fastForward);
 
 					modifyButtons(m, Map.of(
 							PREVIOUS.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
@@ -596,7 +613,8 @@ public class Pages {
 	 * @param categories The categories to be shown. The categories are defined by
 	 *                   a {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                   {@link Pages} as values.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -620,7 +638,8 @@ public class Pages {
 	 * @param categories The categories to be shown. The categories are defined by
 	 *                   a {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                   {@link Pages} as values.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @param time       The time before the listener automatically stop listening
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
@@ -646,7 +665,8 @@ public class Pages {
 	 * @param categories  The categories to be shown. The categories are defined by
 	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                    {@link Pages} as values.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -672,7 +692,8 @@ public class Pages {
 	 * @param categories  The categories to be shown. The categories are defined by
 	 *                    a {@link Map} containing emoji unicodes or emote ids as keys and
 	 *                    {@link Pages} as values.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -688,11 +709,13 @@ public class Pages {
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
+		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+
 		Map<Emoji, Page> cats = Collections.unmodifiableMap(categories);
 		clearButtons(msg);
 		clearReactions(msg);
 
-		if (useButtons) {
+		if (useBtns) {
 			List<ActionRow> rows = new ArrayList<>();
 
 			List<Component> row = new ArrayList<>();
@@ -798,7 +821,8 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
-	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                         {@link Message} was not sent by the bot.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
@@ -823,7 +847,8 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
-	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                         {@link Message} was not sent by the bot.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
 	 *                         listening for further events (recommended: 60).
@@ -851,7 +876,8 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
-	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                         {@link Message} was not sent by the bot.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
@@ -879,7 +905,8 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
-	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                         {@link Message} was not sent by the bot.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
 	 *                         listening for further events (recommended: 60).
@@ -910,7 +937,8 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
-	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                         {@link Message} was not sent by the bot.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
@@ -939,7 +967,8 @@ public class Pages {
 	 *                         Map containing emoji unicodes or emote ids as keys and
 	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
 	 *                         containing desired behavior as value.
-	 * @param useButtons       Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                         {@link Message} was not sent by the bot.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
 	 *                         listening for further events (recommended: 60).
@@ -958,11 +987,13 @@ public class Pages {
 	 */
 	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
+		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+
 		Map<Emoji, ThrowingConsumer<ButtonWrapper>> btns = Collections.unmodifiableMap(buttons);
 		clearButtons(msg);
 		clearReactions(msg);
 
-		if (useButtons) {
+		if (useBtns) {
 			List<ActionRow> rows = new ArrayList<>();
 
 			List<Component> row = new ArrayList<>();
@@ -1066,7 +1097,8 @@ public class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1088,7 +1120,8 @@ public class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @param time       The time before the listener automatically stop listening
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
@@ -1112,7 +1145,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -1136,7 +1170,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening.
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -1162,7 +1197,8 @@ public class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @param cache      Enables {@link Page} caching, saving previously visited pages.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
@@ -1185,7 +1221,8 @@ public class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param useButtons Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                   {@link Message} was not sent by the bot.
 	 * @param cache      Enables {@link Page} caching, saving previously visited pages.
 	 * @param time       The time before the listener automatically stop listening
 	 *                   for further events (recommended: 60).
@@ -1210,7 +1247,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param cache       Enables {@link Page} caching, saving previously visited pages.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
@@ -1235,7 +1273,8 @@ public class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
-	 * @param useButtons  Whether to use interaction {@link Button} or reactions.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
 	 * @param cache       Enables {@link Page} caching, saving previously visited pages.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
@@ -1252,6 +1291,10 @@ public class Pages {
 	 */
 	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
+		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+
+		if (!msg.getAuthor().equals(paginator.getHandler()))
+
 		clearButtons(msg);
 		clearReactions(msg);
 
@@ -1264,7 +1307,7 @@ public class Pages {
 
 		if (cache) pageCache.add(pg);
 
-		if (useButtons) addButtons((InteractPage) pg, msg, false, false);
+		if (useBtns) addButtons((InteractPage) pg, msg, false, false);
 		else addReactions(msg, false, false);
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -1309,7 +1352,7 @@ public class Pages {
 								pg = cache ? pageCache.get(p) : pageLoader.apply(p);
 
 								updatePage(m, pg);
-								updateButtons(m, pg, useButtons, false, false);
+								updateButtons(m, pg, useBtns, false, false);
 							}
 							break;
 						case NEXT:
@@ -1332,7 +1375,7 @@ public class Pages {
 					}
 
 					updatePage(m, pg);
-					updateButtons(m, pg, useButtons, false, false);
+					updateButtons(m, pg, useBtns, false, false);
 
 					setTimeout(timeout, success, m, time, unit);
 
