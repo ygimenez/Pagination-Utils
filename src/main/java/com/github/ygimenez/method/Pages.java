@@ -766,7 +766,7 @@ public class Pages {
 						Button btn = (Button) wrapper.getContent();
 						emoji = btn.getEmoji();
 
-						if (btn.getId() != null && !btn.getId().contains(".")) {
+						if (btn.getId() != null && !Emote.isCustom(btn) && !btn.getId().contains(".")) {
 							emt = Emote.valueOf(btn.getId().replace("*", ""));
 						}
 					}
@@ -777,7 +777,6 @@ public class Pages {
 						finalizeEvent(m, success);
 						return;
 					}
-
 
 					setTimeout(timeout, success, m, time, unit);
 
