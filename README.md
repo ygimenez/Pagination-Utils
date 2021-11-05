@@ -58,7 +58,7 @@ Now we can finally start, which is easier than it seems! The first step is to se
 holder, which can be done in a single line:
 
 ```java
-JDA bot = ... //Creation of bot client
+JDA bot = ... // Creation of bot client
 		
 Pages.activate(PaginatorBuilder.createSimplePaginator(bot));
 ```
@@ -66,32 +66,36 @@ Pages.activate(PaginatorBuilder.createSimplePaginator(bot));
 But if you want some customization of the library's behaviour, you can opt to use the full builder:
 
 ```java
-JDA bot = ... //Creation of bot client
+JDA bot = ... // Creation of bot client
 
 Paginator paginator = PaginatorBuilder.createPaginator()
-		//Defines which handler will be used
+		// Defines which handler will be used
 		.setHandler(bot)
-		//Whether reactions will be removed on click
+		// Whether reactions will be removed on click
 		.shouldRemoveOnReaction(false)
-		//Finish configuration and activate the library
+		// Prevents double-click on buttons and guarantee an event will only happen when previous processing has finished
+		.shouldEventLock(true)
+		// Finish configuration and activate the library
 		.activate();
 ```
 
 If you want to go even further and change the default buttons' emotes, don't worry, we got you covered:
 
 ```java
-JDA bot = ... //Creation of bot client
+JDA bot = ... // Creation of bot client
 
 Paginator paginator = PaginatorBuilder.createPaginator()
-		//Defines which handler will be used
+		// Defines which handler will be used
 		.setHandler(bot)
-		//Whether reactions will be removed on click
+		// Whether reactions will be removed on click
 		.shouldRemoveOnReaction(false)
-		//Changes the next button to 😙
+		// Prevents double-click on buttons and guarantee an event will only happen when previous processing has finished
+		.shouldEventLock(true)
+		// Changes the next button to 😙
 		.setEmote(Emote.NEXT, Emoji.fromMarkdown("😙"))
-		//Changes the previous button to 😩
+		// Changes the previous button to 😩
 		.setEmote(Emote.PREVIOUS, Emoji.fromMarkdown("😩"))
-		//Finish configuration and activate the library
+		// Finish configuration and activate the library
 		.activate();
 ```
 
@@ -100,13 +104,13 @@ Then all you need to do is create a `Page` (or `InteractPage` for interaction bu
 Example:
 
 ```java
-//Example using MessageBuilder
+// Example using MessageBuilder
 MessageBuilder mb = new MessageBuilder();
 mb.setContent("Hello World!");
 
 Page messagePage = new Page(mb.build());
 
-//Example using EmbedBuilder
+// Example using EmbedBuilder
 EmbedBuilder eb = new EmbedBuilder();
 eb.setTitle("Example Embed");
 eb.setDescription("Hello World!");
@@ -120,7 +124,7 @@ That said, you might want to create an `ArrayList` of pages to use the paginatio
 ArrayList<Page> pages = new ArrayList<>();
 MessageBuilder mb = new MessageBuilder();
 
-//Adding 10 pages to the list
+// Adding 10 pages to the list
 for (int i = 0; i < 10; i++) {
 	mb.clear();
 	mb.setContent("This is entry Nº " + i);
@@ -149,10 +153,10 @@ To categorize it's almost the same process as paginating, however, the type of c
 of `ArrayList`:
 
 ```java
-HashMap<String, Page> categories = new HashMap<>();
+HashMap<Emoji, Page> categories = new HashMap<>();
 MessageBuilder mb = new MessageBuilder();
 
-//Manually adding 3 categories to the map, you could use some kind of loop to fill it (see https://emojipedia.org/ for unicodes)
+// Manually adding 3 categories to the map, you could use some kind of loop to fill it (see https://emojipedia.org/ for unicodes)
 mb.setContent("This is category 1");
 categories.put(Emoji.fromMarkdown("\u26f3"), new InteractPage(mb.build()));
 
@@ -177,11 +181,11 @@ exampleChannel.sendMessage("This is a menu message").queue(success -> {
 To do it, you first need to setup a few things:
 
 ```java
-//A BiConsumer is a callback function that uses two arguments instead of one
-//Here, the member is the one that pressed the button, and message is the buttonized message itself
-ThrowingBiConsumer<Member, Message> customFunction = (mb, ms) -> {
+// A Consumer is a callback function that uses one arguments and returns nothing
+// Here, the member is the one that pressed the button, and message is the buttonized message itself
+ThrowingConsumer<ButtonWrapper> customFunction = (wrapper) -> {
 	// Example of giving a role to anyone who presses this button
-	guild.addRoleToMember(mb, guild.getRoleById("123456789")).queue();
+	guild.addRoleToMember(wrapper.getMember(), guild.getRoleById("123456789")).queue();
 };
 
 exampleChannel.sendMessage("This is a sample message").queue(success -> {
