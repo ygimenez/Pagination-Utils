@@ -5,7 +5,7 @@
 
     <groupId>com.github.ygimenez</groupId>
     <artifactId>Pagination-Utils</artifactId>
-    <version>2.3.1</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>Pagination Utils</name>
@@ -33,7 +33,7 @@
         <url>https://github.com/ygimenez/Pagination-Utils</url>
         <connection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</connection>
         <developerConnection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</developerConnection>
-        <tag>Pagination-Utils-2.3.1</tag>
+        <tag>Pagination-Utils-3.0.0</tag>
     </scm>
 
     <distributionManagement>
