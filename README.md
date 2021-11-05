@@ -95,7 +95,7 @@ Paginator paginator = PaginatorBuilder.createPaginator()
 		.activate();
 ```
 
-Then all you need to do is create a `Page` collection containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
+Then all you need to do is create a `Page` (or `InteractPage` for interaction buttons) collection containing the type of the content and the `Message`/`MessageEmbed` object that you just created.
 
 Example:
 
@@ -111,10 +111,10 @@ EmbedBuilder eb = new EmbedBuilder();
 eb.setTitle("Example Embed");
 eb.setDescription("Hello World!");
 
-Page embedPage = new Page(eb.build());
+Page embedPage = new InteractPage(eb.build());
 ```
 
-That said, you'll need to create an `ArrayList` of pages to use the pagination, since a single `Page` does not need to be paginated at all:
+That said, you might want to create an `ArrayList` of pages to use the pagination, since a single page does not need to be paginated at all:
 
 ```java
 ArrayList<Page> pages = new ArrayList<>();
@@ -124,18 +124,19 @@ MessageBuilder mb = new MessageBuilder();
 for (int i = 0; i < 10; i++) {
 	mb.clear();
 	mb.setContent("This is entry Nº " + i);
-	pages.add(new Page(mb.build()));
+	pages.add(new InteractPage(mb.build()));
 }
 ```
 
 Then all you have to do is call `Pages.paginate()` method:
 
 ```java
-//This method requires 2 arguments:
-//The target message
-//The list of pages
+// This method requires 3 arguments:
+// The target message
+// The list of pages
+// Whether you want to use reactions (false) or interaction buttons (true).
 exampleChannel.sendMessage((Message) pages.get(0).getContent()).queue(success -> {
-	Pages.paginate(success,pages);
+	Pages.paginate(success, pages, /* Use buttons? */ true);
 });
 ```
 
@@ -153,20 +154,21 @@ MessageBuilder mb = new MessageBuilder();
 
 //Manually adding 3 categories to the map, you could use some kind of loop to fill it (see https://emojipedia.org/ for unicodes)
 mb.setContent("This is category 1");
-categories.put(Emoji.fromMarkdown("\u26f3"), new Page(mb.build()));
+categories.put(Emoji.fromMarkdown("\u26f3"), new InteractPage(mb.build()));
 
 mb.setContent("This is category 2");
-categories.put(Emoji.fromMarkdown("\u26bd"), new Page(mb.build()));
+categories.put(Emoji.fromMarkdown("\u26bd"), new InteractPage(mb.build()));
 
 mb.setContent("This is category 3");
-categories.put(Emoji.fromMarkdown("\u270f"), new Page(mb.build()));
+categories.put(Emoji.fromMarkdown("\u270f"), new InteractPage(mb.build()));
 ```
 
 Then just call `Pages.categorize()` method just like you did before:
 
 ```java
 exampleChannel.sendMessage("This is a menu message").queue(success -> {
-	Pages.categorize(success, categories);
+	// Third argument is whether you want to use reactions (false) or interaction buttons (true).
+	Pages.categorize(success, categories, /* Use buttons? */ true);
 });
 ```
 
@@ -178,48 +180,15 @@ To do it, you first need to setup a few things:
 //A BiConsumer is a callback function that uses two arguments instead of one
 //Here, the member is the one that pressed the button, and message is the buttonized message itself
 ThrowingBiConsumer<Member, Message> customFunction = (mb, ms) -> {
-	//Example of giving a role to anyone who presses this button
+	// Example of giving a role to anyone who presses this button
 	guild.addRoleToMember(mb, guild.getRoleById("123456789")).queue();
 };
 
 exampleChannel.sendMessage("This is a sample message").queue(success -> {
-	//Same aruments, except the second that must extend map collection
-	//The last argument defines whether to show cancel button or not
-	Pages.buttonize(success, Collections.singletonMap(Emoji.fromMarkdown("✅"), customFunction), false);
-});
-```
-
-## What if I want categories with pages?
-
-Don't worry, we gotcha!
-
-```java
-List<HashMap<Emoji, Page>> pages = new HashMap<>();
-MessageBuilder mb = new MessageBuilder();
-
-for (int i = 0; i < 5; i++) {
-	HashMap<Emoji, Page> categories = new HashMap<>();
-
-	//Manually adding 3 categories to the map, you could use some kind of loop to fill it (see https://emojipedia.org/ for unicodes)
-	mb.setContent("This is category " + ((i * 3) + 1));
-	categories.put(Emoji.fromMarkdown("\u26f3"), new Page(mb.build()));
-
-	mb.setContent("This is category " + ((i * 3) + 2));
-	categories.put(Emoji.fromMarkdown("\u26bd"), new Page(mb.build()));
-
-	mb.setContent("This is category " + ((i * 3) + 3));
-	categories.put(Emoji.fromMarkdown("\u270f"), new Page(mb.build()));
-
-	pages.add(categories);
-}
-```
-
-Then just call `Pages.paginoCategorize()` as always:
-
-```java
-//You can supply a list of "faces" in the third argument which will define the landing page of each category.
-exampleChannel.sendMessage("This is a menu message").queue(success -> {
-	Pages.paginoCategorize(success, categories, null);
+	// Same arguments, except the second that must extend map collection
+	// Third argument is whether you want to use reactions (false) or interaction buttons (true).
+	// The last argument defines whether to show cancel button or not
+	Pages.buttonize(success, Collections.singletonMap(Emoji.fromMarkdown("✅"), customFunction), /* Use buttons? */ true, /* Show cancel? */false);
 });
 ```
 
@@ -228,9 +197,9 @@ exampleChannel.sendMessage("This is a menu message").queue(success -> {
 Yet again, don't worry, Pagination-Utils to the rescue!
 
 ```java
-//Could be anything, this is just an example.
+// Could be anything, this is just an example.
 List<String> data = new ArrayList<>();
-//Adding 10 values to the list
+// Adding 10 values to the list
 for (int i = 0; i < 10; i++) {
 	data.add("This is entry Nº " + i);
 }
@@ -238,17 +207,18 @@ for (int i = 0; i < 10; i++) {
 MessageBuilder mb = new MessageBuilder();
 ThrowingFunction<Integer, Page> func = i -> {
 	mb.setContent("This is entry Nº " + i);
-	return new Page(mb.build());
+	return new InteractPage(mb.build());
 };
 ```
 
 Then just call `Pages.lazyPaginate()` method:
 
 ```java
-//Second argument must be a function that takes an integer and returns a Page.
-//For third parameter, setting to true will enable page caching (will keep previously visited pages in memory).
+// Second argument must be a function that takes an integer and returns a Page.
+// Third argument is whether you want to use reactions (false) or interaction buttons (true).
+// The last argument defines whether pages should be cached or not (will keep previously visited pages in memory).
 exampleChannel.sendMessage((Message) pages.get(0).getContent()).queue(success -> {
-	Pages.lazyPaginate(success, func, false);
+	Pages.lazyPaginate(success, func, /* Use buttons? */ true, /* Cache? */ false);
 });
 ```
 
