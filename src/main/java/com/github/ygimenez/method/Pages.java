@@ -22,9 +22,11 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -510,16 +512,16 @@ public class Pages {
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
-			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
+			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
-				if (timeout.get() != null)
-					timeout.get().cancel(true);
+				if (timeout != null)
+					timeout.cancel(true);
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
-				setTimeout(timeout, success, msg, time, unit);
+				timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
 			}
 
 			@Override
@@ -593,7 +595,8 @@ public class Pages {
 							GOTO_LAST.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled()
 					));
 
-					setTimeout(timeout, success, m, time, unit);
+					timeout.cancel(true);
+					timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -747,16 +750,16 @@ public class Pages {
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private Emoji currCat = null;
-			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
+			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
-				if (timeout.get() != null)
-					timeout.get().cancel(true);
+				if (timeout != null)
+					timeout.cancel(true);
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
-				setTimeout(timeout, success, msg, time, unit);
+				timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
 			}
 
 			@Override
@@ -800,7 +803,8 @@ public class Pages {
 						modifyButtons(m, Map.of(Emote.getId(currCat), Button::asDisabled));
 					}
 
-					setTimeout(timeout, success, m, time, unit);
+					timeout.cancel(true);
+					timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1029,17 +1033,17 @@ public class Pages {
 		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
-			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
+			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
-				if (timeout.get() != null)
-					timeout.get().cancel(true);
+				if (timeout != null)
+					timeout.cancel(true);
 				handler.removeEvent(msg);
 				if (onCancel != null) onCancel.accept(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
-				setTimeout(timeout, success, msg, time, unit);
+				timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
 			}
 
 			@Override
@@ -1077,9 +1081,13 @@ public class Pages {
 						hook = null;
 					}
 
-					btns.get(emoji).accept(new ButtonWrapper(wrapper.getUser(), hook, m));
+					ThrowingConsumer<ButtonWrapper> act = btns.get(emoji);
+					if (act != null) {
+						act.accept(new ButtonWrapper(wrapper.getUser(), hook, m));
+					}
 
-					setTimeout(timeout, success, m, time, unit);
+					timeout.cancel(true);
+					timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1312,16 +1320,16 @@ public class Pages {
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
-			private final AtomicReference<ScheduledFuture<?>> timeout = new AtomicReference<>(null);
+			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
-				if (timeout.get() != null)
-					timeout.get().cancel(true);
+				if (timeout != null)
+					timeout.cancel(true);
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
-				setTimeout(timeout, success, msg, time, unit);
+				timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
 			}
 
 			@Override
@@ -1377,7 +1385,8 @@ public class Pages {
 					updatePage(m, pg);
 					updateButtons(m, pg, useBtns, false, false);
 
-					setTimeout(timeout, success, m, time, unit);
+					timeout.cancel(true);
+					timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1409,51 +1418,6 @@ public class Pages {
 			addButtons((InteractPage) pg, msg, withSkip, withGoto);
 		} else {
 			addReactions(msg, withSkip, withGoto);
-		}
-	}
-
-	/**
-	 * Method used to set expiration of the events.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
-	 *
-	 * @param timeout The {@link CompletableFuture} reference which will contain expiration action.
-	 * @param success The {@link Consumer} to be called after expiration.
-	 * @param msg     The {@link Message} related to this event.
-	 * @param time    How much time before expiration.
-	 * @param unit    The {@link TimeUnit} for the expiration time.
-	 */
-	private static void setTimeout(AtomicReference<ScheduledFuture<?>> timeout, Consumer<Void> success, Message msg, int time, TimeUnit unit) {
-		if (timeout.get() != null)
-			timeout.get().cancel(true);
-
-		if (time <= 0 || unit == null) return;
-		try {
-			timeout.set(
-					executor.schedule(() -> {
-						msg.clearReactions().submit().thenAccept(success);
-					}, time, unit)
-			);
-		} catch (InsufficientPermissionException | IllegalStateException e) {
-			timeout.set(
-					executor.schedule(() -> {
-						msg.getChannel()
-								.retrieveMessageById(msg.getId())
-								.submit()
-								.thenCompose(m -> {
-									CompletableFuture<?>[] removeReaction = new CompletableFuture[m.getReactions().size()];
-
-									for (int i = 0; i < m.getReactions().size(); i++) {
-										MessageReaction r = m.getReactions().get(i);
-
-										if (!r.isSelf()) continue;
-
-										removeReaction[i] = r.removeReaction().submit();
-									}
-
-									return CompletableFuture.allOf(removeReaction).thenAccept(success);
-								});
-					}, time, unit)
-			);
 		}
 	}
 
