@@ -732,8 +732,13 @@ public class Pages {
 			}
 
 			Button button = Button.danger(CANCEL.name(), paginator.getEmote(CANCEL));
-			if (row.size() == 5) {
+			if (rows.size() == 5 && row.size() == 5) {
 				row.set(4, button);
+			} else if (row.size() == 5) {
+				rows.add(ActionRow.of(row));
+				row = new ArrayList<>();
+
+				row.add(button);
 			} else {
 				row.add(button);
 			}
@@ -1007,15 +1012,19 @@ public class Pages {
 					row = new ArrayList<>();
 				}
 
-				Button button = Button.secondary(Emote.getId(k), k);
-				row.add(button);
+				row.add(Button.secondary(Emote.getId(k), k));
 			}
 
 			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) {
 				Button button = Button.danger(CANCEL.name(), paginator.getEmote(CANCEL));
 
-				if (row.size() == 5) {
+				if (rows.size() == 5 && row.size() == 5) {
 					row.set(4, button);
+				} else if (row.size() == 5) {
+					rows.add(ActionRow.of(row));
+					row = new ArrayList<>();
+
+					row.add(button);
 				} else {
 					row.add(button);
 				}
@@ -1303,7 +1312,7 @@ public class Pages {
 
 		if (!msg.getAuthor().equals(paginator.getHandler()))
 
-		clearButtons(msg);
+			clearButtons(msg);
 		clearReactions(msg);
 
 		List<Page> pageCache = cache ? new ArrayList<>() : null;
@@ -1573,22 +1582,47 @@ public class Pages {
 
 		List<ActionRow> rows = new ArrayList<>();
 
-		List<Component> row = List.of(
-				page.makeButton(NONE),
-				page.makeButton(PREVIOUS),
-				page.makeButton(CANCEL),
-				page.makeButton(NEXT),
-				page.makeButton(NONE)
-		);
+		List<Component> row;
+		if (withSkip && withGoto) {
+			row = List.of(
+					page.makeButton(NONE),
+					page.makeButton(PREVIOUS),
+					page.makeButton(CANCEL),
+					page.makeButton(NEXT),
+					page.makeButton(NONE)
+			);
+		} else if (withSkip) {
+			row = List.of(
+					page.makeButton(SKIP_BACKWARD),
+					page.makeButton(PREVIOUS),
+					page.makeButton(CANCEL),
+					page.makeButton(NEXT),
+					page.makeButton(SKIP_FORWARD)
+			);
+		} else if (withGoto) {
+			row = List.of(
+					page.makeButton(GOTO_FIRST),
+					page.makeButton(PREVIOUS),
+					page.makeButton(CANCEL),
+					page.makeButton(NEXT),
+					page.makeButton(GOTO_LAST)
+			);
+		} else {
+			row = List.of(
+					page.makeButton(PREVIOUS),
+					page.makeButton(CANCEL),
+					page.makeButton(NEXT)
+			);
+		}
 		rows.add(ActionRow.of(row));
 
-		if (withSkip || withGoto) {
+		if (withSkip && withGoto) {
 			row = List.of(
-					page.makeButton(withGoto ? GOTO_FIRST : NONE),
-					page.makeButton(withSkip ? SKIP_BACKWARD : NONE),
+					page.makeButton(GOTO_FIRST),
+					page.makeButton(SKIP_BACKWARD),
 					page.makeButton(NONE),
-					page.makeButton(withSkip ? SKIP_FORWARD : NONE),
-					page.makeButton(withGoto ? GOTO_LAST : NONE)
+					page.makeButton(SKIP_FORWARD),
+					page.makeButton(GOTO_LAST)
 			);
 			rows.add(ActionRow.of(row));
 		}
