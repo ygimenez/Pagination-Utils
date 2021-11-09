@@ -521,7 +521,8 @@ public class Pages {
 			};
 
 			{
-				timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
+				if (time > 0 && unit != null)
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
 			}
 
 			@Override
@@ -595,8 +596,10 @@ public class Pages {
 							GOTO_LAST.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled()
 					));
 
-					timeout.cancel(true);
-					timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
+					if (timeout != null)
+						timeout.cancel(true);
+					if (time > 0 && unit != null)
+						timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -764,7 +767,8 @@ public class Pages {
 			};
 
 			{
-				timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
+				if (time > 0 && unit != null)
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
 			}
 
 			@Override
@@ -808,8 +812,10 @@ public class Pages {
 						modifyButtons(m, Map.of(Emote.getId(currCat), Button::asDisabled));
 					}
 
-					timeout.cancel(true);
-					timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
+					if (timeout != null)
+						timeout.cancel(true);
+					if (time > 0 && unit != null)
+						timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1052,7 +1058,8 @@ public class Pages {
 			};
 
 			{
-				timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
+				if (time > 0 && unit != null)
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
 			}
 
 			@Override
@@ -1095,8 +1102,10 @@ public class Pages {
 						act.accept(new ButtonWrapper(wrapper.getUser(), hook, m));
 					}
 
-					timeout.cancel(true);
-					timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
+					if (timeout != null)
+						timeout.cancel(true);
+					if (time > 0 && unit != null)
+						timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1338,7 +1347,8 @@ public class Pages {
 			};
 
 			{
-				timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
+				if (time > 0 && unit != null)
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
 			}
 
 			@Override
@@ -1394,8 +1404,10 @@ public class Pages {
 					updatePage(m, pg);
 					updateButtons(m, pg, useBtns, false, false);
 
-					timeout.cancel(true);
-					timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
+					if (timeout != null)
+						timeout.cancel(true);
+					if (time > 0 && unit != null)
+						timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
