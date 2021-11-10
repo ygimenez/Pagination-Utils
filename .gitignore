@@ -55,6 +55,7 @@ buildNumber.properties
 .idea/**/dataSources.ids
 .idea/**/dataSources.local.xml
 .idea/**/sqlDataSources.xml
+.idea/**/dataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
