@@ -1425,7 +1425,7 @@ public class Pages {
 	 * @param p   The current {@link Page}.
 	 */
 	private static void updatePage(@Nonnull Message msg, Page p) {
-		if (p == null) throw new NullPageException();
+		if (p == null) throw new NullPageException(msg);
 
 		if (p.getContent() instanceof Message) {
 			msg.editMessage((Message) p.getContent()).submit();
