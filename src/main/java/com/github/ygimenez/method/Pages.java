@@ -540,7 +540,7 @@ public class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						if (btn.getId() != null && !Emote.isCustom(btn) && !btn.getId().contains(".")) {
+						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
 							emt = Emote.valueOf(btn.getId().replace("*", ""));
 						}
 					}
@@ -789,7 +789,7 @@ public class Pages {
 						Button btn = (Button) wrapper.getContent();
 						emoji = btn.getEmoji();
 
-						if (btn.getId() != null && !Emote.isCustom(btn) && !btn.getId().contains(".")) {
+						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
 							emt = Emote.valueOf(btn.getId().replace("*", ""));
 						}
 					}
@@ -1080,7 +1080,7 @@ public class Pages {
 						Button btn = (Button) wrapper.getContent();
 						emoji = btn.getEmoji();
 
-						if (btn.getId() != null && !Emote.isCustom(btn) && !btn.getId().contains(".")) {
+						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
 							emt = Emote.valueOf(btn.getId().replace("*", ""));
 						}
 					}
@@ -1366,7 +1366,7 @@ public class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						if (btn.getId() != null && !Emote.isCustom(btn) && !btn.getId().contains(".")) {
+						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
 							emt = Emote.valueOf(btn.getId().replace("*", ""));
 						}
 					}

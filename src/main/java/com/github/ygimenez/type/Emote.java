@@ -89,27 +89,27 @@ public enum Emote {
 	}
 
 	/**
-	 * Checks whether the supplied {@link Button} is referenced by a custom emote or not.
+	 * Checks whether the supplied {@link Button} is referenced by a library native emote or not.
 	 *
 	 * @param btn The {@link Button} to be checked.
-	 * @return Whether it uses custom emote or not.
+	 * @return Whether it uses a {@link Emote} value or not.
 	 */
-	public static boolean isCustom(Button btn) {
-		if (btn.getId() == null) return true;
+	public static boolean isNative(Button btn) {
+		if (btn.getId() == null) return false;
 		else for (Emote emt : values()) {
-			if (emt.name().equals(btn.getId())) return false;
+			if (emt.name().equals(btn.getId())) return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
-	 * Checks whether the supplied {@link MessageReaction} is referenced by a custom emote or not.
+	 * Checks whether the supplied {@link MessageReaction} is referenced by a library native emote or not.
 	 *
 	 * @param react The {@link MessageReaction} to be checked.
-	 * @return Whether it uses custom emote or not.
+	 * @return Whether it uses a {@link Emote} value or not.
 	 */
-	public static boolean isCustom(MessageReaction react) {
+	public static boolean isNative(MessageReaction react) {
 		Emoji emj = Emoji.fromMarkdown(react.getReactionEmote().getAsReactionCode());
 		for (Emote emt : values()) {
 			if (emt.emj.equals(emj)) return false;
