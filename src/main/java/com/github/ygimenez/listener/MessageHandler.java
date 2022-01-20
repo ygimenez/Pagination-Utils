@@ -113,80 +113,67 @@ public class MessageHandler extends ListenerAdapter {
 	}
 
 	private void execute(GenericMessageReactionEvent evt) {
-		evt.retrieveUser().submit().whenComplete((u, t) -> {
-			String id = getEventId(evt);
+		String id = getEventId(evt);
+		if (!events.containsKey(id)) return;
 
-			if (t != null) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + id, t);
-				return;
-			}
-
-			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
-			if (u.isBot() || isLocked(id)) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event" + id + " was triggered by a bot or is locked. Ignored");
-				return;
-			}
-
-			try {
-				if (Pages.getPaginator().isEventLocked()) lock(id);
-
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for action for event with ID " + id);
-				ThrowingBiConsumer<User, PaginationEventWrapper> act = events.get(id);
-
-				if (act != null) {
-					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action found");
-					act.accept(u, new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getReaction(), evt.isFromGuild()));
-				} else {
-					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action not found");
-				}
-			} catch (RuntimeException e) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + getEventId(evt), e);
-			} finally {
-				if (Pages.getPaginator().isEventLocked()) unlock(id);
-			}
-		});
+		evt.retrieveUser().submit()
+				.whenComplete((u, t) -> processEvent(
+						t,
+						id,
+						u,
+						new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getReaction(), evt.isFromGuild())
+				));
 	}
 
 	@Override
 	public void onButtonClick(@NotNull ButtonClickEvent evt) {
-		evt.deferEdit().submit().whenComplete((hook, t) -> {
-			User u = evt.getUser();
-			String id = getEventId(evt);
+		User u = evt.getUser();
+		String id = getEventId(evt);
+		if (!events.containsKey(id)) return;
 
-			if (t != null) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + id, t);
-				return;
+		evt.deferEdit().submit()
+				.whenComplete((hook, t) -> processEvent(
+						t,
+						id,
+						u,
+						new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getButton(), evt.isFromGuild())
+				));
+	}
+
+	private void processEvent(Throwable t, String id, User u, PaginationEventWrapper evt) {
+		if (t != null) {
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + id, t);
+			return;
+		}
+
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
+		if (u.isBot() || isLocked(id)) {
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event" + id + " was triggered by a bot or is locked. Ignored");
+			return;
+		}
+
+		try {
+			if (Pages.getPaginator().isEventLocked()) lock(id);
+
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for action for event with ID " + id);
+			ThrowingBiConsumer<User, PaginationEventWrapper> act = events.get(id);
+
+			if (act != null) {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action found");
+				act.accept(u, evt);
+			} else {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action not found");
 			}
-
-			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
-			if (u.isBot() || isLocked(id)) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event" + id + " was triggered by a bot or is locked. Ignored");
-				return;
-			}
-
-			try {
-				if (Pages.getPaginator().isEventLocked()) lock(id);
-
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for action for event with ID " + id);
-				ThrowingBiConsumer<User, PaginationEventWrapper> act = events.get(id);
-
-				if (act != null) {
-					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action found");
-					act.accept(u, new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getButton(), evt.isFromGuild()));
-				} else {
-					Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action not found");
-				}
-			} catch (RuntimeException e) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + getEventId(evt), e);
-			} finally {
-				if (Pages.getPaginator().isEventLocked()) unlock(id);
-			}
-		});
+		} catch (RuntimeException e) {
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_1, "An error occurred when processing event with ID " + id, e);
+		} finally {
+			if (Pages.getPaginator().isEventLocked()) unlock(id);
+		}
 	}
 
 	private String getEventId(GenericMessageEvent evt) {
 		crc.reset();
-		String rawId = (evt.isFromGuild() ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + evt.getMessageId();
+		String rawId = (evt.isFromGuild() ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + "_" + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
@@ -194,7 +181,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(ButtonClickEvent evt) {
 		crc.reset();
-		String rawId = (evt.getGuild() != null ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + evt.getMessageId();
+		String rawId = (evt.getGuild() != null ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + "_" + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
@@ -202,7 +189,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(Message msg) {
 		crc.reset();
-		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getPrivateChannel().getId()) + msg.getId();
+		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getPrivateChannel().getId()) + "_" + msg.getId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
