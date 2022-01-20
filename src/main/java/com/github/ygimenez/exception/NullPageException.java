@@ -17,6 +17,7 @@ public class NullPageException extends RuntimeException {
 
 	/**
 	 * Parametrized constructor.
+	 * @param msg The {@link Message} where this exception originated from.
 	 */
 	public NullPageException(Message msg) {
 		super(String.format("The informed collection does not contain any Page. Source info: (GUILD %s CHANNEL %s MESSAGE %s)",
