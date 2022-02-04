@@ -7,17 +7,18 @@ import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.Emote;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -724,7 +725,7 @@ public class Pages {
 		if (useBtns) {
 			List<ActionRow> rows = new ArrayList<>();
 
-			List<Component> row = new ArrayList<>();
+			List<ActionComponent> row = new ArrayList<>();
 			for (Emoji k : cats.keySet()) {
 				if (row.size() == 5) {
 					rows.add(ActionRow.of(row));
@@ -1011,7 +1012,7 @@ public class Pages {
 		if (useBtns) {
 			List<ActionRow> rows = new ArrayList<>();
 
-			List<Component> row = new ArrayList<>();
+			List<ActionComponent> row = new ArrayList<>();
 			for (Emoji k : btns.keySet()) {
 				if (row.size() == 5) {
 					rows.add(ActionRow.of(row));
@@ -1091,8 +1092,8 @@ public class Pages {
 					}
 
 					InteractionHook hook;
-					if (wrapper.getSource() instanceof ButtonClickEvent) {
-						hook = ((ButtonClickEvent) wrapper.getSource()).getHook();
+					if (wrapper.getSource() instanceof ButtonInteractionEvent) {
+						hook = ((ButtonInteractionEvent) wrapper.getSource()).getHook();
 					} else {
 						hook = null;
 					}
@@ -1548,9 +1549,9 @@ public class Pages {
 		List<ActionRow> rows = new ArrayList<>(msg.getActionRows());
 
 		for (ActionRow ar : rows) {
-			List<Component> row = ar.getComponents();
+			List<ActionComponent> row = ar.getComponents().stream().map(itemComponent -> (ActionComponent) itemComponent).collect(Collectors.toList());
 			for (int i = 0; i < row.size(); i++) {
-				Component c = row.get(i);
+				ActionComponent c = row.get(i);
 				if (c instanceof Button && changes.containsKey(c.getId())) {
 					row.set(i, changes.get(c.getId()).apply((Button) c));
 				}
@@ -1594,7 +1595,7 @@ public class Pages {
 
 		List<ActionRow> rows = new ArrayList<>();
 
-		List<Component> row;
+		List<ActionComponent> row;
 		if (withSkip && withGoto) {
 			row = List.of(
 					page.makeButton(NONE),

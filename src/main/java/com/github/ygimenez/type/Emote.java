@@ -2,8 +2,8 @@ package com.github.ygimenez.type;
 
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.MessageReaction;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.util.Objects;
 

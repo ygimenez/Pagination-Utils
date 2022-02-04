@@ -3,7 +3,7 @@ package com.github.ygimenez.model;
 import com.github.ygimenez.method.Pages;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 /**
  * Wrapper for {@link Pages#buttonize} arguments containing necessary data for processing.

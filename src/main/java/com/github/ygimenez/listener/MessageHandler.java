@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -126,7 +126,7 @@ public class MessageHandler extends ListenerAdapter {
 	}
 
 	@Override
-	public void onButtonClick(@NotNull ButtonClickEvent evt) {
+	public void onButtonInteraction(@NotNull ButtonInteractionEvent evt) {
 		User u = evt.getUser();
 		String id = getEventId(evt);
 		if (!events.containsKey(id)) return;
@@ -179,7 +179,7 @@ public class MessageHandler extends ListenerAdapter {
 		return Long.toHexString(crc.getValue());
 	}
 
-	private String getEventId(ButtonClickEvent evt) {
+	private String getEventId(ButtonInteractionEvent evt) {
 		crc.reset();
 		String rawId = (evt.getGuild() != null ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + "_" + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
