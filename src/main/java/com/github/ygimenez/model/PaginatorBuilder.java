@@ -1,6 +1,7 @@
 package com.github.ygimenez.model;
 
 import com.github.ygimenez.exception.AlreadyActivatedException;
+import com.github.ygimenez.exception.AlreadyAssignedException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.method.Pages;
@@ -171,8 +172,23 @@ public class PaginatorBuilder {
 	 * object.
 	 */
 	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
+		return setEmote(emote, Emoji.fromMarkdown(code));
+	}
+
+	/**
+	 * Modify an {@link Emote} from the {@link Map}.
+	 *
+	 * @param emote The {@link Emote} to be set.
+	 * @param emoji  The new {@link Emote}'s {@link Emoji}.
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
+	 * object.
+	 */
+	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull Emoji emoji) throws InvalidHandlerException {
 		if (paginator.getHandler() == null) throw new InvalidHandlerException();
-		paginator.getEmotes().put(emote, Emoji.fromMarkdown(code));
+		else if (paginator.getEmotes().containsValue(emoji)) throw new AlreadyAssignedException();
+
+		paginator.getEmotes().put(emote, emoji);
 		return this;
 	}
 
