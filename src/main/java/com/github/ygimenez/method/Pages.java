@@ -1580,16 +1580,19 @@ public class Pages {
 	 */
 	public static void addReactions(Message msg, boolean withSkip, boolean withGoto) {
 		clearButtons(msg);
+		List<RestAction<Void>> acts = new ArrayList<>();
 
-		if (withGoto) msg.addReaction(paginator.getStringEmote(GOTO_FIRST)).submit();
-		if (withSkip) msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)).submit();
+		if (withGoto) acts.add(msg.addReaction(paginator.getStringEmote(GOTO_FIRST)));
+		if (withSkip) acts.add(msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)));
 
-		msg.addReaction(paginator.getStringEmote(PREVIOUS)).submit();
-		msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
-		msg.addReaction(paginator.getStringEmote(NEXT)).submit();
+		acts.add(msg.addReaction(paginator.getStringEmote(PREVIOUS)));
+		acts.add(msg.addReaction(paginator.getStringEmote(CANCEL)));
+		acts.add(msg.addReaction(paginator.getStringEmote(NEXT)));
 
-		if (withSkip) msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)).submit();
-		if (withGoto) msg.addReaction(paginator.getStringEmote(GOTO_LAST)).submit();
+		if (withSkip) acts.add(msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)));
+		if (withGoto) acts.add(msg.addReaction(paginator.getStringEmote(GOTO_LAST)));
+
+		RestAction.allOf(acts).submit();
 	}
 
 	/**
