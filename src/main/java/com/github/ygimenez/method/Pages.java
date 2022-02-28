@@ -22,10 +22,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -546,35 +543,42 @@ public class Pages {
 					}
 
 					Page pg;
+					boolean update = false;
 					switch (emt) {
 						case PREVIOUS:
 							if (p > 0) {
 								p--;
+								update = true;
 							}
 							break;
 						case NEXT:
 							if (p < maxP) {
 								p++;
+								update = true;
 							}
 							break;
 						case SKIP_BACKWARD:
 							if (p > 0) {
 								p -= (p - skipAmount < 0 ? p : skipAmount);
+								update = true;
 							}
 							break;
 						case SKIP_FORWARD:
 							if (p < maxP) {
 								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+								update = true;
 							}
 							break;
 						case GOTO_FIRST:
 							if (p > 0) {
 								p = 0;
+								update = true;
 							}
 							break;
 						case GOTO_LAST:
 							if (p < maxP) {
 								p = maxP;
+								update = true;
 							}
 							break;
 						case CANCEL:
@@ -582,19 +586,23 @@ public class Pages {
 							return;
 					}
 
-					pg = pgs.get(p);
-					updatePage(m, pg);
-					updateButtons(m, pg, useBtns, skipAmount > 1, fastForward);
+					if (update) {
+						pg = pgs.get(p);
+						updatePage(m, pg);
+						updateButtons(m, pg, useBtns, skipAmount > 1, fastForward);
 
-					modifyButtons(m, Map.of(
-							PREVIOUS.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
-							SKIP_BACKWARD.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
-							GOTO_FIRST.name(), b -> p == 0 ? b.asDisabled() : b.asEnabled(),
+						Function<Button, Button> startDisabler = b -> b.withDisabled(p == 0);
+						Function<Button, Button> endDisabler = b -> b.withDisabled(p == maxP);
+						modifyButtons(m, Map.of(
+								PREVIOUS.name(), startDisabler,
+								SKIP_BACKWARD.name(), startDisabler,
+								GOTO_FIRST.name(), startDisabler,
 
-							NEXT.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled(),
-							SKIP_FORWARD.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled(),
-							GOTO_LAST.name(), b -> p == maxP ? b.asDisabled() : b.asEnabled()
-					));
+								NEXT.name(), endDisabler,
+								SKIP_FORWARD.name(), endDisabler,
+								GOTO_LAST.name(), endDisabler
+						));
+					}
 
 					if (timeout != null)
 						timeout.cancel(true);
@@ -794,22 +802,20 @@ public class Pages {
 						}
 					}
 
-					if (emoji == null || emoji.equals(currCat)) return;
-
 					if (emt == CANCEL) {
 						finalizeEvent(m, success);
 						return;
-					}
+					} else if (emoji != null && Objects.equals(emoji, currCat)) {
+						Page pg = cats.get(emoji);
+						if (pg != null) {
+							if (currCat != null) {
+								modifyButtons(m, Map.of(Emote.getId(currCat), Button::asEnabled));
+							}
 
-					Page pg = cats.get(emoji);
-					if (pg != null) {
-						if (currCat != null) {
-							modifyButtons(m, Map.of(Emote.getId(currCat), Button::asEnabled));
+							updatePage(m, pg);
+							currCat = emoji;
+							modifyButtons(m, Map.of(Emote.getId(currCat), Button::asDisabled));
 						}
-
-						updatePage(m, pg);
-						currCat = emoji;
-						modifyButtons(m, Map.of(Emote.getId(currCat), Button::asDisabled));
 					}
 
 					if (timeout != null)
@@ -1371,7 +1377,7 @@ public class Pages {
 						}
 					}
 
-					Page pg = null;
+					Page pg;
 					switch (emt) {
 						case PREVIOUS:
 							if (p > 0) {
@@ -1394,15 +1400,15 @@ public class Pages {
 								}
 							}
 
+							updatePage(m, pg);
+							updateButtons(m, pg, useBtns, false, false);
+
 							if (cache) pageCache.add(pg);
 							break;
 						case CANCEL:
 							finalizeEvent(m, success);
 							return;
 					}
-
-					updatePage(m, pg);
-					updateButtons(m, pg, useBtns, false, false);
 
 					if (timeout != null)
 						timeout.cancel(true);
