@@ -517,6 +517,9 @@ public class Pages {
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
+			private final Function<Button, Button> LOWER_BOUNDARY_CHECK = b -> b.withDisabled(p == 0);
+			private final Function<Button, Button> UPPER_BOUNDARY_CHECK = b -> b.withDisabled(p == maxP);
+
 			{
 				if (time > 0 && unit != null)
 					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
@@ -591,17 +594,17 @@ public class Pages {
 						updatePage(m, pg);
 						updateButtons(m, pg, useBtns, skipAmount > 1, fastForward);
 
-						Function<Button, Button> startDisabler = b -> b.withDisabled(p == 0);
-						Function<Button, Button> endDisabler = b -> b.withDisabled(p == maxP);
-						modifyButtons(m, Map.of(
-								PREVIOUS.name(), startDisabler,
-								SKIP_BACKWARD.name(), startDisabler,
-								GOTO_FIRST.name(), startDisabler,
+						if (pg instanceof InteractPage) {
+							modifyButtons(m, Map.of(
+									PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
+									SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
+									GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
 
-								NEXT.name(), endDisabler,
-								SKIP_FORWARD.name(), endDisabler,
-								GOTO_LAST.name(), endDisabler
-						));
+									NEXT.name(), UPPER_BOUNDARY_CHECK,
+									SKIP_FORWARD.name(), UPPER_BOUNDARY_CHECK,
+									GOTO_LAST.name(), UPPER_BOUNDARY_CHECK
+							));
+						}
 					}
 
 					if (timeout != null)
@@ -808,13 +811,15 @@ public class Pages {
 					} else if (emoji != null && Objects.equals(emoji, currCat)) {
 						Page pg = cats.get(emoji);
 						if (pg != null) {
-							if (currCat != null) {
+							if (currCat != null && pg instanceof InteractPage) {
 								modifyButtons(m, Map.of(Emote.getId(currCat), Button::asEnabled));
 							}
 
 							updatePage(m, pg);
 							currCat = emoji;
-							modifyButtons(m, Map.of(Emote.getId(currCat), Button::asDisabled));
+							if (pg instanceof InteractPage) {
+								modifyButtons(m, Map.of(Emote.getId(currCat), Button::asDisabled));
+							}
 						}
 					}
 

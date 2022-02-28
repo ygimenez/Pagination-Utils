@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * Enumerator representing values required by non-dynamic buttons.
