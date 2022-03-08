@@ -808,7 +808,7 @@ public class Pages {
 					if (emt == CANCEL) {
 						finalizeEvent(m, success);
 						return;
-					} else if (emoji != null && Objects.equals(emoji, currCat)) {
+					} else if (emoji != null && !Objects.equals(emoji, currCat)) {
 						Page pg = cats.get(emoji);
 						if (pg != null) {
 							if (currCat != null && pg instanceof InteractPage) {
