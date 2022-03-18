@@ -6,6 +6,10 @@ import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.*;
+import com.github.ygimenez.model.helper.ButtonizeHelper;
+import com.github.ygimenez.model.helper.CategorizeHelper;
+import com.github.ygimenez.model.helper.LazyPaginateHelper;
+import com.github.ygimenez.model.helper.PaginateHelper;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -111,6 +115,32 @@ public class Pages {
 	 */
 	public static MessageHandler getHandler() {
 		return handler;
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. This versions uses a helper class
+	 * to aid customization and allow reusage of configurations.
+	 *
+	 * @param helper    A {@link PaginateHelper} holding desired pagination settings.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
+	 */
+	public static void paginate(@Nonnull PaginateHelper helper) throws ErrorResponseException, InsufficientPermissionException {
+		paginate(
+				helper.getMessage(),
+				helper.getContent(),
+				helper.isUsingButtons(),
+				helper.getTime(),
+				helper.getUnit(),
+				helper.getSkipAmount(),
+				helper.isFastForward(),
+				helper.getCanInteract()
+		);
 	}
 
 	/**
@@ -624,6 +654,32 @@ public class Pages {
 	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will browse through a given {@link Map} of pages. You may only specify
 	 * one {@link Page} per button, adding another button with an existing unicode
+	 * will overwrite the current button's {@link Page}. This versions uses a helper class
+	 * to aid customization and allow reusage of configurations.
+	 *
+	 * @param helper    A {@link CategorizeHelper} holding desired categorization settings.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void categorize(@Nonnull CategorizeHelper helper) throws ErrorResponseException, InsufficientPermissionException {
+		categorize(
+				helper.getMessage(),
+				helper.getContent(),
+				helper.isUsingButtons(),
+				helper.getTime(),
+				helper.getUnit(),
+				helper.getCanInteract()
+		);
+	}
+
+	/**
+	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will browse through a given {@link Map} of pages. You may only specify
+	 * one {@link Page} per button, adding another button with an existing unicode
 	 * will overwrite the current button's {@link Page}.
 	 *
 	 * @param msg        The {@link Message} sent which will be categorized.
@@ -834,6 +890,34 @@ public class Pages {
 				}
 			}
 		});
+	}
+
+	/**
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}. This versions uses a helper class
+	 * to aid customization and allow reusage of configurations.
+	 *
+	 * @param helper    A {@link ButtonizeHelper} holding desired buttonization settings.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void buttonize(@Nonnull ButtonizeHelper helper) throws ErrorResponseException, InsufficientPermissionException {
+		buttonize(
+				helper.getMessage(),
+				helper.getContent(),
+				helper.isUsingButtons(),
+				helper.isCancellable(),
+				helper.getTime(),
+				helper.getUnit(),
+				helper.getCanInteract(),
+				helper.getOnCancel()
+		);
 	}
 
 	/**
@@ -1129,7 +1213,33 @@ public class Pages {
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
-	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
+	 * This versions uses a helper class to aid customization and allow reusage of configurations.
+	 *
+	 * @param helper    A {@link LazyPaginateHelper} holding desired lazy pagination settings.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 */
+	public static void lazyPaginate(@Nonnull LazyPaginateHelper helper) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(
+				helper.getMessage(),
+				helper.getContent(),
+				helper.getPageLoader(),
+				helper.isUsingButtons(),
+				helper.getTime(),
+				helper.getUnit(),
+				helper.getCanInteract()
+		);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
@@ -1144,7 +1254,7 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
 	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, false, 0, null, null);
+		lazyPaginate(msg, null, pageLoader, useButtons, 0, null, null);
 	}
 
 	/**
@@ -1171,13 +1281,13 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
 	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, false, time, unit, null);
+		lazyPaginate(msg, null, pageLoader, useButtons, time, unit, null);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
-	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
@@ -1194,13 +1304,13 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
 	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, false, 0, null, canInteract);
+		lazyPaginate(msg, null, pageLoader, useButtons, 0, null, canInteract);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
-	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 * You can specify how long the listener will stay active before shutting down itself after a
 	 * no-activity interval.
 	 *
@@ -1223,20 +1333,20 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
 	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, false, time, unit, canInteract);
+		lazyPaginate(msg, null, pageLoader, useButtons, time, unit, canInteract);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
-	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pageCache	 The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
-	 * @param cache      Enables {@link Page} caching, saving previously visited pages.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1244,23 +1354,23 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, cache, 0, null, null);
+	public static void lazyPaginate(@Nonnull Message msg, List<Page> pageCache, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageCache, pageLoader, useButtons, 0, null, null);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
-	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 * You can specify how long the listener will stay active before shutting down itself after a
 	 * no-activity interval.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
+	 * @param pageCache	 The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
-	 * @param cache      Enables {@link Page} caching, saving previously visited pages.
 	 * @param time       The time before the listener automatically stop listening
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
@@ -1272,21 +1382,21 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, cache, time, unit, null);
+	public static void lazyPaginate(@Nonnull Message msg, List<Page> pageCache, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageCache, pageLoader, useButtons, time, unit, null);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
-	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageCache	 The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param cache       Enables {@link Page} caching, saving previously visited pages.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -1296,23 +1406,23 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, cache, 0, null, canInteract);
+	public static void lazyPaginate(@Nonnull Message msg, List<Page> pageCache, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, pageCache, pageLoader, useButtons, 0, null, canInteract);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
-	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 * You can specify how long the listener will stay active before shutting down itself after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
+	 * @param pageCache	 The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param cache       Enables {@link Page} caching, saving previously visited pages.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -1326,16 +1436,15 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static void lazyPaginate(@Nonnull Message msg, List<Page> pageCache, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+		boolean cache = pageCache != null;
 
 		if (!msg.getAuthor().equals(paginator.getHandler()))
 
 			clearButtons(msg);
 		clearReactions(msg);
-
-		List<Page> pageCache = cache ? new ArrayList<>() : null;
 
 		Page pg = pageLoader.apply(0);
 		if (pg == null) {
