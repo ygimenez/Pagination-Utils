@@ -27,7 +27,7 @@
 
 # Pagination Utils - JDA Pagination made easier!
 
-With this library you will be using pages and categories in your bot commands in no time!
+With this library you will be using pages, categories and buttons in your bot in no time!
 
 ## What is a page/category/button?
 
