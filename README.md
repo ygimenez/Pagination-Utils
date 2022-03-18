@@ -38,7 +38,7 @@ With this library you will be using pages, categories and buttons in your bot in
 ![Buttonization Example](https://i.imgur.com/4PBVoTn.gif)
 
 Have you been using a bot and came across one of those three GIFs and thought: "That must've been hard to make." or "I'd
-like one of those in my bot!"? Fear no more, KuuHaKu to the rescue!
+like one of those in my bot!"? Fear no more, Pagination Utils to the rescue!
 
 ## How do I paginate?
 
