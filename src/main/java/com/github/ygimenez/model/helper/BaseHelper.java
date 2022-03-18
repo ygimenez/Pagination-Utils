@@ -53,28 +53,28 @@ abstract class BaseHelper<Sub extends BaseHelper<Sub, T>, T> {
 		return canInteract;
 	}
 
-	protected Sub setCancellable(boolean cancellable) {
+	public Sub setCancellable(boolean cancellable) {
 		this.cancellable = cancellable;
 		return subClass.cast(this);
 	}
 
-	protected Sub setTime(int time) {
+	public Sub setTime(int time) {
 		this.time = time;
 		return subClass.cast(this);
 	}
 
-	protected Sub setUnit(TimeUnit unit) {
+	public Sub setUnit(TimeUnit unit) {
 		this.unit = unit;
 		return subClass.cast(this);
 	}
 
-	protected Sub setTimeUnit(int time, TimeUnit unit) {
+	public Sub setTimeUnit(int time, TimeUnit unit) {
 		this.time = time;
 		this.unit = unit;
 		return subClass.cast(this);
 	}
 
-	protected Sub setCanInteract(Predicate<User> canInteract) {
+	public Sub setCanInteract(Predicate<User> canInteract) {
 		this.canInteract = canInteract;
 		return subClass.cast(this);
 	}
