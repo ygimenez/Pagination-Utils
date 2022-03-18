@@ -18,7 +18,7 @@ abstract class BaseHelper<Sub extends BaseHelper<Sub, T>, T> {
 	private TimeUnit unit = null;
 	private Predicate<User> canInteract = null;
 
-	public BaseHelper(Class<Sub> subClass, Message message, T buttons, boolean useButtons) {
+	protected BaseHelper(Class<Sub> subClass, Message message, T buttons, boolean useButtons) {
 		this.subClass = subClass;
 		this.message = message;
 		this.content = buttons;
