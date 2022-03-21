@@ -1,26 +1,46 @@
 package com.github.ygimenez.model.helper;
 
+import com.github.ygimenez.exception.InvalidStateException;
+import com.github.ygimenez.exception.NullPageException;
+import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.ThrowingFunction;
+import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public class LazyPaginateHelper extends PaginateHelper {
+import static com.github.ygimenez.type.Emote.*;
+import static com.github.ygimenez.type.Emote.GOTO_LAST;
+
+public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page>> {
 	private final ThrowingFunction<Integer, Page> pageLoader;
+	private final boolean cache;
 
-	public LazyPaginateHelper(Message message, ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) {
-		super(message, new ArrayList<>(), useButtons);
+	public LazyPaginateHelper(ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) {
+		super(LazyPaginateHelper.class, new ArrayList<>(), useButtons);
 		this.pageLoader = pageLoader;
+		this.cache = true;
+		load(0);
 	}
 
-	public LazyPaginateHelper(Message message, ThrowingFunction<Integer, Page> pageLoader, List<Page> initialPages, boolean useButtons) {
-		super(message, initialPages, useButtons);
+	public LazyPaginateHelper(ThrowingFunction<Integer, Page> pageLoader, @Nullable List<Page> initialPages, boolean useButtons) {
+		super(LazyPaginateHelper.class, initialPages, useButtons);
 		this.pageLoader = pageLoader;
+		this.cache = initialPages != null;
+		load(0);
 	}
 
 	public LazyPaginateHelper addPage(Page page) {
+		if (!cache) throw new IllegalStateException();
+
 		getContent().add(page);
 		return this;
 	}
@@ -29,8 +49,47 @@ public class LazyPaginateHelper extends PaginateHelper {
 		return pageLoader;
 	}
 
-	public LazyPaginateHelper load(int page) {
-		getContent().set(page, pageLoader.apply(page));
-		return this;
+	public @Nullable Page load(int page) {
+		if (cache) {
+			int maxIndex = getContent().size() - 1;
+			while (maxIndex < page) {
+				getContent().add(null);
+				maxIndex++;
+			}
+		}
+
+		Page p = pageLoader.apply(page);
+		if (cache) getContent().set(page, p);
+		return p;
+	}
+
+	@Override
+	public MessageAction apply(MessageAction action) {
+		if (!isUsingButtons()) return action;
+
+		InteractPage p = (InteractPage) load(0);
+		if (p == null) throw new NullPageException();
+
+		return action.setActionRows(ActionRow.of(new ArrayList<>() {{
+			add(p.makeButton(PREVIOUS));
+			if (isCancellable()) add(p.makeButton(CANCEL));
+			add(p.makeButton(NEXT));
+		}}));
+	}
+
+	@Override
+	public boolean shouldUpdate(Message msg) {
+		if (!isUsingButtons()) return true;
+
+		Predicate<Set<Emote>> checks = e -> e.containsAll(Set.of(PREVIOUS, NEXT));
+		Set<Emote> emotes = msg.getButtons().stream()
+				.map(Emote::fromButton)
+				.collect(Collectors.toSet());
+
+		if (isCancellable()) {
+			checks = checks.and(e -> e.contains(CANCEL));
+		}
+
+		return !checks.test(emotes);
 	}
 }

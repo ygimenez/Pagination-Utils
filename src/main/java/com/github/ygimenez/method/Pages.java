@@ -119,32 +119,6 @@ public class Pages {
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
-	 * which will navigate through a given {@link List} of pages. This versions uses a helper class
-	 * to aid customization and allow reusage of configurations.
-	 *
-	 * @param helper    A {@link PaginateHelper} holding desired pagination settings.
-	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
-	 *                                         or cannot be accessed when triggering a
-	 *                                         {@link GenericMessageReactionEvent}.
-	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
-	 */
-	public static void paginate(@Nonnull PaginateHelper helper) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(
-				helper.getMessage(),
-				helper.getContent(),
-				helper.isUsingButtons(),
-				helper.getTime(),
-				helper.getUnit(),
-				helper.getSkipAmount(),
-				helper.isFastForward(),
-				helper.getCanInteract()
-		);
-	}
-
-	/**
-	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
@@ -525,16 +499,40 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
 	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		if (!isActivated() || pages.isEmpty()) throw new InvalidStateException();
-		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+		paginate(msg, new PaginateHelper(pages, useButtons)
+				.setTimeUnit(time, unit)
+				.setSkipAmount(skipAmount)
+				.setFastForward(fastForward)
+				.setCanInteract(canInteract)
+		);
+	}
 
-		List<Page> pgs = Collections.unmodifiableList(pages);
-		clearButtons(msg);
-		clearReactions(msg);
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will navigate through a given {@link List} of pages. This versions uses a helper class
+	 * to aid customization and allow reusage of configurations.
+	 *
+	 * @param msg    The {@link Message} sent which will be paginated.
+	 * @param helper A {@link PaginateHelper} holding desired pagination settings.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
+	 */
+	public static void paginate(@Nonnull Message msg, @Nonnull PaginateHelper helper) throws ErrorResponseException, InsufficientPermissionException {
+		if (!isActivated() || helper.getContent().isEmpty()) throw new InvalidStateException();
+		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+		List<Page> pgs = Collections.unmodifiableList(helper.getContent());
 
-		Page pg = pgs.get(0);
-		if (useBtns) addButtons((InteractPage) pg, msg, skipAmount > 1, fastForward);
-		else addReactions(msg, skipAmount > 1, fastForward);
+		if (useBtns && helper.shouldUpdate(msg)) {
+			helper.apply(msg.editMessageComponents()).submit();
+		} else if (!useBtns) {
+			clearButtons(msg);
+			clearReactions(msg);
+			addReactions(msg, helper.getSkipAmount() > 1, helper.isFastForward());
+		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
@@ -551,15 +549,15 @@ public class Pages {
 			private final Function<Button, Button> UPPER_BOUNDARY_CHECK = b -> b.withDisabled(p == maxP);
 
 			{
-				if (time > 0 && unit != null)
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
+				if (helper.getTime() > 0 && helper.getUnit() != null)
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
 			}
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
 				Message m = subGet(wrapper.retrieveMessage());
 
-				if (canInteract == null || canInteract.test(u)) {
+				if (helper.getCanInteract() == null || helper.getCanInteract().test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
 						return;
 
@@ -592,13 +590,13 @@ public class Pages {
 							break;
 						case SKIP_BACKWARD:
 							if (p > 0) {
-								p -= (p - skipAmount < 0 ? p : skipAmount);
+								p -= (p - helper.getSkipAmount() < 0 ? p : helper.getSkipAmount());
 								update = true;
 							}
 							break;
 						case SKIP_FORWARD:
 							if (p < maxP) {
-								p += (p + skipAmount > maxP ? maxP - p : skipAmount);
+								p += (p + helper.getSkipAmount() > maxP ? maxP - p : helper.getSkipAmount());
 								update = true;
 							}
 							break;
@@ -622,7 +620,7 @@ public class Pages {
 					if (update) {
 						pg = pgs.get(p);
 						updatePage(m, pg);
-						updateButtons(m, pg, useBtns, skipAmount > 1, fastForward);
+						updateButtons(m, helper);
 
 						if (pg instanceof InteractPage) {
 							modifyButtons(m, Map.of(
@@ -639,8 +637,8 @@ public class Pages {
 
 					if (timeout != null)
 						timeout.cancel(true);
-					if (time > 0 && unit != null)
-						timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
+					if (helper.getTime() > 0 && helper.getUnit() != null)
+						timeout = executor.schedule(() -> finalizeEvent(m, success), helper.getTime(), helper.getUnit());
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -648,32 +646,6 @@ public class Pages {
 				}
 			}
 		});
-	}
-
-	/**
-	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
-	 * which will browse through a given {@link Map} of pages. You may only specify
-	 * one {@link Page} per button, adding another button with an existing unicode
-	 * will overwrite the current button's {@link Page}. This versions uses a helper class
-	 * to aid customization and allow reusage of configurations.
-	 *
-	 * @param helper    A {@link CategorizeHelper} holding desired categorization settings.
-	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
-	 *                                         or cannot be accessed when triggering a
-	 *                                         {@link GenericMessageReactionEvent}.
-	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 */
-	public static void categorize(@Nonnull CategorizeHelper helper) throws ErrorResponseException, InsufficientPermissionException {
-		categorize(
-				helper.getMessage(),
-				helper.getContent(),
-				helper.isUsingButtons(),
-				helper.getTime(),
-				helper.getUnit(),
-				helper.getCanInteract()
-		);
 	}
 
 	/**
@@ -781,41 +753,40 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
 	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		if (!isActivated()) throw new InvalidStateException();
-		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+		categorize(msg, new CategorizeHelper(categories, useButtons)
+				.setTimeUnit(time, unit)
+				.setCanInteract(canInteract)
+		);
+	}
 
-		Map<Emoji, Page> cats = Collections.unmodifiableMap(categories);
-		clearButtons(msg);
-		clearReactions(msg);
+	/**
+	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will browse through a given {@link Map} of pages. You may only specify
+	 * one {@link Page} per button, adding another button with an existing unicode
+	 * will overwrite the current button's {@link Page}. This versions uses a helper class
+	 * to aid customization and allow reusage of configurations.
+	 *
+	 * @param msg    The {@link Message} sent which will be categorized.
+	 * @param helper A {@link CategorizeHelper} holding desired categorization settings.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void categorize(@Nonnull Message msg, @Nonnull CategorizeHelper helper) throws ErrorResponseException, InsufficientPermissionException {
+		if (!isActivated()) throw new InvalidStateException();
+		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+
+		Map<Emoji, Page> cats = Collections.unmodifiableMap(helper.getContent());
 
 		if (useBtns) {
-			List<ActionRow> rows = new ArrayList<>();
-
-			List<Component> row = new ArrayList<>();
-			for (Emoji k : cats.keySet()) {
-				if (row.size() == 5) {
-					rows.add(ActionRow.of(row));
-					row = new ArrayList<>();
-				}
-
-				row.add(Button.secondary(Emote.getId(k), k));
-			}
-
-			Button button = Button.danger(CANCEL.name(), paginator.getEmote(CANCEL));
-			if (rows.size() == 5 && row.size() == 5) {
-				row.set(4, button);
-			} else if (row.size() == 5) {
-				rows.add(ActionRow.of(row));
-				row = new ArrayList<>();
-
-				row.add(button);
-			} else {
-				row.add(button);
-			}
-
-			rows.add(ActionRow.of(row));
-			msg.editMessageComponents(rows).submit();
+			helper.apply(msg.editMessageComponents()).submit();
 		} else {
+			clearButtons(msg);
+			clearReactions(msg);
+
 			for (Emoji k : cats.keySet()) {
 				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 			}
@@ -834,15 +805,15 @@ public class Pages {
 			};
 
 			{
-				if (time > 0 && unit != null)
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
+				if (helper.getTime() > 0 && helper.getUnit() != null)
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
 			}
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
 				Message m = subGet(wrapper.retrieveMessage());
 
-				if (canInteract == null || canInteract.test(u)) {
+				if (helper.getCanInteract() == null || helper.getCanInteract().test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
 						return;
 
@@ -881,8 +852,8 @@ public class Pages {
 
 					if (timeout != null)
 						timeout.cancel(true);
-					if (time > 0 && unit != null)
-						timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
+					if (helper.getTime() > 0 && helper.getUnit() != null)
+						timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -890,34 +861,6 @@ public class Pages {
 				}
 			}
 		});
-	}
-
-	/**
-	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
-	 * executing a specific task on click. You may only specify one {@link Runnable}
-	 * per button, adding another button with an existing unicode will overwrite the
-	 * current button's {@link Runnable}. This versions uses a helper class
-	 * to aid customization and allow reusage of configurations.
-	 *
-	 * @param helper    A {@link ButtonizeHelper} holding desired buttonization settings.
-	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
-	 *                                         or cannot be accessed when triggering a
-	 *                                         {@link GenericMessageReactionEvent}.
-	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated.
-	 */
-	public static void buttonize(@Nonnull ButtonizeHelper helper) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(
-				helper.getMessage(),
-				helper.getContent(),
-				helper.isUsingButtons(),
-				helper.isCancellable(),
-				helper.getTime(),
-				helper.getUnit(),
-				helper.getCanInteract(),
-				helper.getOnCancel()
-		);
 	}
 
 	/**
@@ -1072,22 +1015,22 @@ public class Pages {
 	 * current button's {@link Runnable}. You can specify the time in which the
 	 * listener will automatically stop itself after a no-activity interval.
 	 *
-	 * @param msg              The {@link Message} sent which will be buttoned.
-	 * @param buttons          The buttons to be shown. The buttons are defined by a
-	 *                         Map containing emoji unicodes or emote ids as keys and
-	 *                         {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
-	 *                         containing desired behavior as value.
-	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
-	 *                         {@link Message} was not sent by the bot.
-	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
-	 * @param time             The time before the listener automatically stop
-	 *                         listening for further events (recommended: 60).
-	 * @param unit             The time's {@link TimeUnit} (recommended:
-	 *                         {@link TimeUnit#SECONDS}).
-	 * @param canInteract      {@link Predicate} to determine whether the
-	 *                         {@link User} that pressed the button can interact
-	 *                         with it or not.
-	 * @param onCancel         Action to be run after the listener is removed.
+	 * @param msg         The {@link Message} sent which will be buttoned.
+	 * @param buttons     The buttons to be shown. The buttons are defined by a
+	 *                    Map containing emoji unicodes or emote ids as keys and
+	 *                    {@link ThrowingTriConsumer}&lt;{@link Member}, {@link Message}, {@link InteractionHook}&gt;
+	 *                    containing desired behavior as value.
+	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
+	 *                    {@link Message} was not sent by the bot.
+	 * @param cancellable Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param time        The time before the listener automatically stop
+	 *                    listening for further events (recommended: 60).
+	 * @param unit        The time's {@link TimeUnit} (recommended:
+	 *                    {@link TimeUnit#SECONDS}).
+	 * @param canInteract {@link Predicate} to determine whether the
+	 *                    {@link User} that pressed the button can interact
+	 *                    with it or not.
+	 * @param onCancel    Action to be run after the listener is removed.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1095,51 +1038,50 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
-		if (!isActivated()) throw new InvalidStateException();
-		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean cancellable, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+		buttonize(msg, new ButtonizeHelper(buttons, useButtons)
+				.setCancellable(cancellable)
+				.setTimeUnit(time, unit)
+				.setCanInteract(canInteract)
+				.setOnCancel(onCancel)
+		);
+	}
 
-		Map<Emoji, ThrowingConsumer<ButtonWrapper>> btns = Collections.unmodifiableMap(buttons);
-		clearButtons(msg);
-		clearReactions(msg);
+	/**
+	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
+	 * executing a specific task on click. You may only specify one {@link Runnable}
+	 * per button, adding another button with an existing unicode will overwrite the
+	 * current button's {@link Runnable}. This versions uses a helper class
+	 * to aid customization and allow reusage of configurations.
+	 *
+	 * @param msg    The {@link Message} sent which will be buttoned.
+	 * @param helper A {@link ButtonizeHelper} holding desired buttonization settings.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated.
+	 */
+	public static void buttonize(@Nonnull Message msg, @Nonnull ButtonizeHelper helper) throws ErrorResponseException, InsufficientPermissionException {
+		if (!isActivated()) throw new InvalidStateException();
+		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+
+		Map<Emoji, ThrowingConsumer<ButtonWrapper>> btns = Collections.unmodifiableMap(helper.getContent());
 
 		if (useBtns) {
-			List<ActionRow> rows = new ArrayList<>();
-
-			List<Component> row = new ArrayList<>();
-			for (Emoji k : btns.keySet()) {
-				if (row.size() == 5) {
-					rows.add(ActionRow.of(row));
-					row = new ArrayList<>();
-				}
-
-				row.add(Button.secondary(Emote.getId(k), k));
-			}
-
-			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) {
-				Button button = Button.danger(CANCEL.name(), paginator.getEmote(CANCEL));
-
-				if (rows.size() == 5 && row.size() == 5) {
-					row.set(4, button);
-				} else if (row.size() == 5) {
-					rows.add(ActionRow.of(row));
-					row = new ArrayList<>();
-
-					row.add(button);
-				} else {
-					row.add(button);
-				}
-			}
-
-			rows.add(ActionRow.of(row));
-			msg.editMessageComponents(rows).submit();
+			helper.apply(msg.editMessageComponents()).submit();
 		} else {
+			clearButtons(msg);
+			clearReactions(msg);
+
 			for (Emoji k : btns.keySet()) {
 				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
 			}
 
-			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
+			if (!btns.containsKey(paginator.getEmote(CANCEL)) && helper.isCancellable()) {
 				msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+			}
 		}
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -1148,20 +1090,20 @@ public class Pages {
 				if (timeout != null)
 					timeout.cancel(true);
 				handler.removeEvent(msg);
-				if (onCancel != null) onCancel.accept(msg);
+				if (helper.getOnCancel() != null) helper.getOnCancel().accept(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
-				if (time > 0 && unit != null)
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
+				if (helper.getTime() > 0 && helper.getUnit() != null)
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
 			}
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
 				Message m = subGet(wrapper.retrieveMessage());
 
-				if (canInteract == null || canInteract.test(u)) {
+				if (helper.getCanInteract() == null || helper.getCanInteract().test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
 						return;
 
@@ -1180,7 +1122,7 @@ public class Pages {
 						}
 					}
 
-					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton) && emt == CANCEL) {
+					if ((!btns.containsKey(paginator.getEmote(CANCEL)) && helper.isCancellable()) && emt == CANCEL) {
 						finalizeEvent(m, success);
 						return;
 					}
@@ -1199,8 +1141,8 @@ public class Pages {
 
 					if (timeout != null)
 						timeout.cancel(true);
-					if (time > 0 && unit != null)
-						timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
+					if (helper.getTime() > 0 && helper.getUnit() != null)
+						timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1208,32 +1150,6 @@ public class Pages {
 				}
 			}
 		});
-	}
-
-	/**
-	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
-	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
-	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
-	 * This versions uses a helper class to aid customization and allow reusage of configurations.
-	 *
-	 * @param helper    A {@link LazyPaginateHelper} holding desired lazy pagination settings.
-	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
-	 *                                         or cannot be accessed when triggering a
-	 *                                         {@link GenericMessageReactionEvent}.
-	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
-	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
-	 */
-	public static void lazyPaginate(@Nonnull LazyPaginateHelper helper) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(
-				helper.getMessage(),
-				helper.getContent(),
-				helper.getPageLoader(),
-				helper.isUsingButtons(),
-				helper.getTime(),
-				helper.getUnit(),
-				helper.getCanInteract()
-		);
 	}
 
 	/**
@@ -1342,7 +1258,7 @@ public class Pages {
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
-	 * @param pageCache	 The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
+	 * @param pageCache  The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
@@ -1366,7 +1282,7 @@ public class Pages {
 	 * no-activity interval.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
-	 * @param pageCache	 The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
+	 * @param pageCache  The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
@@ -1392,7 +1308,7 @@ public class Pages {
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pageCache	 The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
+	 * @param pageCache   The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
@@ -1418,7 +1334,7 @@ public class Pages {
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
-	 * @param pageCache	 The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
+	 * @param pageCache   The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
 	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
@@ -1437,24 +1353,39 @@ public class Pages {
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
 	public static void lazyPaginate(@Nonnull Message msg, List<Page> pageCache, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		lazyPaginate(msg, new LazyPaginateHelper(pageLoader, pageCache, useButtons)
+				.setTimeUnit(time, unit)
+				.setCanInteract(canInteract)
+		);
+	}
+
+	/**
+	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
+	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
+	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
+	 * This versions uses a helper class to aid customization and allow reusage of configurations.
+	 *
+	 * @param msg    The {@link Message} sent which will be paginated.
+	 * @param helper A {@link LazyPaginateHelper} holding desired lazy pagination settings.
+	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
+	 *                                         or cannot be accessed when triggering a
+	 *                                         {@link GenericMessageReactionEvent}.
+	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
+	 *                                         due to lack of bot permission.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 */
+	public static void lazyPaginate(@Nonnull Message msg, @Nonnull LazyPaginateHelper helper) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
-		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
-		boolean cache = pageCache != null;
+		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+		boolean cache = helper.getContent() != null;
 
-		if (!msg.getAuthor().equals(paginator.getHandler()))
-
+		if (useBtns && helper.shouldUpdate(msg)) {
+			helper.apply(msg.editMessageComponents()).submit();
+		} else if (!useBtns) {
 			clearButtons(msg);
-		clearReactions(msg);
-
-		Page pg = pageLoader.apply(0);
-		if (pg == null) {
-			throw new InvalidStateException();
+			clearReactions(msg);
+			addReactions(msg, false, false);
 		}
-
-		if (cache) pageCache.add(pg);
-
-		if (useBtns) addButtons((InteractPage) pg, msg, false, false);
-		else addReactions(msg, false, false);
 
 		handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
@@ -1467,15 +1398,15 @@ public class Pages {
 			};
 
 			{
-				if (time > 0 && unit != null)
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), time, unit);
+				if (helper.getTime() > 0 && helper.getUnit() != null)
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
 			}
 
 			@Override
 			public void acceptThrows(@Nonnull User u, @Nonnull PaginationEventWrapper wrapper) {
 				Message m = subGet(wrapper.retrieveMessage());
 
-				if (canInteract == null || canInteract.test(u)) {
+				if (helper.getCanInteract() == null || helper.getCanInteract().test(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
 						return;
 
@@ -1496,18 +1427,25 @@ public class Pages {
 						case PREVIOUS:
 							if (p > 0) {
 								p--;
-								pg = cache ? pageCache.get(p) : pageLoader.apply(p);
+								pg = cache ? helper.getContent().get(p) : helper.getPageLoader().apply(p);
 
 								updatePage(m, pg);
-								updateButtons(m, pg, useBtns, false, false);
+								updateButtons(m, helper);
 							}
 							break;
 						case NEXT:
 							p++;
-							if (cache && pageCache.size() > p) {
-								pg = pageCache.get(p);
+							if (cache && helper.getContent().size() > p) {
+								pg = helper.getContent().get(p);
+								if (pg == null) {
+									pg = helper.getPageLoader().apply(p);
+									if (pg == null) {
+										p--;
+										return;
+									}
+								}
 							} else {
-								pg = pageLoader.apply(p);
+								pg = helper.getPageLoader().apply(p);
 								if (pg == null) {
 									p--;
 									return;
@@ -1515,9 +1453,9 @@ public class Pages {
 							}
 
 							updatePage(m, pg);
-							updateButtons(m, pg, useBtns, false, false);
+							updateButtons(m, helper);
 
-							if (cache) pageCache.add(pg);
+							if (cache) helper.getContent().add(pg);
 							break;
 						case CANCEL:
 							finalizeEvent(m, success);
@@ -1526,8 +1464,8 @@ public class Pages {
 
 					if (timeout != null)
 						timeout.cancel(true);
-					if (time > 0 && unit != null)
-						timeout = executor.schedule(() -> finalizeEvent(m, success), time, unit);
+					if (helper.getTime() > 0 && helper.getUnit() != null)
+						timeout = executor.schedule(() -> finalizeEvent(m, success), helper.getTime(), helper.getUnit());
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1554,11 +1492,19 @@ public class Pages {
 		}
 	}
 
-	private static void updateButtons(Message msg, Page pg, boolean useButtons, boolean withSkip, boolean withGoto) {
-		if (useButtons) {
-			addButtons((InteractPage) pg, msg, withSkip, withGoto);
+	private static void updateButtons(Message msg, PaginateHelper helper) {
+		if (helper.isUsingButtons()) {
+			helper.apply(msg.editMessageComponents()).submit();
 		} else {
-			addReactions(msg, withSkip, withGoto);
+			addReactions(msg, helper.getSkipAmount() > 1, helper.isFastForward());
+		}
+	}
+
+	private static void updateButtons(Message msg, LazyPaginateHelper helper) {
+		if (helper.isUsingButtons()) {
+			helper.apply(msg.editMessageComponents()).submit();
+		} else {
+			addReactions(msg, false, false);
 		}
 	}
 
@@ -1619,6 +1565,8 @@ public class Pages {
 	 * @param msg The {@link Message} to have reactions/buttons removed from.
 	 */
 	public static void clearReactions(Message msg) {
+		if (msg.getReactions().isEmpty()) return;
+
 		try {
 			if (msg.getChannel().getType().isGuild())
 				msg.clearReactions().submit();
@@ -1638,6 +1586,8 @@ public class Pages {
 	 * @param msg The {@link Message} to have reactions/buttons removed from.
 	 */
 	public static void clearButtons(Message msg) {
+		if (msg.getButtons().isEmpty()) return;
+
 		try {
 			subGet(msg.editMessageComponents());
 		} catch (InsufficientPermissionException | IllegalStateException e) {
@@ -1702,66 +1652,5 @@ public class Pages {
 		if (withGoto) acts.add(msg.addReaction(paginator.getStringEmote(GOTO_LAST)));
 
 		RestAction.allOf(acts).submit();
-	}
-
-	/**
-	 * Utility method to add navigation buttons.
-	 *
-	 * @param page     The {@link InteractPage} containing button styles and captions.
-	 * @param msg      The {@link Message} to have reactions removed from.
-	 * @param withSkip Whether to include {@link Emote#SKIP_BACKWARD} and {@link Emote#SKIP_FORWARD} buttons.
-	 * @param withGoto Whether to include {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons.
-	 */
-	public static void addButtons(InteractPage page, Message msg, boolean withSkip, boolean withGoto) {
-		clearReactions(msg);
-
-		List<ActionRow> rows = new ArrayList<>();
-
-		List<Component> row;
-		if (withSkip && withGoto) {
-			row = List.of(
-					page.makeButton(NONE),
-					page.makeButton(PREVIOUS),
-					page.makeButton(CANCEL),
-					page.makeButton(NEXT),
-					page.makeButton(NONE)
-			);
-		} else if (withSkip) {
-			row = List.of(
-					page.makeButton(SKIP_BACKWARD),
-					page.makeButton(PREVIOUS),
-					page.makeButton(CANCEL),
-					page.makeButton(NEXT),
-					page.makeButton(SKIP_FORWARD)
-			);
-		} else if (withGoto) {
-			row = List.of(
-					page.makeButton(GOTO_FIRST),
-					page.makeButton(PREVIOUS),
-					page.makeButton(CANCEL),
-					page.makeButton(NEXT),
-					page.makeButton(GOTO_LAST)
-			);
-		} else {
-			row = List.of(
-					page.makeButton(PREVIOUS),
-					page.makeButton(CANCEL),
-					page.makeButton(NEXT)
-			);
-		}
-		rows.add(ActionRow.of(row));
-
-		if (withSkip && withGoto) {
-			row = List.of(
-					page.makeButton(GOTO_FIRST),
-					page.makeButton(SKIP_BACKWARD),
-					page.makeButton(NONE),
-					page.makeButton(SKIP_FORWARD),
-					page.makeButton(GOTO_LAST)
-			);
-			rows.add(ActionRow.of(row));
-		}
-
-		subGet(msg.editMessageComponents(rows));
 	}
 }

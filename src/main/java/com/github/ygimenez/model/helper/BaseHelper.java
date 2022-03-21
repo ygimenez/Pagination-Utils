@@ -2,6 +2,7 @@ package com.github.ygimenez.model.helper;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -9,7 +10,6 @@ import java.util.function.Predicate;
 abstract class BaseHelper<Sub extends BaseHelper<Sub, T>, T> {
 	private final Class<Sub> subClass;
 
-	private final Message message;
 	private final T content;
 	private final boolean useButtons;
 
@@ -18,15 +18,10 @@ abstract class BaseHelper<Sub extends BaseHelper<Sub, T>, T> {
 	private TimeUnit unit = null;
 	private Predicate<User> canInteract = null;
 
-	protected BaseHelper(Class<Sub> subClass, Message message, T buttons, boolean useButtons) {
+	protected BaseHelper(Class<Sub> subClass, T buttons, boolean useButtons) {
 		this.subClass = subClass;
-		this.message = message;
 		this.content = buttons;
 		this.useButtons = useButtons;
-	}
-
-	public Message getMessage() {
-		return message;
 	}
 
 	public T getContent() {
@@ -78,4 +73,8 @@ abstract class BaseHelper<Sub extends BaseHelper<Sub, T>, T> {
 		this.canInteract = canInteract;
 		return subClass.cast(this);
 	}
+
+	public abstract MessageAction apply(MessageAction action);
+
+	public abstract boolean shouldUpdate(Message msg);
 }

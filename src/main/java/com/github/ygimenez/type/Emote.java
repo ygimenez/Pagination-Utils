@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
@@ -133,5 +134,11 @@ public enum Emote {
 	 */
 	public static String getId(Emoji emj) {
 			return emj.isCustom() ? emj.getId() : emj.getName();
+	}
+
+	public static Emote fromButton(Button btn) {
+		return Arrays.stream(values())
+				.filter(e -> btn.getId() != null && btn.getId().contains(e.name()))
+				.findFirst().orElse(null);
 	}
 }
