@@ -1330,9 +1330,7 @@ public class Pages {
 		if (!isActivated()) throw new InvalidStateException();
 		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 
-		if (!msg.getAuthor().equals(paginator.getHandler()))
-
-			clearButtons(msg);
+		clearButtons(msg);
 		clearReactions(msg);
 
 		List<Page> pageCache = cache ? new ArrayList<>() : null;
