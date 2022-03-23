@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -122,6 +123,8 @@ public class Pages {
 	 *                   define the order of the pages.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -129,8 +132,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, 0, null, 0, false, null);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, 0, null, 0, false, null);
 	}
 
 	/**
@@ -148,6 +151,8 @@ public class Pages {
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
 	 *                   {@link TimeUnit#SECONDS}).
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -155,8 +160,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, time, unit, 0, false, null);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, time, unit, 0, false, null);
 	}
 
 	/**
@@ -170,6 +175,8 @@ public class Pages {
 	 *                    {@link Message} was not sent by the bot.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -177,8 +184,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, 0, null, 0, false, canInteract);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, 0, null, 0, false, canInteract);
 	}
 
 	/**
@@ -198,6 +205,8 @@ public class Pages {
 	 *                    {@link TimeUnit#SECONDS}).
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -205,8 +214,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, time, unit, 0, false, canInteract);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, time, unit, 0, false, canInteract);
 	}
 
 	/**
@@ -219,6 +228,8 @@ public class Pages {
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -226,8 +237,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, 0, null, 0, fastForward, null);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, 0, null, 0, fastForward, null);
 	}
 
 	/**
@@ -246,6 +257,8 @@ public class Pages {
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -253,8 +266,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, time, unit, 0, fastForward, null);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, time, unit, 0, fastForward, null);
 	}
 
 	/**
@@ -269,6 +282,8 @@ public class Pages {
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -276,8 +291,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, 0, null, 0, fastForward, canInteract);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, 0, null, 0, fastForward, canInteract);
 	}
 
 	/**
@@ -298,6 +313,8 @@ public class Pages {
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -305,8 +322,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, time, unit, 0, fastForward, canInteract);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, time, unit, 0, fastForward, canInteract);
 	}
 
 	/**
@@ -320,6 +337,8 @@ public class Pages {
 	 *                   {@link Message} was not sent by the bot.
 	 * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                   and {@link Emote#SKIP_FORWARD} buttons.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -327,8 +346,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, 0, null, skipAmount, false, null);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, 0, null, skipAmount, false, null);
 	}
 
 	/**
@@ -348,6 +367,8 @@ public class Pages {
 	 *                   {@link TimeUnit#SECONDS}).
 	 * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                   and {@link Emote#SKIP_FORWARD} buttons.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -355,8 +376,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, time, unit, skipAmount, false, null);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, time, unit, skipAmount, false, null);
 	}
 
 	/**
@@ -372,6 +393,8 @@ public class Pages {
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -379,8 +402,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, 0, null, skipAmount, false, canInteract);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, 0, null, skipAmount, false, canInteract);
 	}
 
 	/**
@@ -402,6 +425,8 @@ public class Pages {
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -409,8 +434,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, time, unit, skipAmount, false, canInteract);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, time, unit, skipAmount, false, canInteract);
 	}
 
 	/**
@@ -427,6 +452,8 @@ public class Pages {
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -434,8 +461,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, 0, null, skipAmount, fastForward, canInteract);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, 0, null, skipAmount, fastForward, canInteract);
 	}
 
 	/**
@@ -456,6 +483,8 @@ public class Pages {
 	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -463,8 +492,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
-		paginate(msg, pages, useButtons, time, unit, skipAmount, fastForward, null);
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward) throws ErrorResponseException, InsufficientPermissionException {
+		return paginate(msg, pages, useButtons, time, unit, skipAmount, fastForward, null);
 	}
 
 	/**
@@ -487,6 +516,8 @@ public class Pages {
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return A {@link WeakReference} pointing to this action. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -494,7 +525,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static void paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static WeakReference<String> paginate(@Nonnull Message msg, @Nonnull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated() || pages.isEmpty()) throw new InvalidStateException();
 		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 
@@ -506,7 +537,7 @@ public class Pages {
 		if (useBtns) addButtons((InteractPage) pg, msg, skipAmount > 1, fastForward);
 		else addReactions(msg, skipAmount > 1, fastForward);
 
-		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
@@ -639,8 +670,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
-		categorize(msg, categories, useButtons, 0, null, null);
+	public static WeakReference<String> categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
+		return categorize(msg, categories, useButtons, 0, null, null);
 	}
 
 	/**
@@ -668,8 +699,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
-		categorize(msg, categories, useButtons, time, unit, null);
+	public static WeakReference<String> categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		return categorize(msg, categories, useButtons, time, unit, null);
 	}
 
 	/**
@@ -693,8 +724,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		categorize(msg, categories, useButtons, 0, null, canInteract);
+	public static WeakReference<String> categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return categorize(msg, categories, useButtons, 0, null, canInteract);
 	}
 
 	/**
@@ -724,7 +755,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static WeakReference<String> categorize(@Nonnull Message msg, @Nonnull Map<Emoji, Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 
@@ -767,7 +798,7 @@ public class Pages {
 			msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 		}
 
-		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private Emoji currCat = null;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -857,8 +888,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, useButtons, showCancelButton, 0, null, null, null);
+	public static WeakReference<String> buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException {
+		return buttonize(msg, buttons, useButtons, showCancelButton, 0, null, null, null);
 	}
 
 	/**
@@ -887,8 +918,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, useButtons, showCancelButton, time, unit, null, null);
+	public static WeakReference<String> buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		return buttonize(msg, buttons, useButtons, showCancelButton, time, unit, null, null);
 	}
 
 	/**
@@ -915,8 +946,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, null);
+	public static WeakReference<String> buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, null);
 	}
 
 	/**
@@ -948,8 +979,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, useButtons, showCancelButton, time, unit, canInteract, null);
+	public static WeakReference<String> buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return buttonize(msg, buttons, useButtons, showCancelButton, time, unit, canInteract, null);
 	}
 
 	/**
@@ -977,8 +1008,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
-		buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, onCancel);
+	public static WeakReference<String> buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+		return buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, onCancel);
 	}
 
 	/**
@@ -1011,7 +1042,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static void buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+	public static WeakReference<String> buttonize(@Nonnull Message msg, @Nonnull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 
@@ -1058,7 +1089,7 @@ public class Pages {
 				msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
 		}
 
-		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
 				if (timeout != null)
@@ -1143,8 +1174,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, false, 0, null, null);
+	public static WeakReference<String> lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
+		return lazyPaginate(msg, pageLoader, useButtons, false, 0, null, null);
 	}
 
 	/**
@@ -1170,8 +1201,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, false, time, unit, null);
+	public static WeakReference<String> lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		return lazyPaginate(msg, pageLoader, useButtons, false, time, unit, null);
 	}
 
 	/**
@@ -1193,8 +1224,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, false, 0, null, canInteract);
+	public static WeakReference<String> lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return lazyPaginate(msg, pageLoader, useButtons, false, 0, null, canInteract);
 	}
 
 	/**
@@ -1222,8 +1253,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, false, time, unit, canInteract);
+	public static WeakReference<String> lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return lazyPaginate(msg, pageLoader, useButtons, false, time, unit, canInteract);
 	}
 
 	/**
@@ -1244,8 +1275,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, cache, 0, null, null);
+	public static WeakReference<String> lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache) throws ErrorResponseException, InsufficientPermissionException {
+		return lazyPaginate(msg, pageLoader, useButtons, cache, 0, null, null);
 	}
 
 	/**
@@ -1272,8 +1303,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, cache, time, unit, null);
+	public static WeakReference<String> lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+		return lazyPaginate(msg, pageLoader, useButtons, cache, time, unit, null);
 	}
 
 	/**
@@ -1296,8 +1327,8 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		lazyPaginate(msg, pageLoader, useButtons, cache, 0, null, canInteract);
+	public static WeakReference<String> lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return lazyPaginate(msg, pageLoader, useButtons, cache, 0, null, canInteract);
 	}
 
 	/**
@@ -1326,7 +1357,7 @@ public class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
 	 */
-	public static void lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static WeakReference<String> lazyPaginate(@Nonnull Message msg, @Nonnull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, boolean cache, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
 		boolean useBtns = useButtons && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 
@@ -1345,7 +1376,7 @@ public class Pages {
 		if (useBtns) addButtons((InteractPage) pg, msg, false, false);
 		else addReactions(msg, false, false);
 
-		handler.addEvent(msg, new ThrowingBiConsumer<>() {
+		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
