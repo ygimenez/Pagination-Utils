@@ -1,6 +1,7 @@
 package com.github.ygimenez.listener;
 
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.ActionReference;
 import com.github.ygimenez.model.PUtilsConfig;
 import com.github.ygimenez.model.PaginationEventWrapper;
 import com.github.ygimenez.model.ThrowingBiConsumer;
@@ -41,15 +42,15 @@ public class MessageHandler extends ListenerAdapter {
 	 *
 	 * @param msg The {@link Message} to hold the event.
 	 * @param act The action to be executed when the button is pressed.
-	 * @return A {@link WeakReference} pointing to this event. This is useful if you need to track whether an event
+	 * @return An {@link ActionReference} pointing to this event. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (ie. garbage collected).
 	 */
-	public WeakReference<String> addEvent(Message msg, ThrowingBiConsumer<User, PaginationEventWrapper> act) {
+	public ActionReference addEvent(Message msg, ThrowingBiConsumer<User, PaginationEventWrapper> act) {
 		String id = getEventId(msg);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
 		events.put(id, act);
 
-		return new WeakReference<>(id);
+		return new ActionReference(id);
 	}
 
 	/**
