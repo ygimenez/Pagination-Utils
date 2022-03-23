@@ -18,7 +18,7 @@ public class ActionReference extends WeakReference<String> {
 	@Nullable
 	@Override
 	public String get() {
-		if (!Pages.getHandler().getEventMap().containsKey(super.get()))
+		if (!Pages.getHandler().checkEvent(super.get()))
 			enqueue();
 
 		return super.get();

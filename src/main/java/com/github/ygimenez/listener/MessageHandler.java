@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -45,7 +46,7 @@ public class MessageHandler extends ListenerAdapter {
 	 * @return An {@link ActionReference} pointing to this event. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (ie. garbage collected).
 	 */
-	public ActionReference addEvent(Message msg, ThrowingBiConsumer<User, PaginationEventWrapper> act) {
+	public ActionReference addEvent(@Nonnull Message msg, @Nonnull ThrowingBiConsumer<User, PaginationEventWrapper> act) {
 		String id = getEventId(msg);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
 		events.put(id, act);
@@ -58,10 +59,21 @@ public class MessageHandler extends ListenerAdapter {
 	 *
 	 * @param msg The {@link Message} which had attached events.
 	 */
-	public void removeEvent(Message msg) {
+	public void removeEvent(@Nonnull Message msg) {
 		String id = getEventId(msg);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Removed event with ID " + id);
 		events.remove(id);
+	}
+
+	/**
+	 * Checks if an event hash is still present in the map.
+	 *
+	 * @param hash The event hash.
+	 * @return Whether the hash exists in the events map (will be always false if hash is null).
+	 */
+	public boolean checkEvent(@Nullable String hash) {
+		if (hash == null) return false;
+		return events.containsKey(hash);
 	}
 
 	/**
@@ -84,21 +96,21 @@ public class MessageHandler extends ListenerAdapter {
 		events.clear();
 	}
 
-	private void lock(String id) {
+	private void lock(@Nonnull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Locked event with ID " + id);
 		locks.add(id);
 	}
 
-	private void unlock(String id) {
+	private void unlock(@Nonnull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Unlocked event with ID " + id);
 		locks.remove(id);
 	}
 
-	private boolean isLocked(GenericMessageReactionEvent evt) {
+	private boolean isLocked(@Nonnull GenericMessageReactionEvent evt) {
 		return locks.contains(getEventId(evt));
 	}
 
-	private boolean isLocked(String id) {
+	private boolean isLocked(@Nonnull String id) {
 		return locks.contains(id);
 	}
 
