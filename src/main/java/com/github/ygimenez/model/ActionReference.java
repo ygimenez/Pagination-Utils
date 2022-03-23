@@ -23,4 +23,8 @@ public class ActionReference extends WeakReference<String> {
 
 		return super.get();
 	}
+
+	public boolean check() {
+		return get() != null;
+	}
 }
