@@ -43,6 +43,26 @@ public class PaginatorBuilder {
 	}
 
 	/**
+	 * Creates a new {@link PaginatorBuilder} instance and begin customization, use {@link #build()} to finish.
+	 *
+	 * @param handler The {@link JDA} instance that'll be used for event processing.
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 */
+	public static PaginatorBuilder createPaginator(@Nonnull JDA handler) {
+		return new PaginatorBuilder(new Paginator(handler));
+	}
+
+	/**
+	 * Creates a new {@link PaginatorBuilder} instance and begin customization, use {@link #build()} to finish.
+	 *
+	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 */
+	public static PaginatorBuilder createPaginator(@Nonnull ShardManager handler) {
+		return new PaginatorBuilder(new Paginator(handler));
+	}
+
+	/**
 	 * Creates a new {@link Paginator} instance using default settings.
 	 *
 	 * @param handler The {@link JDA} instance that'll be used for event processing.
