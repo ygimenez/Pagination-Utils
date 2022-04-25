@@ -1,6 +1,7 @@
 package com.github.ygimenez.model;
 
 import com.github.ygimenez.exception.AlreadyActivatedException;
+import com.github.ygimenez.exception.AlreadyAssignedException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.method.Pages;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * {@link Paginator}'s builder, this class allows you to customize Pagination-Utils' behavior
  * as you like.<br>
- * If you want a quick setup, use {@link #createSimplePaginator(Object)}.
+ * If you want a quick setup, use {@link #createSimplePaginator(JDA)} or {@link #createSimplePaginator(ShardManager)}.
  */
 public class PaginatorBuilder {
 	private final Paginator paginator;
@@ -44,11 +45,23 @@ public class PaginatorBuilder {
 	/**
 	 * Creates a new {@link Paginator} instance using default settings.
 	 *
-	 * @param handler The handler that'll be used for event processing
-	 *                (must be either {@link JDA} or {@link ShardManager}).
+	 * @param handler The {@link JDA} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public static Paginator createSimplePaginator(@Nonnull Object handler) {
+	public static Paginator createSimplePaginator(@Nonnull JDA handler) {
+		Paginator p = new Paginator(handler);
+		p.finishEmotes();
+
+		return p;
+	}
+
+	/**
+	 * Creates a new {@link Paginator} instance using default settings.
+	 *
+	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 */
+	public static Paginator createSimplePaginator(@Nonnull ShardManager handler) {
 		Paginator p = new Paginator(handler);
 		p.finishEmotes();
 
@@ -67,16 +80,21 @@ public class PaginatorBuilder {
 	/**
 	 * Sets the handler used for event processing.
 	 *
-	 * @param handler The handler that'll be used for event processing
-	 *                (must be either {@link JDA} or {@link ShardManager}).
+	 * @param handler The {@link JDA} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
-	 * @throws InvalidHandlerException If the supplied handler is not a {@link JDA} or {@link ShardManager}
-	 * object.
 	 */
-	public PaginatorBuilder setHandler(@Nonnull Object handler) throws InvalidHandlerException {
-		if (!(handler instanceof JDA) && !(handler instanceof ShardManager))
-			throw new InvalidHandlerException();
+	public PaginatorBuilder setHandler(@Nonnull JDA handler) {
+		paginator.setHandler(handler);
+		return this;
+	}
 
+	/**
+	 * Sets the handler used for event processing.
+	 *
+	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 */
+	public PaginatorBuilder setHandler(@Nonnull ShardManager handler) {
 		paginator.setHandler(handler);
 		return this;
 	}
@@ -171,8 +189,23 @@ public class PaginatorBuilder {
 	 * object.
 	 */
 	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
+		return setEmote(emote, Emoji.fromMarkdown(code));
+	}
+
+	/**
+	 * Modify an {@link Emote} from the {@link Map}.
+	 *
+	 * @param emote The {@link Emote} to be set.
+	 * @param emoji  The new {@link Emote}'s {@link Emoji}.
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
+	 * object.
+	 */
+	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull Emoji emoji) throws InvalidHandlerException {
 		if (paginator.getHandler() == null) throw new InvalidHandlerException();
-		paginator.getEmotes().put(emote, Emoji.fromMarkdown(code));
+		else if (paginator.getEmotes().containsValue(emoji)) throw new AlreadyAssignedException();
+
+		paginator.getEmotes().put(emote, emoji);
 		return this;
 	}
 

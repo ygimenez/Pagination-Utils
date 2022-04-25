@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
@@ -40,11 +41,15 @@ public class MessageHandler extends ListenerAdapter {
 	 *
 	 * @param msg The {@link Message} to hold the event.
 	 * @param act The action to be executed when the button is pressed.
+	 * @return A {@link WeakReference} pointing to this event. This is useful if you need to track whether an event
+	 * is still being processed or was already removed (ie. garbage collected).
 	 */
-	public void addEvent(Message msg, ThrowingBiConsumer<User, PaginationEventWrapper> act) {
+	public WeakReference<String> addEvent(Message msg, ThrowingBiConsumer<User, PaginationEventWrapper> act) {
 		String id = getEventId(msg);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
 		events.put(id, act);
+
+		return new WeakReference<>(id);
 	}
 
 	/**

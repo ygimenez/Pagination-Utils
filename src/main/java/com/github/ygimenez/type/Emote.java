@@ -1,10 +1,13 @@
 package com.github.ygimenez.type;
 
+import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.Paginator;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -81,6 +84,10 @@ public enum Emote {
 	 * @return The respective {@link Emote}, or {@link #NONE} if it didn't match any.
 	 */
 	public static Emote getByEmoji(Emoji emoji) {
+		for (Map.Entry<Emote, Emoji> entry : Pages.getPaginator().getEmotes().entrySet()) {
+			if (Objects.equals(entry.getValue(), emoji)) return entry.getKey();
+		}
+
 		for (Emote emt : values()) {
 			if (Objects.equals(emt.emj, emoji)) return emt;
 		}
