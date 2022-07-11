@@ -1,9 +1,9 @@
 package com.github.ygimenez.model;
 
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 
 /**
@@ -20,7 +20,7 @@ public class PaginationEventWrapper {
 	/**
 	 * Constructs a new {@link PaginationEventWrapper} instance. You probably shouldn't be creating one yourself.
 	 *
-	 * @param source      The source event, will be either a {@link GenericMessageReactionEvent} or a {@link ButtonClickEvent}.
+	 * @param source      The source event, will be either a {@link GenericMessageReactionEvent} or a {@link ButtonInteractionEvent}.
 	 * @param user        The {@link User} who triggered the event.
 	 * @param channel     The {@link TextChannel} where the event happened.
 	 * @param messageId   The {@link Message} ID.

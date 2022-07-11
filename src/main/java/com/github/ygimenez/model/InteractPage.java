@@ -2,11 +2,11 @@ package com.github.ygimenez.model;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -87,7 +87,7 @@ public class InteractPage extends Page {
 	 * @return The created {@link Button}.
 	 */
 	public Button makeButton(@Nonnull Emoji emj) {
-		return Button.secondary((ephemeral ? "*" : "") + emj.getId(), emj);
+		return Button.secondary((ephemeral ? "*" : "") + emj.getFormatted(), emj);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class InteractPage extends Page {
 	 * @return The created {@link Button}.
 	 */
 	public Button makeButton(@Nonnull Emoji emj, String caption) {
-		return Button.of(ButtonStyle.SECONDARY, (ephemeral ? "*" : "") + emj.getId(), caption, emj);
+		return Button.of(ButtonStyle.SECONDARY, (ephemeral ? "*" : "") + emj.getFormatted(), caption, emj);
 	}
 
 	/**

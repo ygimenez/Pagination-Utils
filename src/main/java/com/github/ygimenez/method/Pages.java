@@ -9,15 +9,16 @@ import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -58,10 +59,10 @@ public class Pages {
 			throw new AlreadyActivatedException();
 
 		Object hand = paginator.getHandler();
-		if (hand instanceof JDA)
-			((JDA) hand).addEventListener(handler);
-		else if (hand instanceof ShardManager)
-			((ShardManager) hand).addEventListener(handler);
+		if (hand instanceof JDA jda)
+			jda.addEventListener(handler);
+		else if (hand instanceof ShardManager shardManager)
+			shardManager.addEventListener(handler);
 		else throw new InvalidHandlerException();
 
 		Pages.paginator = paginator;
@@ -78,10 +79,10 @@ public class Pages {
 			return;
 
 		Object hand = paginator.getHandler();
-		if (hand instanceof JDA)
-			((JDA) hand).removeEventListener(handler);
-		else if (hand instanceof ShardManager)
-			((ShardManager) hand).removeEventListener(handler);
+		if (hand instanceof JDA jda)
+			jda.removeEventListener(handler);
+		else if (hand instanceof ShardManager shardManager)
+			shardManager.removeEventListener(handler);
 
 		paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Pagination Utils deactivated successfully");
 		paginator = null;
@@ -565,12 +566,9 @@ public class Pages {
 						return;
 
 					Emote emt = NONE;
-					if (wrapper.getContent() instanceof MessageReaction) {
-						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
-						emt = toEmote(reaction);
-					} else if (wrapper.getContent() instanceof Button) {
-						Button btn = (Button) wrapper.getContent();
-
+					if (wrapper.getContent() instanceof MessageReaction msgReaction) {
+						emt = toEmote(msgReaction.getEmoji());
+					} else if (wrapper.getContent() instanceof Button btn) {
 						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
 							emt = Emote.valueOf(btn.getId().replace("*", ""));
 						}
@@ -766,7 +764,7 @@ public class Pages {
 		if (useBtns) {
 			List<ActionRow> rows = new ArrayList<>();
 
-			List<Component> row = new ArrayList<>();
+			List<ItemComponent> row = new ArrayList<>();
 			for (Emoji k : cats.keySet()) {
 				if (row.size() == 5) {
 					rows.add(ActionRow.of(row));
@@ -792,10 +790,10 @@ public class Pages {
 			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : cats.keySet()) {
-				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+				msg.addReaction(k).submit();
 			}
 
-			msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+			msg.addReaction(paginator.getEmote(CANCEL)).submit();
 		}
 
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -823,12 +821,9 @@ public class Pages {
 
 					Emoji emoji = null;
 					Emote emt = NONE;
-					if (wrapper.getContent() instanceof MessageReaction) {
-						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
-						emoji = toEmoji(reaction);
-						emt = toEmote(reaction);
-					} else if (wrapper.getContent() instanceof Button) {
-						Button btn = (Button) wrapper.getContent();
+					if (wrapper.getContent() instanceof MessageReaction msgReaction) {
+						emt = toEmote(emoji = msgReaction.getEmoji());
+					} else if (wrapper.getContent() instanceof Button btn) {
 						emoji = btn.getEmoji();
 
 						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
@@ -1053,7 +1048,7 @@ public class Pages {
 		if (useBtns) {
 			List<ActionRow> rows = new ArrayList<>();
 
-			List<Component> row = new ArrayList<>();
+			List<ItemComponent> row = new ArrayList<>();
 			for (Emoji k : btns.keySet()) {
 				if (row.size() == 5) {
 					rows.add(ActionRow.of(row));
@@ -1082,11 +1077,11 @@ public class Pages {
 			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : btns.keySet()) {
-				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+				msg.addReaction(k).submit();
 			}
 
 			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-				msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+				msg.addReaction(paginator.getEmote(CANCEL)).submit();
 		}
 
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -1114,12 +1109,10 @@ public class Pages {
 
 					Emoji emoji = null;
 					Emote emt = NONE;
-					if (wrapper.getContent() instanceof MessageReaction) {
-						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
-						emoji = toEmoji(reaction);
+					if (wrapper.getContent() instanceof MessageReaction msgReaction) {
+						Emoji reaction = emoji = msgReaction.getEmoji();
 						emt = toEmote(reaction);
-					} else if (wrapper.getContent() instanceof Button) {
-						Button btn = (Button) wrapper.getContent();
+					} else if (wrapper.getContent() instanceof Button btn) {
 						emoji = btn.getEmoji();
 
 						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
@@ -1132,13 +1125,7 @@ public class Pages {
 						return;
 					}
 
-					InteractionHook hook;
-					if (wrapper.getSource() instanceof ButtonClickEvent) {
-						hook = ((ButtonClickEvent) wrapper.getSource()).getHook();
-					} else {
-						hook = null;
-					}
-
+					InteractionHook hook = wrapper.getSource() instanceof ButtonInteractionEvent event ? event.getHook() : null;
 					ThrowingConsumer<ButtonWrapper> act = btns.get(emoji);
 					if (act != null) {
 						act.accept(new ButtonWrapper(wrapper.getUser(), hook, m));
@@ -1400,16 +1387,10 @@ public class Pages {
 						return;
 
 					Emote emt = NONE;
-					if (wrapper.getContent() instanceof MessageReaction) {
-						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
-						emt = toEmote(reaction);
-					} else if (wrapper.getContent() instanceof Button) {
-						Button btn = (Button) wrapper.getContent();
-
-						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
-							emt = Emote.valueOf(btn.getId().replace("*", ""));
-						}
-					}
+					if (wrapper.getContent() instanceof MessageReaction msgReaction)
+						emt = toEmote(msgReaction.getEmoji());
+					else if (wrapper.getContent() instanceof Button btn && btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains("."))
+						emt = Emote.valueOf(btn.getId().replace("*", ""));
 
 					Page pg;
 					switch (emt) {
@@ -1467,10 +1448,10 @@ public class Pages {
 	private static void updatePage(@Nonnull Message msg, Page p) {
 		if (p == null) throw new NullPageException(msg);
 
-		if (p.getContent() instanceof Message) {
-			msg.editMessage((Message) p.getContent()).submit();
-		} else if (p.getContent() instanceof MessageEmbed) {
-			msg.editMessageEmbeds((MessageEmbed) p.getContent()).submit();
+		if (p.getContent() instanceof Message m) {
+			msg.editMessage(m).submit();
+		} else if (p.getContent() instanceof MessageEmbed m) {
+			msg.editMessageEmbeds(m).submit();
 		}
 	}
 
@@ -1525,12 +1506,8 @@ public class Pages {
 		}
 	}
 
-	private static Emote toEmote(MessageReaction.ReactionEmote reaction) {
-		return Emote.getByEmoji(toEmoji(reaction));
-	}
-
-	private static Emoji toEmoji(MessageReaction.ReactionEmote reaction) {
-		return reaction.isEmoji() ? Emoji.fromUnicode(reaction.getEmoji()) : Emoji.fromEmote(reaction.getEmote());
+	private static Emote toEmote(Emoji reaction) {
+		return Emote.getByEmoji(reaction);
 	}
 
 	/**
@@ -1588,11 +1565,14 @@ public class Pages {
 		List<ActionRow> rows = new ArrayList<>(msg.getActionRows());
 
 		for (ActionRow ar : rows) {
-			List<Component> row = ar.getComponents();
+			List<ItemComponent> row = ar.getComponents();
 			for (int i = 0; i < row.size(); i++) {
-				Component c = row.get(i);
-				if (c instanceof Button && changes.containsKey(c.getId())) {
-					row.set(i, changes.get(c.getId()).apply((Button) c));
+				ItemComponent c = row.get(i);
+				if (c instanceof Button button) {
+					String id = button.getId();
+					if (changes.containsKey(id)) {
+						row.set(i, changes.get(id).apply(button));
+					}
 				}
 			}
 		}
@@ -1611,15 +1591,15 @@ public class Pages {
 		clearButtons(msg);
 		List<RestAction<Void>> acts = new ArrayList<>();
 
-		if (withGoto) acts.add(msg.addReaction(paginator.getStringEmote(GOTO_FIRST)));
-		if (withSkip) acts.add(msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)));
+		if (withGoto) acts.add(msg.addReaction(paginator.getEmote(GOTO_FIRST)));
+		if (withSkip) acts.add(msg.addReaction(paginator.getEmote(SKIP_BACKWARD)));
 
-		acts.add(msg.addReaction(paginator.getStringEmote(PREVIOUS)));
-		acts.add(msg.addReaction(paginator.getStringEmote(CANCEL)));
-		acts.add(msg.addReaction(paginator.getStringEmote(NEXT)));
+		acts.add(msg.addReaction(paginator.getEmote(PREVIOUS)));
+		acts.add(msg.addReaction(paginator.getEmote(CANCEL)));
+		acts.add(msg.addReaction(paginator.getEmote(NEXT)));
 
-		if (withSkip) acts.add(msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)));
-		if (withGoto) acts.add(msg.addReaction(paginator.getStringEmote(GOTO_LAST)));
+		if (withSkip) acts.add(msg.addReaction(paginator.getEmote(SKIP_FORWARD)));
+		if (withGoto) acts.add(msg.addReaction(paginator.getEmote(GOTO_LAST)));
 
 		RestAction.allOf(acts).submit();
 	}
@@ -1637,7 +1617,7 @@ public class Pages {
 
 		List<ActionRow> rows = new ArrayList<>();
 
-		List<Component> row;
+		List<ItemComponent> row;
 		if (withSkip && withGoto) {
 			row = List.of(
 					page.makeButton(NONE),
