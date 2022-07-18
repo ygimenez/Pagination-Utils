@@ -178,7 +178,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(GenericMessageEvent evt) {
 		crc.reset();
-		String rawId = (evt.isFromGuild() ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + "_" + evt.getMessageId();
+		String rawId = (evt.isFromGuild() ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getChannel().asPrivateChannel().getId()) + "_" + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
@@ -186,7 +186,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(ButtonInteractionEvent evt) {
 		crc.reset();
-		String rawId = (evt.getGuild() != null ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + "_" + evt.getMessageId();
+		String rawId = (evt.getGuild() != null ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getChannel().asPrivateChannel().getId()) + "_" + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
@@ -194,7 +194,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(Message msg) {
 		crc.reset();
-		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getPrivateChannel().getId()) + "_" + msg.getId();
+		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getChannel().asPrivateChannel() + "_" + msg.getId());
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
