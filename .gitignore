@@ -46,6 +46,7 @@ buildNumber.properties
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/discord.xml
 
 # Generated files
 .idea/**/contentModel.xml
@@ -109,4 +110,3 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
-.idea/discord.xml
