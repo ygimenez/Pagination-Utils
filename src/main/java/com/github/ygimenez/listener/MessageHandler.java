@@ -194,7 +194,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(Message msg) {
 		crc.reset();
-		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getChannel().asPrivateChannel() + "_" + msg.getId());
+		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getChannel().asPrivateChannel()) + "_" + msg.getId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
