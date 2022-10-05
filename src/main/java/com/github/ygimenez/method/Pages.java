@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
@@ -1449,7 +1450,7 @@ public class Pages {
 		if (p == null) throw new NullPageException(msg);
 
 		if (p.getContent() instanceof Message m) {
-			msg.editMessage(m).submit();
+			msg.editMessage(MessageEditData.fromMessage(m)).submit();
 		} else if (p.getContent() instanceof MessageEmbed m) {
 			msg.editMessageEmbeds(m).submit();
 		}

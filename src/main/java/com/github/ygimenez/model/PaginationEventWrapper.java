@@ -1,6 +1,8 @@
 package com.github.ygimenez.model;
 
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -12,7 +14,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 public class PaginationEventWrapper {
 	private final Object source;
 	private final User user;
-	private final MessageChannel channel;
+	private final MessageChannelUnion channel;
 	private final String messageId;
 	private final Object content;
 	private final boolean isFromGuild;
@@ -27,7 +29,7 @@ public class PaginationEventWrapper {
 	 * @param content     The button which was pressed, will be either a {@link MessageReaction} or a {@link Button}.
 	 * @param isFromGuild Whether the event happened on a {@link Guild} or not.
 	 */
-	public PaginationEventWrapper(Object source, User user, MessageChannel channel, String messageId, Object content, boolean isFromGuild) {
+	public PaginationEventWrapper(Object source, User user, MessageChannelUnion channel, String messageId, Object content, boolean isFromGuild) {
 		this.source = source;
 		this.user = user;
 		this.channel = channel;
