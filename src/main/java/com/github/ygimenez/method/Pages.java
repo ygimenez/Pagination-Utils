@@ -10,6 +10,10 @@ import com.github.ygimenez.type.Emote;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -29,6 +33,8 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import static com.github.ygimenez.type.Emote.*;
 
@@ -567,7 +573,7 @@ public class Pages {
 
 					Emote emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
-						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
+						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
@@ -793,10 +799,10 @@ public class Pages {
 			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : cats.keySet()) {
-				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+				msg.addReaction(k).submit();
 			}
 
-			msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+			msg.addReaction(paginator.getEmote(CANCEL)).submit();
 		}
 
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -825,7 +831,7 @@ public class Pages {
 					Emoji emoji = null;
 					Emote emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
-						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
+						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
 						emoji = toEmoji(reaction);
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
@@ -1083,11 +1089,11 @@ public class Pages {
 			msg.editMessageComponents(rows).submit();
 		} else {
 			for (Emoji k : btns.keySet()) {
-				msg.addReaction(k.getAsMention().replaceAll("[<>]", "")).submit();
+				msg.addReaction(k).submit();
 			}
 
 			if (!btns.containsKey(paginator.getEmote(CANCEL)) && showCancelButton)
-				msg.addReaction(paginator.getStringEmote(CANCEL)).submit();
+				msg.addReaction(paginator.getEmote(CANCEL)).submit();
 		}
 
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
@@ -1116,7 +1122,7 @@ public class Pages {
 					Emoji emoji = null;
 					Emote emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
-						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
+						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
 						emoji = toEmoji(reaction);
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
@@ -1402,7 +1408,7 @@ public class Pages {
 
 					Emote emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
-						MessageReaction.ReactionEmote reaction = ((MessageReaction) wrapper.getContent()).getReactionEmote();
+						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
@@ -1469,7 +1475,7 @@ public class Pages {
 		if (p == null) throw new NullPageException(msg);
 
 		if (p.getContent() instanceof Message) {
-			msg.editMessage((Message) p.getContent()).submit();
+			msg.editMessage(MessageEditData.fromMessage((Message) p.getContent())).submit();
 		} else if (p.getContent() instanceof MessageEmbed) {
 			msg.editMessageEmbeds((MessageEmbed) p.getContent()).submit();
 		}
@@ -1526,12 +1532,14 @@ public class Pages {
 		}
 	}
 
-	private static Emote toEmote(MessageReaction.ReactionEmote reaction) {
+	private static Emote toEmote(EmojiUnion reaction) {
 		return Emote.getByEmoji(toEmoji(reaction));
 	}
 
-	private static Emoji toEmoji(MessageReaction.ReactionEmote reaction) {
-		return reaction.isEmoji() ? Emoji.fromUnicode(reaction.getEmoji()) : Emoji.fromEmote(reaction.getEmote());
+	private static Emoji toEmoji(EmojiUnion reaction) {
+		return reaction.getType().equals(Emoji.Type.CUSTOM)
+			? Emoji.fromCustom((CustomEmoji) reaction)
+			: (UnicodeEmoji) reaction;
 	}
 
 	/**
@@ -1612,15 +1620,15 @@ public class Pages {
 		clearButtons(msg);
 		List<RestAction<Void>> acts = new ArrayList<>();
 
-		if (withGoto) acts.add(msg.addReaction(paginator.getStringEmote(GOTO_FIRST)));
-		if (withSkip) acts.add(msg.addReaction(paginator.getStringEmote(SKIP_BACKWARD)));
+		if (withGoto) acts.add(msg.addReaction(paginator.getEmote(GOTO_FIRST)));
+		if (withSkip) acts.add(msg.addReaction(paginator.getEmote(SKIP_BACKWARD)));
 
-		acts.add(msg.addReaction(paginator.getStringEmote(PREVIOUS)));
-		acts.add(msg.addReaction(paginator.getStringEmote(CANCEL)));
-		acts.add(msg.addReaction(paginator.getStringEmote(NEXT)));
+		acts.add(msg.addReaction(paginator.getEmote(PREVIOUS)));
+		acts.add(msg.addReaction(paginator.getEmote(CANCEL)));
+		acts.add(msg.addReaction(paginator.getEmote(NEXT)));
 
-		if (withSkip) acts.add(msg.addReaction(paginator.getStringEmote(SKIP_FORWARD)));
-		if (withGoto) acts.add(msg.addReaction(paginator.getStringEmote(GOTO_LAST)));
+		if (withSkip) acts.add(msg.addReaction(paginator.getEmote(SKIP_FORWARD)));
+		if (withGoto) acts.add(msg.addReaction(paginator.getEmote(GOTO_LAST)));
 
 		RestAction.allOf(acts).submit();
 	}

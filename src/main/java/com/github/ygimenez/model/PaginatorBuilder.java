@@ -8,8 +8,8 @@ import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
@@ -179,7 +179,7 @@ public class PaginatorBuilder {
 
 	/**
 	 * Modify an {@link Emote}'s code from the {@link Map}. Beware, the code must be either unicode or
-	 * {@link net.dv8tion.jda.api.entities.Emote}'s mention,
+	 * {@link net.dv8tion.jda.api.entities.emoji.RichCustomEmoji}'s mention,
 	 * else the buttons <strong>WILL NOT BE ADDED</strong> and will lead to errors.
 	 *
 	 * @param emote The {@link Emote} to be set.
@@ -189,7 +189,7 @@ public class PaginatorBuilder {
 	 * object.
 	 */
 	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
-		return setEmote(emote, Emoji.fromMarkdown(code));
+		return setEmote(emote, Emoji.fromFormatted(code));
 	}
 
 	/**

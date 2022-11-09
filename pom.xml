@@ -86,6 +86,7 @@
                 </executions>
                 <configuration>
                     <source>8</source>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
             </plugin>
             <plugin>
@@ -128,7 +129,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.5</version>
+            <version>5.0.0-alpha.18</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

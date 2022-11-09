@@ -4,8 +4,8 @@ import com.github.ygimenez.model.PUtilsConfig.LogLevel;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
@@ -138,7 +138,7 @@ public class Paginator {
 	}
 
 	/**
-	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
+	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.emoji.RichCustomEmoji} mentions
 	 * into IDs.
 	 *
 	 * @param emote The {@link Emote} to be defined.
@@ -149,14 +149,14 @@ public class Paginator {
 	}
 
 	/**
-	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
+	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.emoji.RichCustomEmoji} mentions
 	 * into IDs.
 	 *
 	 * @param emote The {@link Emote} to be defined.
 	 * @return The {@link Emoji} representing this {@link Emote}.
 	 */
 	public String getStringEmote(Emote emote) {
-		return getEmote(emote).getAsMention().replaceAll("[<>]", "");
+		return getEmote(emote).getFormatted().replaceAll("[<>]", "");
 	}
 
 	/**
