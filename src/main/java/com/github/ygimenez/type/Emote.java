@@ -1,11 +1,11 @@
 package com.github.ygimenez.type;
 
 import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.model.Paginator;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.MessageReaction;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -118,7 +118,7 @@ public enum Emote {
 	 * @return Whether it uses a {@link Emote} value or not.
 	 */
 	public static boolean isNative(MessageReaction react) {
-		Emoji emj = Emoji.fromMarkdown(react.getReactionEmote().getAsReactionCode());
+		Emoji emj = Emoji.fromFormatted(react.getEmoji().getAsReactionCode());
 		for (Emote emt : values()) {
 			if (emt.emj.equals(emj)) return false;
 		}
@@ -133,7 +133,11 @@ public enum Emote {
 	 * @return The supplied {@link Emoji}'s effective ID.
 	 */
 	public static String getId(Emoji emj) {
-			return emj.isCustom() ? emj.getId() : emj.getName();
+		if (emj instanceof CustomEmoji) {
+			return ((CustomEmoji) emj).getId();
+		} else {
+			return emj.getName();
+		}
 	}
 
 	public static Emote fromButton(Button btn) {

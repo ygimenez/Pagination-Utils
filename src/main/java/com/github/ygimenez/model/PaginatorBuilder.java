@@ -29,7 +29,7 @@ public class PaginatorBuilder {
 	 *
 	 * @param paginator The raw {@link Paginator} object to start building.
 	 */
-	private PaginatorBuilder(@Nonnull Paginator paginator) {
+	private PaginatorBuilder(@NotNull Paginator paginator) {
 		this.paginator = paginator;
 	}
 
@@ -48,7 +48,7 @@ public class PaginatorBuilder {
 	 * @param handler The {@link JDA} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public static PaginatorBuilder createPaginator(@Nonnull JDA handler) {
+	public static PaginatorBuilder createPaginator(@NotNull JDA handler) {
 		return new PaginatorBuilder(new Paginator(handler));
 	}
 
@@ -58,7 +58,7 @@ public class PaginatorBuilder {
 	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public static PaginatorBuilder createPaginator(@Nonnull ShardManager handler) {
+	public static PaginatorBuilder createPaginator(@NotNull ShardManager handler) {
 		return new PaginatorBuilder(new Paginator(handler));
 	}
 
@@ -68,7 +68,7 @@ public class PaginatorBuilder {
 	 * @param handler The {@link JDA} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public static Paginator createSimplePaginator(@Nonnull JDA handler) {
+	public static Paginator createSimplePaginator(@NotNull JDA handler) {
 		Paginator p = new Paginator(handler);
 		p.finishEmotes();
 
@@ -81,7 +81,7 @@ public class PaginatorBuilder {
 	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public static Paginator createSimplePaginator(@Nonnull ShardManager handler) {
+	public static Paginator createSimplePaginator(@NotNull ShardManager handler) {
 		Paginator p = new Paginator(handler);
 		p.finishEmotes();
 
@@ -103,7 +103,7 @@ public class PaginatorBuilder {
 	 * @param handler The {@link JDA} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public PaginatorBuilder setHandler(@Nonnull JDA handler) {
+	public PaginatorBuilder setHandler(@NotNull JDA handler) {
 		paginator.setHandler(handler);
 		return this;
 	}
@@ -114,7 +114,7 @@ public class PaginatorBuilder {
 	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public PaginatorBuilder setHandler(@Nonnull ShardManager handler) {
+	public PaginatorBuilder setHandler(@NotNull ShardManager handler) {
 		paginator.setHandler(handler);
 		return this;
 	}
@@ -193,8 +193,8 @@ public class PaginatorBuilder {
 	 * @param emote The {@link Emote} to be retrieved.
 	 * @return The {@link Emote}'s code.
 	 */
-	public Emoji getEmote(@Nonnull Emote emote) {
-		return paginator.getEmote(emote);
+	public Emoji getEmote(@NotNull Emote emote) {
+		return paginator.getEmoji(emote);
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class PaginatorBuilder {
 	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
 	 * object.
 	 */
-	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
+	public PaginatorBuilder setEmote(@NotNull Emote emote, @NotNull String code) throws InvalidHandlerException {
 		return setEmote(emote, Emoji.fromMarkdown(code));
 	}
 
@@ -221,7 +221,7 @@ public class PaginatorBuilder {
 	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
 	 * object.
 	 */
-	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull Emoji emoji) throws InvalidHandlerException {
+	public PaginatorBuilder setEmote(@NotNull Emote emote, @NotNull Emoji emoji) throws InvalidHandlerException {
 		if (paginator.getHandler() == null) throw new InvalidHandlerException();
 		else if (paginator.getEmotes().containsValue(emoji)) throw new AlreadyAssignedException();
 

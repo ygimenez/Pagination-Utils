@@ -5,11 +5,10 @@ import com.github.ygimenez.model.ActionReference;
 import com.github.ygimenez.model.PUtilsConfig;
 import com.github.ygimenez.model.PaginationEventWrapper;
 import com.github.ygimenez.model.ThrowingBiConsumer;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -17,10 +16,8 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
@@ -46,7 +43,7 @@ public class MessageHandler extends ListenerAdapter {
 	 * @return An {@link ActionReference} pointing to this event. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (ie. garbage collected).
 	 */
-	public ActionReference addEvent(@Nonnull Message msg, @Nonnull ThrowingBiConsumer<User, PaginationEventWrapper> act) {
+	public ActionReference addEvent(@NotNull Message msg, @NotNull ThrowingBiConsumer<User, PaginationEventWrapper> act) {
 		String id = getEventId(msg);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
 		events.put(id, act);
@@ -59,7 +56,7 @@ public class MessageHandler extends ListenerAdapter {
 	 *
 	 * @param msg The {@link Message} which had attached events.
 	 */
-	public void removeEvent(@Nonnull Message msg) {
+	public void removeEvent(@NotNull Message msg) {
 		String id = getEventId(msg);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Removed event with ID " + id);
 		events.remove(id);
@@ -78,7 +75,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	/**
 	 * Retrieves the event handler map. This will contain all currently active events being handled by
-	 * the library mapped by {@link Guild} ID ({@link PrivateChannel} ID for DM) plus the {@link Message} ID.
+	 * the library mapped by {@link MessageChannel} ID plus the {@link Message} ID.
 	 *
 	 * @return An unmodifiable {@link Map} containing events handled by the library.
 	 */
@@ -96,37 +93,37 @@ public class MessageHandler extends ListenerAdapter {
 		events.clear();
 	}
 
-	private void lock(@Nonnull String id) {
+	private void lock(@NotNull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Locked event with ID " + id);
 		locks.add(id);
 	}
 
-	private void unlock(@Nonnull String id) {
+	private void unlock(@NotNull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Unlocked event with ID " + id);
 		locks.remove(id);
 	}
 
-	private boolean isLocked(@Nonnull GenericMessageReactionEvent evt) {
+	private boolean isLocked(@NotNull GenericMessageReactionEvent evt) {
 		return locks.contains(getEventId(evt));
 	}
 
-	private boolean isLocked(@Nonnull String id) {
+	private boolean isLocked(@NotNull String id) {
 		return locks.contains(id);
 	}
 
 	@Override
-	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent evt) {
+	public void onMessageReactionAdd(@NotNull MessageReactionAddEvent evt) {
 		execute(evt);
 	}
 
 	@Override
-	public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent evt) {
+	public void onMessageReactionRemove(@NotNull MessageReactionRemoveEvent evt) {
 		if (!Pages.getPaginator().isRemoveOnReact() || !evt.isFromGuild())
 			execute(evt);
 	}
 
 	@Override
-	public void onMessageDelete(@Nonnull MessageDeleteEvent evt) {
+	public void onMessageDelete(@NotNull MessageDeleteEvent evt) {
 		events.remove(getEventId(evt));
 	}
 
@@ -136,15 +133,13 @@ public class MessageHandler extends ListenerAdapter {
 
 		evt.retrieveUser().submit()
 				.whenComplete((u, t) -> processEvent(
-						t,
-						id,
-						u,
+						t, id, u,
 						new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getReaction(), evt.isFromGuild())
 				));
 	}
 
 	@Override
-	public void onButtonClick(@NotNull ButtonClickEvent evt) {
+	public void onButtonInteraction(@NotNull ButtonInteractionEvent evt) {
 		User u = evt.getUser();
 		String id = getEventId(evt);
 		if (!events.containsKey(id)) return;
@@ -191,15 +186,15 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(GenericMessageEvent evt) {
 		crc.reset();
-		String rawId = (evt.isFromGuild() ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + "_" + evt.getMessageId();
+		String rawId = (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
 	}
 
-	private String getEventId(ButtonClickEvent evt) {
+	private String getEventId(ButtonInteractionEvent evt) {
 		crc.reset();
-		String rawId = (evt.getGuild() != null ? "GUILD_" + evt.getGuild().getId() : "PRIVATE_" + evt.getPrivateChannel().getId()) + "_" + evt.getMessageId();
+		String rawId = (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
@@ -207,7 +202,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(Message msg) {
 		crc.reset();
-		String rawId = (msg.isFromGuild() ? "GUILD_" + msg.getGuild().getId() : "PRIVATE_" + msg.getPrivateChannel().getId()) + "_" + msg.getId();
+		String rawId = (msg.isFromGuild() ? "GUILD_" : "PRIVATE_") + msg.getChannel().getId() + "_" + msg.getId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());

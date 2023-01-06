@@ -6,8 +6,8 @@ import com.github.ygimenez.model.Page;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Component;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -54,7 +54,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	}
 
 	@Override
-	public MessageAction apply(MessageAction action) {
+	public <Out extends MessageRequest<Out>> Out apply(Out action) {
 		if (!isUsingButtons()) return action;
 
 		if (getContent().isEmpty()) throw new NullPageException();
@@ -62,7 +62,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 
 		List<ActionRow> rows = new ArrayList<>();
 
-		LinkedList<Component> row = new LinkedList<>() {{
+		LinkedList<ItemComponent> row = new LinkedList<>() {{
 			add(p.makeButton(PREVIOUS));
 			if (isCancellable()) add(p.makeButton(CANCEL));
 			add(p.makeButton(NEXT));
@@ -89,7 +89,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 			}}));
 		}
 
-		return action.setActionRows(rows);
+		return action.setComponents(rows);
 	}
 
 	@Override

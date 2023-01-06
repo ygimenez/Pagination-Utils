@@ -1,6 +1,5 @@
 package com.github.ygimenez.model.helper;
 
-import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
@@ -8,9 +7,9 @@ import com.github.ygimenez.model.ThrowingFunction;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +17,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.github.ygimenez.type.Emote.*;
-import static com.github.ygimenez.type.Emote.GOTO_LAST;
 
 public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page>> {
 	private final ThrowingFunction<Integer, Page> pageLoader;
@@ -64,13 +62,13 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 	}
 
 	@Override
-	public MessageAction apply(MessageAction action) {
+	public <Out extends MessageRequest<Out>> Out apply(Out action) {
 		if (!isUsingButtons()) return action;
 
 		InteractPage p = (InteractPage) load(0);
 		if (p == null) throw new NullPageException();
 
-		return action.setActionRows(ActionRow.of(new ArrayList<>() {{
+		return action.setComponents(ActionRow.of(new ArrayList<>() {{
 			add(p.makeButton(PREVIOUS));
 			if (isCancellable()) add(p.makeButton(CANCEL));
 			add(p.makeButton(NEXT));

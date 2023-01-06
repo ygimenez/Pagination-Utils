@@ -4,13 +4,15 @@ import com.github.ygimenez.model.PUtilsConfig.LogLevel;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * This is the core object for Pagination-Utils' settings.<br>
@@ -138,25 +140,13 @@ public class Paginator {
 	}
 
 	/**
-	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
-	 * into IDs.
+	 * Retrieves the {@link Emoji} assigned to the supplied {@link Emote}.
 	 *
 	 * @param emote The {@link Emote} to be defined.
 	 * @return The {@link Emoji} representing this {@link Emote}.
 	 */
-	public Emoji getEmote(Emote emote) {
+	public Emoji getEmoji(Emote emote) {
 		return emotes.getOrDefault(emote, emote.getDefault());
-	}
-
-	/**
-	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
-	 * into IDs.
-	 *
-	 * @param emote The {@link Emote} to be defined.
-	 * @return The {@link Emoji} representing this {@link Emote}.
-	 */
-	public String getStringEmote(Emote emote) {
-		return getEmote(emote).getAsMention().replaceAll("[<>]", "");
 	}
 
 	/**

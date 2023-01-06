@@ -118,9 +118,9 @@
 
     <repositories>
         <repository>
-            <id>jcenter</id>
-            <name>jcenter-bintray</name>
-            <url>https://jcenter.bintray.com</url>
+            <id>central</id>
+            <name>maven-central</name>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
             <id>dv8tion</id>
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.4.0_350</version>
+            <version>5.0.0-beta.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

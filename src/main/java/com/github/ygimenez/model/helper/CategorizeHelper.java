@@ -3,18 +3,18 @@ package com.github.ygimenez.model.helper;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.type.Emote;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.github.ygimenez.type.Emote.*;
+import static com.github.ygimenez.type.Emote.CANCEL;
 
 public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Page>> {
 	public CategorizeHelper(boolean useButtons) {
@@ -31,12 +31,12 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 	}
 
 	@Override
-	public MessageAction apply(MessageAction action) {
+	public <Out extends MessageRequest<Out>> Out apply(Out action) {
 		if (!isUsingButtons()) return action;
 
 		List<ActionRow> rows = new ArrayList<>();
 
-		List<Component> row = new ArrayList<>();
+		List<ItemComponent> row = new ArrayList<>();
 		for (Emoji k : getContent().keySet()) {
 			if (row.size() == 5) {
 				rows.add(ActionRow.of(row));
@@ -47,7 +47,7 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 		}
 
 		if (isCancellable()) {
-			Button button = Button.danger(CANCEL.name(), Pages.getPaginator().getEmote(CANCEL));
+			Button button = Button.danger(CANCEL.name(), Pages.getPaginator().getEmoji(CANCEL));
 			if (rows.size() == 5 && row.size() == 5) {
 				row.set(4, button);
 			} else if (row.size() == 5) {
@@ -62,14 +62,14 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 
 		rows.add(ActionRow.of(row));
 
-		return action.setActionRows(rows);
+		return action.setComponents(rows);
 	}
 
 	@Override
 	public boolean shouldUpdate(Message msg) {
 		if (!isUsingButtons()) return false;
 
-		Predicate<Set<Emoji>> checks = e -> !isCancellable() || e.contains(Pages.getPaginator().getEmote(CANCEL));
+		Predicate<Set<Emoji>> checks = e -> !isCancellable() || e.contains(Pages.getPaginator().getEmoji(CANCEL));
 		Set<Emoji> emojis = msg.getButtons().stream()
 				.map(Button::getEmoji)
 				.collect(Collectors.toSet());

@@ -2,7 +2,7 @@ package com.github.ygimenez.model.helper;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -74,7 +74,7 @@ abstract class BaseHelper<Sub extends BaseHelper<Sub, T>, T> {
 		return subClass.cast(this);
 	}
 
-	public abstract MessageAction apply(MessageAction action);
+	public abstract <Out extends MessageRequest<Out>> Out apply(Out action);
 
 	public abstract boolean shouldUpdate(Message msg);
 }

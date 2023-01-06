@@ -2,8 +2,7 @@ package com.github.ygimenez.model;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Class representing either a {@link Message} or {@link MessageEmbed} object.
@@ -18,7 +17,7 @@ public class Page {
 	 * @param content The {@link Message}/{@link MessageEmbed} object to be used as pages.
 	 * @throws IllegalArgumentException Thrown if argument is not a {@link Message} nor {@link MessageEmbed}.
 	 */
-	public Page(@Nonnull Object content) throws IllegalArgumentException {
+	public Page(@NotNull Object content) throws IllegalArgumentException {
 		if (!(content instanceof Message) && !(content instanceof MessageEmbed))
 			throw new IllegalArgumentException("Page content must be either a Message or a MessageEmbed");
 
