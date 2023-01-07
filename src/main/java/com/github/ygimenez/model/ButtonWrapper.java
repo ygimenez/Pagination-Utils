@@ -1,9 +1,12 @@
 package com.github.ygimenez.model;
 
 import com.github.ygimenez.method.Pages;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.Button;
 
 /**
  * Wrapper for {@link Pages#buttonize} arguments containing necessary data for processing.
