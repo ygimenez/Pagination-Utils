@@ -13,6 +13,7 @@ import com.github.ygimenez.model.helper.PaginateHelper;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -35,7 +36,6 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.github.ygimenez.type.Emote.*;
 
@@ -834,9 +834,7 @@ public abstract class Pages {
 		if (!isActivated()) throw new InvalidStateException();
 		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 
-		Map<Emoji, Page> cats = helper.getContent().entrySet().stream()
-				.map(e -> Map.entry(e.getKey().getFormatted(), e.getValue()))
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		Map<Emoji, Page> cats = Collections.unmodifiableMap(helper.getContent());
 
 		if (useBtns && helper.shouldUpdate(msg)) {
 			helper.apply(msg.editMessageComponents()).submit();
@@ -895,7 +893,7 @@ public abstract class Pages {
 						finalizeEvent(m, success);
 						return;
 					} else if (emoji != null && !Objects.equals(emoji, currCat)) {
-						Page pg = cats.get(emoji);
+						Page pg = lookupValue(cats, emoji);
 						if (pg != null) {
 							if (currCat != null && pg instanceof InteractPage) {
 								modifyButtons(m, Map.of(Emote.getId(currCat), Button::asEnabled));
@@ -1211,7 +1209,7 @@ public abstract class Pages {
 						hook = null;
 					}
 
-					ThrowingConsumer<ButtonWrapper> act = btns.get(emoji);
+					ThrowingConsumer<ButtonWrapper> act = lookupValue(btns, emoji);
 					if (act != null) {
 						act.accept(new ButtonWrapper(wrapper.getUser(), hook, m));
 					}
@@ -1660,6 +1658,27 @@ public abstract class Pages {
 
 	private static Emoji toEmoji(EmojiUnion reaction) {
 		return Emoji.fromFormatted(reaction.getFormatted());
+	}
+
+	private static <T> T lookupValue(Map<Emoji, T> map, Emoji emoji) {
+		String id;
+		if (emoji instanceof CustomEmoji) {
+			id = ((CustomEmoji) emoji).getId();
+		} else {
+			id = emoji.getFormatted();
+		}
+
+		return map.entrySet().stream()
+				.filter(e -> {
+					Emoji emj = e.getKey();
+					if (emj instanceof CustomEmoji) {
+						return ((CustomEmoji) emj).getId().equals(id);
+					}
+
+					return emj.getFormatted().equals(id);
+				})
+				.map(Map.Entry::getValue)
+				.findFirst().orElse(null);
 	}
 
 	/**
