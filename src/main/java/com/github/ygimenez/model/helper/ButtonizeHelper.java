@@ -124,6 +124,6 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, Thro
 
 		checks = checks.and(e -> e.containsAll(getContent().keySet()));
 
-		return checks.test(emojis);
+		return !checks.test(emojis);
 	}
 }

@@ -99,6 +99,6 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 
 		checks = checks.and(e -> e.containsAll(getContent().keySet()));
 
-		return checks.test(emojis);
+		return !checks.test(emojis);
 	}
 }

@@ -99,7 +99,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets the handler used for event processing.
+	 * Set the handler used for event processing.
 	 *
 	 * @param handler The {@link JDA} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
@@ -110,7 +110,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets the handler used for event processing.
+	 * Set the handler used for event processing.
 	 *
 	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
@@ -132,7 +132,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets whether user reactions will be removed after pressing the button or not.
+	 * Set whether user reactions will be removed after pressing the button or not.
 	 * If this is enabled, the bot will require {@link Permission#MESSAGE_MANAGE} permission
 	 * for the buttons to work.
 	 *
@@ -154,7 +154,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets whether evens should be locked to prevent double-activation of buttons before
+	 * Set whether evens should be locked to prevent double-activation of buttons before
 	 * it finished previous processing (can help if experiencing race condition).
 	 *
 	 * @param shouldLock Whether events should be locked (default: false).
@@ -177,7 +177,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets whether {@link Message} should be deleted or not when the button handler is removed.
+	 * Set whether {@link Message} should be deleted or not when the button handler is removed.
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param deleteOnCancel Whether the {@link Message} will be deleted or not (default: false).

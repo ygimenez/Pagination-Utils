@@ -53,7 +53,7 @@ abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 	}
 
 	/**
-	 * Sets whether the event is cancellable through {@link Emote#CANCEL}.
+	 * Set whether the event is cancellable through {@link Emote#CANCEL}.
 	 *
 	 * @param cancellable Whether the event can be cancelled or not (default: true).
 	 * @return The {@link Helper} instance for chaining convenience.
@@ -73,7 +73,7 @@ abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 	}
 
 	/**
-	 * Sets the timeout for automatically cancelling the event. Values less than or equal to zero will disable the
+	 * Set the timeout for automatically cancelling the event. Values less than or equal to zero will disable the
 	 * timeout.
 	 *
 	 * @param time The time for the timeout.
@@ -96,7 +96,7 @@ abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 	}
 
 	/**
-	 * Sets the condition used to check if a given user can interact with the event buttons.
+	 * Set the condition used to check if a given user can interact with the event buttons.
 	 *
 	 * @param canInteract A {@link Predicate} for checking if a given user can interact with the buttons (default: null).
 	 * @return The {@link Helper} instance for chaining convenience.

@@ -154,6 +154,7 @@ public class MessageHandler extends ListenerAdapter {
 		String id = getEventId(evt);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
 		if (!events.containsKey(id)) {
+			evt.deferEdit().submit().whenComplete((hook, t) -> PUtilsConfig.getOnRemove().accept(evt.getHook()));
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
 			return;
 		}

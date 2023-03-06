@@ -51,7 +51,7 @@ public abstract class Pages {
 	}
 
 	/**
-	 * Sets a {@link Paginator} object to handle incoming events. This is
+	 * Set a {@link Paginator} object to handle incoming events. This is
 	 * required only once unless you want to change which client is handling events. <br>
 	 * <br>
 	 * Before calling this method again, you must use {@link #deactivate()} to

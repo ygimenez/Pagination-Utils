@@ -63,7 +63,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	}
 
 	/**
-	 * Sets the amount of pages to be skipped on pressing {@link Emote#SKIP_BACKWARD} or {@link Emote#SKIP_FORWARD}.
+	 * Set the amount of pages to be skipped on pressing {@link Emote#SKIP_BACKWARD} or {@link Emote#SKIP_FORWARD}.
 	 *
 	 * @param skipAmount The amount of pages to skip (default: 0).
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
@@ -84,7 +84,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	}
 
 	/**
-	 * Sets whether to include {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons for quick navigation
+	 * Set whether to include {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons for quick navigation
 	 * through the pages.
 	 *
 	 * @param fastForward Whether to include fast-forward buttons (default: false).
