@@ -566,9 +566,9 @@ public abstract class Pages {
 		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 		List<Page> pgs = Collections.unmodifiableList(helper.getContent());
 
-		if (useBtns) {
+		if (useBtns && helper.shouldUpdate(msg)) {
 			helper.apply(msg.editMessageComponents()).submit();
-		} else {
+		} else if (!useBtns) {
 			clearButtons(msg);
 			clearReactions(msg);
 			addReactions(msg, helper.getSkipAmount() > 1, helper.isFastForward());
@@ -835,9 +835,9 @@ public abstract class Pages {
 
 		Map<Emoji, Page> cats = Collections.unmodifiableMap(helper.getContent());
 
-		if (useBtns) {
+		if (useBtns && helper.shouldUpdate(msg)) {
 			helper.apply(msg.editMessageComponents()).submit();
-		} else {
+		} else if (!useBtns) {
 			clearButtons(msg);
 			clearReactions(msg);
 
@@ -1141,9 +1141,9 @@ public abstract class Pages {
 
 		Map<Emoji, ThrowingConsumer<ButtonWrapper>> btns = Collections.unmodifiableMap(helper.getContent());
 
-		if (useBtns) {
+		if (useBtns && helper.shouldUpdate(msg)) {
 			helper.apply(msg.editMessageComponents()).submit();
-		} else {
+		} else if (!useBtns) {
 			clearButtons(msg);
 			clearReactions(msg);
 
@@ -1473,9 +1473,9 @@ public abstract class Pages {
 		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 		boolean cache = helper.getContent() != null;
 
-		if (useBtns) {
+		if (useBtns && helper.shouldUpdate(msg)) {
 			helper.apply(msg.editMessageComponents()).submit();
-		} else {
+		} else if (!useBtns) {
 			clearButtons(msg);
 			clearReactions(msg);
 			addReactions(msg, false, false);

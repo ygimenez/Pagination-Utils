@@ -99,21 +99,21 @@ public class MessageHandler extends ListenerAdapter {
 		events.clear();
 	}
 
-	private void lock(@NotNull String id) {
+	private synchronized void lock(@NotNull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Locked event with ID " + id);
 		locks.add(id);
 	}
 
-	private void unlock(@NotNull String id) {
+	private synchronized void unlock(@NotNull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Unlocked event with ID " + id);
 		locks.remove(id);
 	}
 
-	private boolean isLocked(@NotNull GenericMessageReactionEvent evt) {
+	private synchronized boolean isLocked(@NotNull GenericMessageReactionEvent evt) {
 		return locks.contains(getEventId(evt));
 	}
 
-	private boolean isLocked(@NotNull String id) {
+	private synchronized boolean isLocked(@NotNull String id) {
 		return locks.contains(id);
 	}
 
@@ -136,7 +136,11 @@ public class MessageHandler extends ListenerAdapter {
 
 	private void execute(GenericMessageReactionEvent evt) {
 		String id = getEventId(evt);
-		if (!events.containsKey(id)) return;
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
+		if (!events.containsKey(id)) {
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
+			return;
+		}
 
 		evt.retrieveUser().submit()
 				.whenComplete((u, t) -> processEvent(
@@ -147,17 +151,21 @@ public class MessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onButtonInteraction(@NotNull ButtonInteractionEvent evt) {
-		User u = evt.getUser();
 		String id = getEventId(evt);
-		if (!events.containsKey(id)) return;
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
+		if (!events.containsKey(id)) {
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
+			return;
+		}
 
 		evt.deferEdit().submit()
-				.whenComplete((hook, t) -> processEvent(
-						t,
-						id,
-						u,
-						new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getButton(), evt.isFromGuild())
-				));
+				.whenComplete((hook, t) -> {
+					User u = hook.getInteraction().getUser();
+					processEvent(
+							t, id, u,
+							new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getButton(), evt.isFromGuild())
+					);
+				});
 	}
 
 	private void processEvent(Throwable t, String id, User u, PaginationEventWrapper evt) {
@@ -166,7 +174,6 @@ public class MessageHandler extends ListenerAdapter {
 			return;
 		}
 
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
 		if (u.isBot() || isLocked(id)) {
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event" + id + " was triggered by a bot or is locked. Ignored");
 			return;
