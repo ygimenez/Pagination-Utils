@@ -35,6 +35,7 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.github.ygimenez.type.Emote.*;
 
@@ -833,7 +834,9 @@ public abstract class Pages {
 		if (!isActivated()) throw new InvalidStateException();
 		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 
-		Map<Emoji, Page> cats = Collections.unmodifiableMap(helper.getContent());
+		Map<Emoji, Page> cats = helper.getContent().entrySet().stream()
+				.map(e -> Map.entry(e.getKey().getFormatted(), e.getValue()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		if (useBtns && helper.shouldUpdate(msg)) {
 			helper.apply(msg.editMessageComponents()).submit();

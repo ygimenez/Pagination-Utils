@@ -81,7 +81,10 @@ abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 	 * @return The {@link Helper} instance for chaining convenience.
 	 */
 	public Helper setTimeout(int time, TimeUnit unit) {
-		this.time = TimeUnit.MILLISECONDS.convert(time, unit);
+		if (unit != null) {
+			this.time = TimeUnit.MILLISECONDS.convert(time, unit);
+		}
+
 		return subClass.cast(this);
 	}
 
