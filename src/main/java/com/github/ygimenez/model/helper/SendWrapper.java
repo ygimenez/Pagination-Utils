@@ -58,9 +58,7 @@ public class SendWrapper<T extends BaseHelper<T, ?>> {
 		}
 
 		if (page.getContent() instanceof Message) {
-			MessageCreateData data = MessageCreateBuilder.fromMessage((Message) page.getContent()).build();
-
-			try (data) {
+			try (MessageCreateData data = MessageCreateBuilder.fromMessage((Message) page.getContent()).build()) {
 				action = helper.apply(channel.sendMessage(data));
 			}
 		} else if (page.getContent() instanceof MessageEmbed) {

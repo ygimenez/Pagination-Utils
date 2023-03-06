@@ -1522,9 +1522,7 @@ public class Pages {
 		if (p == null) throw new NullPageException(msg);
 
 		if (p.getContent() instanceof Message) {
-			MessageEditData data = MessageEditBuilder.fromMessage((Message) p.getContent()).build();
-
-			try (data) {
+			try (MessageEditData data = MessageEditBuilder.fromMessage((Message) p.getContent()).build()) {
 				msg.editMessage(data).submit();
 			}
 		} else if (p.getContent() instanceof MessageEmbed) {
