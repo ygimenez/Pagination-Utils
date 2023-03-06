@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -84,7 +86,7 @@ public enum Emote {
 	 * @param emoji The {@link Emoji} to be searched for.
 	 * @return The respective {@link Emote}, or {@link #NONE} if it didn't match any.
 	 */
-	public static Emote getByEmoji(Emoji emoji) {
+	public static Emote getByEmoji(@NotNull Emoji emoji) {
 		for (Map.Entry<Emote, Emoji> entry : Pages.getPaginator().getEmotes().entrySet()) {
 			if (Objects.equals(entry.getValue(), emoji)) return entry.getKey();
 		}
@@ -97,12 +99,12 @@ public enum Emote {
 	}
 
 	/**
-	 * Checks whether the supplied {@link Button} is referenced by a library native emote or not.
+	 * Checks whether the supplied {@link Button} is referenced by a library emote or not.
 	 *
 	 * @param btn The {@link Button} to be checked.
 	 * @return Whether it uses a {@link Emote} value or not.
 	 */
-	public static boolean isNative(Button btn) {
+	public static boolean isNative(@NotNull Button btn) {
 		if (btn.getId() == null) return false;
 		else for (Emote emt : values()) {
 			if (emt.name().equals(btn.getId())) return true;
@@ -112,12 +114,12 @@ public enum Emote {
 	}
 
 	/**
-	 * Checks whether the supplied {@link MessageReaction} is referenced by a library native emote or not.
+	 * Checks whether the supplied {@link MessageReaction} is referenced by a library emote or not.
 	 *
 	 * @param react The {@link MessageReaction} to be checked.
 	 * @return Whether it uses a {@link Emote} value or not.
 	 */
-	public static boolean isNative(MessageReaction react) {
+	public static boolean isNative(@NotNull MessageReaction react) {
 		Emoji emj = Emoji.fromFormatted(react.getEmoji().getAsReactionCode());
 		for (Emote emt : values()) {
 			if (emt.emj.equals(emj)) return false;
@@ -132,7 +134,7 @@ public enum Emote {
 	 * @param emj The {@link Emoji} to be used.
 	 * @return The supplied {@link Emoji}'s effective ID.
 	 */
-	public static String getId(Emoji emj) {
+	public static String getId(@NotNull Emoji emj) {
 		if (emj instanceof CustomEmoji) {
 			return ((CustomEmoji) emj).getId();
 		} else {
@@ -140,7 +142,14 @@ public enum Emote {
 		}
 	}
 
-	public static Emote fromButton(Button btn) {
+	/**
+	 * Returns the {@link Emote} represented by the supplied {@link Button}, if any.
+	 *
+	 * @param btn The {@link Button} to be checked.
+	 * @return The {@link Emote} linked to the supplied {@link Button}, or null if none.
+	 */
+	@Nullable
+	public static Emote fromButton(@NotNull Button btn) {
 		return Arrays.stream(values())
 				.filter(e -> btn.getId() != null && btn.getId().contains(e.name()))
 				.findFirst().orElse(null);

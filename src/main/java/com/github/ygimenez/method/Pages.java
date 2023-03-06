@@ -42,14 +42,17 @@ import static com.github.ygimenez.type.Emote.*;
  * The main class containing all pagination-related methods, including but not limited
  * to {@link #paginate}, {@link #categorize}, {@link #buttonize} and {@link #lazyPaginate}.
  */
-public class Pages {
+public abstract class Pages {
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private static final MessageHandler handler = new MessageHandler();
 	private static Paginator paginator;
 
+	private Pages() {
+	}
+
 	/**
-	 * Sets a {@link Paginator} object to handle incoming reactions. This is
-	 * required only once unless you want to use another client as the handler. <br>
+	 * Sets a {@link Paginator} object to handle incoming events. This is
+	 * required only once unless you want to change which client is handling events. <br>
 	 * <br>
 	 * Before calling this method again, you must use {@link #deactivate()} to
 	 * remove current {@link Paginator}, else this method will throw
@@ -61,15 +64,16 @@ public class Pages {
 	 *                                   or {@link ShardManager} object.
 	 */
 	public static void activate(@NotNull Paginator paginator) throws InvalidHandlerException {
-		if (isActivated())
-			throw new AlreadyActivatedException();
+		if (isActivated()) throw new AlreadyActivatedException();
 
 		Object hand = paginator.getHandler();
-		if (hand instanceof JDA)
+		if (hand instanceof JDA) {
 			((JDA) hand).addEventListener(handler);
-		else if (hand instanceof ShardManager)
+		} else if (hand instanceof ShardManager) {
 			((ShardManager) hand).addEventListener(handler);
-		else throw new InvalidHandlerException();
+		} else {
+			throw new InvalidHandlerException();
+		}
 
 		Pages.paginator = paginator;
 		paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Pagination Utils activated successfully");
@@ -81,14 +85,14 @@ public class Pages {
 	 * Using this method without activating beforehand will do nothing.
 	 */
 	public static void deactivate() {
-		if (!isActivated())
-			return;
+		if (!isActivated()) return;
 
 		Object hand = paginator.getHandler();
-		if (hand instanceof JDA)
+		if (hand instanceof JDA) {
 			((JDA) hand).removeEventListener(handler);
-		else if (hand instanceof ShardManager)
+		} else if (hand instanceof ShardManager) {
 			((ShardManager) hand).removeEventListener(handler);
+		}
 
 		paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Pagination Utils deactivated successfully");
 		paginator = null;
@@ -534,7 +538,7 @@ public class Pages {
 	 */
 	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, new PaginateHelper(pages, useButtons)
-				.setTimeUnit(time, unit)
+				.setTimeout(time, unit)
 				.setSkipAmount(skipAmount)
 				.setFastForward(fastForward)
 				.setCanInteract(canInteract)
@@ -562,9 +566,9 @@ public class Pages {
 		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 		List<Page> pgs = Collections.unmodifiableList(helper.getContent());
 
-		if (useBtns && helper.shouldUpdate(msg)) {
+		if (useBtns) {
 			helper.apply(msg.editMessageComponents()).submit();
-		} else if (!useBtns) {
+		} else {
 			clearButtons(msg);
 			clearReactions(msg);
 			addReactions(msg, helper.getSkipAmount() > 1, helper.isFastForward());
@@ -575,8 +579,10 @@ public class Pages {
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
-				if (timeout != null)
+				if (timeout != null) {
 					timeout.cancel(true);
+				}
+
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
@@ -585,17 +591,17 @@ public class Pages {
 			private final Function<Button, Button> UPPER_BOUNDARY_CHECK = b -> b.withDisabled(p == maxP);
 
 			{
-				if (helper.getTime() > 0 && helper.getUnit() != null)
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
+				if (helper.getTimeout() > 0) {
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+				}
 			}
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message m = subGet(wrapper.retrieveMessage());
 
-				if (helper.getCanInteract() == null || helper.getCanInteract().test(u)) {
-					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
-						return;
+				if (helper.canInteract(u)) {
+					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emote emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
@@ -671,10 +677,12 @@ public class Pages {
 						}
 					}
 
-					if (timeout != null)
+					if (timeout != null) {
 						timeout.cancel(true);
-					if (helper.getTime() > 0 && helper.getUnit() != null)
-						timeout = executor.schedule(() -> finalizeEvent(m, success), helper.getTime(), helper.getUnit());
+					}
+					if (helper.getTimeout() > 0) {
+						timeout = executor.schedule(() -> finalizeEvent(m, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -696,6 +704,8 @@ public class Pages {
 	 *                   {@link Pages} as values.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -725,6 +735,8 @@ public class Pages {
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
 	 *                   {@link TimeUnit#SECONDS}).
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -750,6 +762,8 @@ public class Pages {
 	 *                    {@link Message} was not sent by the bot.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -781,6 +795,8 @@ public class Pages {
 	 *                    {@link TimeUnit#SECONDS}).
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -790,7 +806,7 @@ public class Pages {
 	 */
 	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<Emoji, Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return categorize(msg, new CategorizeHelper(categories, useButtons)
-				.setTimeUnit(time, unit)
+				.setTimeout(time, unit)
 				.setCanInteract(canInteract)
 		);
 	}
@@ -804,6 +820,8 @@ public class Pages {
 	 *
 	 * @param msg    The {@link Message} sent which will be categorized.
 	 * @param helper A {@link CategorizeHelper} holding desired categorization settings.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -834,24 +852,26 @@ public class Pages {
 			private Emoji currCat = null;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
-				if (timeout != null)
+				if (timeout != null) {
 					timeout.cancel(true);
+				}
+
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
-				if (helper.getTime() > 0 && helper.getUnit() != null)
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
+				if (helper.getTimeout() > 0) {
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+				}
 			}
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message m = subGet(wrapper.retrieveMessage());
 
-				if (helper.getCanInteract() == null || helper.getCanInteract().test(u)) {
-					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
-						return;
+				if (helper.canInteract(u)) {
+					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emoji emoji = null;
 					Emote emt = NONE;
@@ -886,10 +906,12 @@ public class Pages {
 						}
 					}
 
-					if (timeout != null)
+					if (timeout != null) {
 						timeout.cancel(true);
-					if (helper.getTime() > 0 && helper.getUnit() != null)
-						timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
+					}
+					if (helper.getTimeout() > 0) {
+						timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -913,6 +935,8 @@ public class Pages {
 	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                         {@link Message} was not sent by the bot.
 	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -943,6 +967,8 @@ public class Pages {
 	 *                         listening for further events (recommended: 60).
 	 * @param unit             The time's {@link TimeUnit} (recommended:
 	 *                         {@link TimeUnit#SECONDS}).
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -971,6 +997,8 @@ public class Pages {
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
 	 *                         with it or not.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1004,6 +1032,8 @@ public class Pages {
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
 	 *                         with it or not.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1033,6 +1063,8 @@ public class Pages {
 	 *                         {@link User} that pressed the button can interact
 	 *                         with it or not.
 	 * @param onCancel         Action to be run after the listener is removed.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1067,6 +1099,8 @@ public class Pages {
 	 *                    {@link User} that pressed the button can interact
 	 *                    with it or not.
 	 * @param onCancel    Action to be run after the listener is removed.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1077,9 +1111,9 @@ public class Pages {
 	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean cancellable, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, new ButtonizeHelper(buttons, useButtons)
 				.setCancellable(cancellable)
-				.setTimeUnit(time, unit)
+				.setTimeout(time, unit)
 				.setCanInteract(canInteract)
-				.setOnCancel(onCancel)
+				.setOnFinalization(onCancel)
 		);
 	}
 
@@ -1092,6 +1126,8 @@ public class Pages {
 	 *
 	 * @param msg    The {@link Message} sent which will be buttoned.
 	 * @param helper A {@link ButtonizeHelper} holding desired buttonization settings.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1123,25 +1159,27 @@ public class Pages {
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
-				if (timeout != null)
+				if (timeout != null) {
 					timeout.cancel(true);
+				}
+
 				handler.removeEvent(msg);
-				if (helper.getOnCancel() != null) helper.getOnCancel().accept(msg);
+				if (helper.getOnFinalization() != null) helper.getOnFinalization().accept(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
-				if (helper.getTime() > 0 && helper.getUnit() != null)
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
+				if (helper.getTimeout() > 0) {
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+				}
 			}
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message m = subGet(wrapper.retrieveMessage());
 
-				if (helper.getCanInteract() == null || helper.getCanInteract().test(u)) {
-					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
-						return;
+				if (helper.canInteract(u)) {
+					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emoji emoji = null;
 					Emote emt = NONE;
@@ -1175,10 +1213,12 @@ public class Pages {
 						act.accept(new ButtonWrapper(wrapper.getUser(), hook, m));
 					}
 
-					if (timeout != null)
+					if (timeout != null) {
 						timeout.cancel(true);
-					if (helper.getTime() > 0 && helper.getUnit() != null)
-						timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
+					}
+					if (helper.getTimeout() > 0) {
+						timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1198,6 +1238,8 @@ public class Pages {
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1225,6 +1267,8 @@ public class Pages {
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
 	 *                   {@link TimeUnit#SECONDS}).
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1248,6 +1292,8 @@ public class Pages {
 	 *                    {@link Message} was not sent by the bot.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1277,6 +1323,8 @@ public class Pages {
 	 *                    {@link TimeUnit#SECONDS}).
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1299,6 +1347,8 @@ public class Pages {
 	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fallback to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1327,6 +1377,8 @@ public class Pages {
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
 	 *                   {@link TimeUnit#SECONDS}).
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1351,6 +1403,8 @@ public class Pages {
 	 *                    {@link Message} was not sent by the bot.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1381,6 +1435,8 @@ public class Pages {
 	 *                    {@link TimeUnit#SECONDS}).
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1390,7 +1446,7 @@ public class Pages {
 	 */
 	public static ActionReference lazyPaginate(@NotNull Message msg, List<Page> pageCache, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, new LazyPaginateHelper(pageLoader, pageCache, useButtons)
-				.setTimeUnit(time, unit)
+				.setTimeout(time, unit)
 				.setCanInteract(canInteract)
 		);
 	}
@@ -1403,6 +1459,8 @@ public class Pages {
 	 *
 	 * @param msg    The {@link Message} sent which will be paginated.
 	 * @param helper A {@link LazyPaginateHelper} holding desired lazy pagination settings.
+	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
+	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -1415,9 +1473,9 @@ public class Pages {
 		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
 		boolean cache = helper.getContent() != null;
 
-		if (useBtns && helper.shouldUpdate(msg)) {
+		if (useBtns) {
 			helper.apply(msg.editMessageComponents()).submit();
-		} else if (!useBtns) {
+		} else {
 			clearButtons(msg);
 			clearReactions(msg);
 			addReactions(msg, false, false);
@@ -1427,24 +1485,26 @@ public class Pages {
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
-				if (timeout != null)
+				if (timeout != null) {
 					timeout.cancel(true);
+				}
+
 				handler.removeEvent(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
-				if (helper.getTime() > 0 && helper.getUnit() != null)
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTime(), helper.getUnit());
+				if (helper.getTimeout() > 0) {
+					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+				}
 			}
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message m = subGet(wrapper.retrieveMessage());
 
-				if (helper.getCanInteract() == null || helper.getCanInteract().test(u)) {
-					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId()))
-						return;
+				if (helper.canInteract(u)) {
+					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emote emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
@@ -1498,10 +1558,12 @@ public class Pages {
 							return;
 					}
 
-					if (timeout != null)
+					if (timeout != null) {
 						timeout.cancel(true);
-					if (helper.getTime() > 0 && helper.getUnit() != null)
-						timeout = executor.schedule(() -> finalizeEvent(m, success), helper.getTime(), helper.getUnit());
+					}
+					if (helper.getTimeout() > 0) {
+						timeout = executor.schedule(() -> finalizeEvent(m, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
 						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
@@ -1567,7 +1629,7 @@ public class Pages {
 		try {
 			return future.submit().get();
 		} catch (InterruptedException | ExecutionException e) {
-			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Exception during future execution:", e);
+			paginator.log(PUtilsConfig.LogLevel.LEVEL_4, "Exception during future execution:", e);
 			return null;
 		}
 	}
@@ -1584,7 +1646,7 @@ public class Pages {
 		try {
 			return future.submit().get();
 		} catch (InterruptedException | ExecutionException e) {
-			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Exception during future execution:", e);
+			paginator.log(PUtilsConfig.LogLevel.LEVEL_4, "Exception during future execution:", e);
 			return or;
 		}
 	}
@@ -1606,9 +1668,9 @@ public class Pages {
 		if (msg.getReactions().isEmpty()) return;
 
 		try {
-			if (msg.getChannel().getType().isGuild())
+			if (msg.getChannel().getType().isGuild()) {
 				msg.clearReactions().submit();
-			else for (MessageReaction r : msg.getReactions()) {
+			} else for (MessageReaction r : msg.getReactions()) {
 				r.removeReaction().submit();
 			}
 		} catch (InsufficientPermissionException | IllegalStateException e) {
@@ -1629,7 +1691,7 @@ public class Pages {
 		try {
 			subGet(msg.editMessageComponents());
 		} catch (InsufficientPermissionException | IllegalStateException e) {
-			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Not enough permissions to clear message reactions:", e);
+			paginator.log(PUtilsConfig.LogLevel.LEVEL_3, "Not enough permissions to clear message reactions:", e);
 		}
 	}
 

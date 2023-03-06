@@ -18,31 +18,64 @@ import java.util.stream.Collectors;
 
 import static com.github.ygimenez.type.Emote.CANCEL;
 
+/**
+ * Helper class for building buttonize events, safe for reuse.
+ */
 public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, ThrowingConsumer<ButtonWrapper>>> {
-	private Consumer<Message> onCancel = null;
+	private Consumer<Message> onFinalization = null;
 
+	/**
+	 * Creates a new buttonize event helper with the default map implementation ({@link LinkedHashMap}).
+	 *
+	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
+	 */
 	public ButtonizeHelper(boolean useButtons) {
 		super(ButtonizeHelper.class, new LinkedHashMap<>(), useButtons);
 	}
 
+	/**
+	 * Creates a new buttonize event helper with the supplied map.
+	 *
+	 * @param buttons A map containing the initial buttons.
+	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
+	 */
 	public ButtonizeHelper(Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
 		super(ButtonizeHelper.class, buttons, useButtons);
 	}
 
-	public ButtonizeHelper addCategory(Emoji emoji, ThrowingConsumer<ButtonWrapper> action) {
+	/**
+	 * Adds a new button to the map.
+	 *
+	 * @param emoji The emoji representing this button.
+	 * @param action The action to be performed on click.
+	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
+	 */
+	public ButtonizeHelper addAction(Emoji emoji, ThrowingConsumer<ButtonWrapper> action) {
 		getContent().put(emoji, action);
 		return this;
 	}
 
-	public Consumer<Message> getOnCancel() {
-		return onCancel;
+	/**
+	 * Retrieves the {@link Consumer} that'll be executed when the event ends.
+	 *
+	 * @return The action to be performed during finalization.
+	 */
+	public Consumer<Message> getOnFinalization() {
+		return onFinalization;
 	}
 
-	public ButtonizeHelper setOnCancel(Consumer<Message> onCancel) {
-		this.onCancel = onCancel;
+	/**
+	 * Defines an action to be executed when the event finishes, either by user action or timed finalization.
+	 *
+	 * @param onFinalization The action to be performed.
+	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
+	 */
+	public ButtonizeHelper setOnFinalization(Consumer<Message> onFinalization) {
+		this.onFinalization = onFinalization;
 		return this;
 	}
 
+	/** {@inheritDoc} **/
 	@Override
 	public <Out extends MessageRequest<Out>> Out apply(Out action) {
 		if (!isUsingButtons()) return action;
@@ -79,6 +112,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, Thro
 		return action.setComponents(rows);
 	}
 
+	/** {@inheritDoc} **/
 	@Override
 	public boolean shouldUpdate(Message msg) {
 		if (!isUsingButtons()) return false;

@@ -18,8 +18,9 @@ public class Page {
 	 * @throws IllegalArgumentException Thrown if argument is not a {@link Message} nor {@link MessageEmbed}.
 	 */
 	public Page(@NotNull Object content) throws IllegalArgumentException {
-		if (!(content instanceof Message) && !(content instanceof MessageEmbed))
+		if (!(content instanceof Message) && !(content instanceof MessageEmbed)) {
 			throw new IllegalArgumentException("Page content must be either a Message or a MessageEmbed");
+		}
 
 		this.content = content;
 	}

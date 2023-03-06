@@ -177,8 +177,9 @@ public class Paginator {
 	 * @param t The {@link Throwable} to be added for more detailed information.
 	 */
 	public void log(LogLevel level, String msg, Throwable t) {
-		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0)
+		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0) {
 			logger.error("[" + level.name().replace("_", " ") + "] " + msg, t);
+		}
 	}
 
 	/**
@@ -190,7 +191,8 @@ public class Paginator {
 	 * @param msg The message to be logged.
 	 */
 	public void log(LogLevel level, String msg) {
-		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0)
+		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0) {
 			logger.error("[" + level.name().replace("_", " ") + "] " + msg);
+		}
 	}
 }

@@ -236,8 +236,9 @@ public class PaginatorBuilder {
 	 * @return The {@link Paginator} instance.
 	 */
 	public Paginator build() {
-		if (paginator.getHandler() == null)
+		if (paginator.getHandler() == null) {
 			throw new InvalidStateException();
+		}
 
 		paginator.finishEmotes();
 		return paginator;
@@ -250,8 +251,9 @@ public class PaginatorBuilder {
 	 * @throws InvalidHandlerException Thrown if the handler isn't either a {@link JDA} or {@link ShardManager} object.
 	 */
 	public void activate() throws InvalidHandlerException {
-		if (paginator.getHandler() == null)
+		if (paginator.getHandler() == null) {
 			throw new InvalidStateException();
+		}
 
 		paginator.finishEmotes();
 		Pages.activate(paginator);

@@ -35,6 +35,12 @@ public class MessageHandler extends ListenerAdapter {
 	private final CRC32 crc = new CRC32();
 
 	/**
+	 * Creates a new {@link MessageHandler} instance.
+	 */
+	public MessageHandler() {
+	}
+
+	/**
 	 * Adds an event to the handler, which will be executed whenever a button with the same
 	 * ID is pressed.
 	 *
@@ -118,8 +124,9 @@ public class MessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onMessageReactionRemove(@NotNull MessageReactionRemoveEvent evt) {
-		if (!Pages.getPaginator().isRemoveOnReact() || !evt.isFromGuild())
+		if (!Pages.getPaginator().isRemoveOnReact() || !evt.isFromGuild()) {
 			execute(evt);
+		}
 	}
 
 	@Override
