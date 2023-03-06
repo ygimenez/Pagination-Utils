@@ -209,7 +209,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private String getEventId(ButtonInteractionEvent evt) {
 		crc.reset();
-		String rawId = (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getId();
+		String rawId = (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getMessageId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());
