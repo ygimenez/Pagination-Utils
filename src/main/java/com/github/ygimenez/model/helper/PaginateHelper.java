@@ -1,15 +1,18 @@
 package com.github.ygimenez.model.helper;
 
-import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -95,15 +98,13 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 		return this;
 	}
 
-	/** {@inheritDoc} **/
 	@Override
-	public <Out extends MessageRequest<Out>> Out apply(Out action) {
-		if (!isUsingButtons()) return action;
+	public <Out extends MessageRequest<Out>> List<LayoutComponent> getComponents(Out action) {
+		if (!isUsingButtons()) return List.of();
 
-		if (getContent().isEmpty()) throw new NullPageException();
 		InteractPage p = (InteractPage) getContent().get(0);
 
-		List<ActionRow> rows = new ArrayList<>();
+		List<LayoutComponent> rows = new ArrayList<>();
 
 		LinkedList<ItemComponent> row = new LinkedList<>() {{
 			add(p.makeButton(PREVIOUS).asDisabled());
@@ -132,7 +133,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 			}}));
 		}
 
-		return action.setComponents(rows);
+		return rows;
 	}
 
 	/** {@inheritDoc} **/

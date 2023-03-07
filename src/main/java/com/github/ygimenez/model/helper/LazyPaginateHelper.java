@@ -7,6 +7,7 @@ import com.github.ygimenez.model.ThrowingFunction;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,19 +98,20 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 		return p;
 	}
 
-	/** {@inheritDoc} **/
 	@Override
-	public <Out extends MessageRequest<Out>> Out apply(Out action) {
-		if (!isUsingButtons()) return action;
+	public <Out extends MessageRequest<Out>> List<LayoutComponent> getComponents(Out action) {
+		if (!isUsingButtons()) return List.of();
 
 		InteractPage p = (InteractPage) load(0);
 		if (p == null) throw new NullPageException();
 
-		return action.setComponents(ActionRow.of(new ArrayList<>() {{
-			add(p.makeButton(PREVIOUS).asDisabled());
-			if (isCancellable()) add(p.makeButton(CANCEL));
-			add(p.makeButton(NEXT));
-		}}));
+		return List.of(
+				ActionRow.of(new ArrayList<>() {{
+					add(p.makeButton(PREVIOUS).asDisabled());
+					if (isCancellable()) add(p.makeButton(CANCEL));
+					add(p.makeButton(NEXT));
+				}})
+		);
 	}
 
 	/** {@inheritDoc} **/

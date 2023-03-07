@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 
@@ -75,12 +76,11 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, Thro
 		return this;
 	}
 
-	/** {@inheritDoc} **/
 	@Override
-	public <Out extends MessageRequest<Out>> Out apply(Out action) {
-		if (!isUsingButtons()) return action;
+	public <Out extends MessageRequest<Out>> List<LayoutComponent> getComponents(Out action) {
+		if (!isUsingButtons()) return List.of();
 
-		List<ActionRow> rows = new ArrayList<>();
+		List<LayoutComponent> rows = new ArrayList<>();
 
 		List<ItemComponent> row = new ArrayList<>();
 		for (Emoji k : getContent().keySet()) {
@@ -109,7 +109,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, Thro
 
 		rows.add(ActionRow.of(row));
 
-		return action.setComponents(rows);
+		return rows;
 	}
 
 	/** {@inheritDoc} **/

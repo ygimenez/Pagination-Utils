@@ -3,13 +3,9 @@ package com.github.ygimenez.method;
 import com.github.ygimenez.exception.AlreadyActivatedException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
-import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.listener.MessageHandler;
 import com.github.ygimenez.model.*;
-import com.github.ygimenez.model.helper.ButtonizeHelper;
-import com.github.ygimenez.model.helper.CategorizeHelper;
-import com.github.ygimenez.model.helper.LazyPaginateHelper;
-import com.github.ygimenez.model.helper.PaginateHelper;
+import com.github.ygimenez.model.helper.*;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -22,13 +18,12 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -662,20 +657,15 @@ public abstract class Pages {
 
 					if (update) {
 						pg = pgs.get(p);
-						updatePage(m, pg);
-						updateButtons(m, helper);
+						modifyButtons(m, pg, helper, Map.of(
+								PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
+								SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
+								GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
 
-						if (pg instanceof InteractPage) {
-							modifyButtons(m, Map.of(
-									PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
-									SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
-									GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
-
-									NEXT.name(), UPPER_BOUNDARY_CHECK,
-									SKIP_FORWARD.name(), UPPER_BOUNDARY_CHECK,
-									GOTO_LAST.name(), UPPER_BOUNDARY_CHECK
-							));
-						}
+								NEXT.name(), UPPER_BOUNDARY_CHECK,
+								SKIP_FORWARD.name(), UPPER_BOUNDARY_CHECK,
+								GOTO_LAST.name(), UPPER_BOUNDARY_CHECK
+						));
 					}
 
 					if (timeout != null) {
@@ -895,15 +885,8 @@ public abstract class Pages {
 					} else if (emoji != null && !Objects.equals(emoji, currCat)) {
 						Page pg = lookupValue(cats, emoji);
 						if (pg != null) {
-							if (currCat != null && pg instanceof InteractPage) {
-								modifyButtons(m, Map.of(Emote.getId(currCat), Button::asEnabled));
-							}
-
-							updatePage(m, pg);
 							currCat = emoji;
-							if (pg instanceof InteractPage) {
-								modifyButtons(m, Map.of(Emote.getId(currCat), Button::asDisabled));
-							}
+							modifyButtons(m, pg, helper, Map.of(Emote.getId(currCat), Button::asDisabled));
 						}
 					}
 
@@ -1560,16 +1543,11 @@ public abstract class Pages {
 					}
 
 					if (update) {
-						updatePage(m, pg);
-						updateButtons(m, helper);
-
-						if (pg instanceof InteractPage) {
-							modifyButtons(m, Map.of(
-									PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
-									SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
-									GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK
-							));
-						}
+						modifyButtons(m, pg, helper, Map.of(
+								PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
+								SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
+								GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK
+						));
 					}
 
 					if (timeout != null) {
@@ -1585,41 +1563,6 @@ public abstract class Pages {
 				}
 			}
 		});
-	}
-
-	/**
-	 * Method used to update the current page.
-	 * <strong>Must not be called outside of {@link Pages}</strong>.
-	 *
-	 * @param msg The current {@link Message} object.
-	 * @param p   The current {@link Page}.
-	 */
-	private static void updatePage(@NotNull Message msg, Page p) {
-		if (p == null) throw new NullPageException(msg);
-
-		if (p.getContent() instanceof Message) {
-			try (MessageEditData data = MessageEditBuilder.fromMessage((Message) p.getContent()).build()) {
-				msg.editMessage(data).submit();
-			}
-		} else if (p.getContent() instanceof MessageEmbed) {
-			msg.editMessageEmbeds((MessageEmbed) p.getContent()).submit();
-		}
-	}
-
-	private static void updateButtons(@NotNull Message msg, @NotNull PaginateHelper helper) {
-		if (helper.isUsingButtons()) {
-			helper.apply(msg.editMessageComponents()).submit();
-		} else {
-			addReactions(msg, helper.getSkipAmount() > 1, helper.isFastForward());
-		}
-	}
-
-	private static void updateButtons(@NotNull Message msg, @NotNull LazyPaginateHelper helper) {
-		if (helper.isUsingButtons()) {
-			helper.apply(msg.editMessageComponents()).submit();
-		} else {
-			addReactions(msg, false, false);
-		}
 	}
 
 	/**
@@ -1744,28 +1687,38 @@ public abstract class Pages {
 	}
 
 	/**
-	 * Utility method for modifying message buttons.
+	 * Utility method for switching pages and applying message button states.
 	 *
 	 * @param msg     The {@link Message} holding the buttons.
 	 * @param changes {@link Map} containing desired changes, indexed by {@link Button} ID.
 	 */
-	public static void modifyButtons(Message msg, Map<String, Function<Button, Button>> changes) {
-		List<ActionRow> rows = new ArrayList<>(msg.getActionRows());
+	public static void modifyButtons(Message msg, Page p, BaseHelper<?, ?> helper, Map<String, Function<Button, Button>> changes) {
+		MessageEditAction act = msg.editMessageComponents();
 
-		for (ActionRow ar : rows) {
-			List<ItemComponent> row = ar.getComponents();
-			for (int i = 0; i < row.size(); i++) {
-				ItemComponent c = row.get(i);
-				if (c instanceof Button) {
-					Button b = (Button) c;
-					if (changes.containsKey(b.getId())) {
-						row.set(i, changes.get(b.getId()).apply((Button) c));
+		if (p.getContent() instanceof Message) {
+			act = act.setContent(((Message) p.getContent()).getContentRaw());
+		} else if (p.getContent() instanceof MessageEmbed) {
+			act = act.setEmbeds((MessageEmbed) p.getContent());
+		}
+
+		if (p instanceof InteractPage) {
+			List<LayoutComponent> rows = helper.getComponents(act);
+
+			for (LayoutComponent lc : rows) {
+				List<ItemComponent> row = lc.getComponents();
+				for (int i = 0; i < row.size(); i++) {
+					ItemComponent c = row.get(i);
+					if (c instanceof Button) {
+						Button b = (Button) c;
+						if (changes.containsKey(b.getId())) {
+							row.set(i, changes.get(b.getId()).apply((Button) c));
+						}
 					}
 				}
 			}
 		}
 
-		subGet(msg.editMessageComponents(rows));
+		act.submit();
 	}
 
 	/**
