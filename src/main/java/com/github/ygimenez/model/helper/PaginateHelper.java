@@ -106,7 +106,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 		List<ActionRow> rows = new ArrayList<>();
 
 		LinkedList<ItemComponent> row = new LinkedList<>() {{
-			add(p.makeButton(PREVIOUS));
+			add(p.makeButton(PREVIOUS).asDisabled());
 			if (isCancellable()) add(p.makeButton(CANCEL));
 			add(p.makeButton(NEXT));
 		}};
@@ -114,18 +114,18 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 			row.addFirst(p.makeButton(NONE));
 			row.addLast(p.makeButton(NONE));
 		} else if (skipAmount > 1) {
-			row.addFirst(p.makeButton(SKIP_BACKWARD));
+			row.addFirst(p.makeButton(SKIP_BACKWARD).asDisabled());
 			row.addLast(p.makeButton(SKIP_FORWARD));
 		} else if (fastForward) {
-			row.addFirst(p.makeButton(GOTO_FIRST));
+			row.addFirst(p.makeButton(GOTO_FIRST).asDisabled());
 			row.addLast(p.makeButton(GOTO_LAST));
 		}
 		rows.add(ActionRow.of(row));
 
 		if (skipAmount > 1 && fastForward) {
 			rows.add(ActionRow.of(new ArrayList<>() {{
-				add(p.makeButton(GOTO_FIRST));
-				add(p.makeButton(SKIP_BACKWARD));
+				add(p.makeButton(GOTO_FIRST).asDisabled());
+				add(p.makeButton(SKIP_BACKWARD).asDisabled());
 				if (isCancellable()) add(p.makeButton(NONE));
 				add(p.makeButton(SKIP_FORWARD));
 				add(p.makeButton(GOTO_LAST));

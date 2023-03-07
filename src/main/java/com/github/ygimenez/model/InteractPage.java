@@ -73,7 +73,7 @@ public class InteractPage extends Page {
 		if (emt == Emote.NONE) {
 			return Button.secondary(emt.name() + "." + Objects.hash(Math.random()), "\u200B").asDisabled();
 		} else {
-			return Button.of(style,  emt.name(), caption.get(emt), Pages.getPaginator().getEmoji(emt));
+			return Button.of(style, emt.name(), caption.get(emt), Pages.getPaginator().getEmoji(emt));
 		}
 	}
 
@@ -84,7 +84,7 @@ public class InteractPage extends Page {
 	 * @return The created {@link Button}.
 	 */
 	public Button makeButton(@NotNull Emoji emj) {
-		return Button.secondary( Emote.getId(emj), emj);
+		return Button.secondary(Emote.getId(emj), emj);
 	}
 
 	/**
@@ -95,6 +95,6 @@ public class InteractPage extends Page {
 	 * @return The created {@link Button}.
 	 */
 	public Button makeButton(@NotNull Emoji emj, String caption) {
-		return Button.of(ButtonStyle.SECONDARY,  Emote.getId(emj), caption, emj);
+		return Button.of(ButtonStyle.SECONDARY, Emote.getId(emj), caption, emj);
 	}
 }

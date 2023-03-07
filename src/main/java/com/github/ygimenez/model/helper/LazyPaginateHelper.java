@@ -106,7 +106,7 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 		if (p == null) throw new NullPageException();
 
 		return action.setComponents(ActionRow.of(new ArrayList<>() {{
-			add(p.makeButton(PREVIOUS));
+			add(p.makeButton(PREVIOUS).asDisabled());
 			if (isCancellable()) add(p.makeButton(CANCEL));
 			add(p.makeButton(NEXT));
 		}}));

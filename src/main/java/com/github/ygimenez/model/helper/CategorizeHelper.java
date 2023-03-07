@@ -1,9 +1,10 @@
 package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
-import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
@@ -59,13 +60,26 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 		List<ActionRow> rows = new ArrayList<>();
 
 		List<ItemComponent> row = new ArrayList<>();
-		for (Emoji k : getContent().keySet()) {
+		for (Map.Entry<Emoji, Page> e : getContent().entrySet()) {
 			if (row.size() == 5) {
 				rows.add(ActionRow.of(row));
 				row = new ArrayList<>();
 			}
 
-			row.add(Button.secondary(Emote.getId(k), k));
+			InteractPage p = (InteractPage) e.getValue();
+			Button b = p.makeButton(e.getKey());
+			if (p.getContent() instanceof MessageEmbed) {
+				for (MessageEmbed embed : action.getEmbeds()) {
+					if (embed.equals(p.getContent())) {
+						b = b.asDisabled();
+						break;
+					}
+				}
+			} else if (action.getContent().equals(p.getContent())) {
+				b = b.asDisabled();
+			}
+
+			row.add(b);
 		}
 
 		if (isCancellable()) {
