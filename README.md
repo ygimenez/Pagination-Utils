@@ -12,7 +12,7 @@
 
 [jitpack-shield]: https://img.shields.io/badge/Download-Jitpack-success
 
-[build-shield]: https://img.shields.io/github/checks-status/ygimenez/Pagination-Utils/master?label=Build
+[build-shield]: https://img.shields.io/github/actions/workflow/status/ygimenez/Pagination-Utils/maven.yml?label=Build
 
 [license-shield]: https://img.shields.io/github/license/ygimenez/Pagination-Utils?color=lightgrey&label=License
 
