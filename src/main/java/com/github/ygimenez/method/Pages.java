@@ -616,7 +616,7 @@ public abstract class Pages {
 						}
 					}
 
-					Page pg;
+					Page pg = null;
 					boolean update = false;
 					switch (emt) {
 						case PREVIOUS:
@@ -1494,6 +1494,8 @@ public abstract class Pages {
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
+			private final Function<Button, Button> LOWER_BOUNDARY_CHECK = b -> b.withDisabled(p == 0);
+
 			{
 				if (helper.getTimeout() > 0) {
 					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
@@ -1519,19 +1521,20 @@ public abstract class Pages {
 						}
 					}
 
-					Page pg;
+					Page pg = null;
+					boolean update = false;
 					switch (emt) {
 						case PREVIOUS:
 							if (p > 0) {
 								p--;
+								update = true;
 								pg = cache ? helper.getContent().get(p) : helper.getPageLoader().apply(p);
-
-								updatePage(m, pg);
-								updateButtons(m, helper);
 							}
 							break;
 						case NEXT:
 							p++;
+							update = true;
+
 							if (cache && helper.getContent().size() > p) {
 								pg = helper.getContent().get(p);
 								if (pg == null) {
@@ -1549,14 +1552,24 @@ public abstract class Pages {
 								}
 							}
 
-							updatePage(m, pg);
-							updateButtons(m, helper);
-
 							if (cache) helper.getContent().add(pg);
 							break;
 						case CANCEL:
 							finalizeEvent(m, success);
 							return;
+					}
+
+					if (update) {
+						updatePage(m, pg);
+						updateButtons(m, helper);
+
+						if (pg instanceof InteractPage) {
+							modifyButtons(m, Map.of(
+									PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
+									SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
+									GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK
+							));
+						}
 					}
 
 					if (timeout != null) {
