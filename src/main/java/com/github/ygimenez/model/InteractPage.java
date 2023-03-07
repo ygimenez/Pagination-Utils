@@ -20,7 +20,6 @@ import java.util.Objects;
 public class InteractPage extends Page {
 	private final Map<ButtonStyle, ButtonStyle> styles = new EnumMap<>(ButtonStyle.class);
 	private final Map<Emote, String> caption = new EnumMap<>(Emote.class);
-	private final boolean ephemeral;
 
 	/**
 	 * An {@link InteractPage} object to be used in this library's methods. Currently, only {@link Message}
@@ -31,7 +30,6 @@ public class InteractPage extends Page {
 	 */
 	public InteractPage(@NotNull Object content) throws IllegalArgumentException {
 		super(content);
-		this.ephemeral = false; //Attribute currently unused
 	}
 
 	/**
@@ -75,7 +73,7 @@ public class InteractPage extends Page {
 		if (emt == Emote.NONE) {
 			return Button.secondary(emt.name() + "." + Objects.hash(Math.random()), "\u200B").asDisabled();
 		} else {
-			return Button.of(style, (ephemeral ? "*" : "") + emt.name(), caption.get(emt), Pages.getPaginator().getEmoji(emt));
+			return Button.of(style,  emt.name(), caption.get(emt), Pages.getPaginator().getEmoji(emt));
 		}
 	}
 
@@ -86,7 +84,7 @@ public class InteractPage extends Page {
 	 * @return The created {@link Button}.
 	 */
 	public Button makeButton(@NotNull Emoji emj) {
-		return Button.secondary((ephemeral ? "*" : "") + Emote.getId(emj), emj);
+		return Button.secondary( Emote.getId(emj), emj);
 	}
 
 	/**
@@ -97,16 +95,6 @@ public class InteractPage extends Page {
 	 * @return The created {@link Button}.
 	 */
 	public Button makeButton(@NotNull Emoji emj, String caption) {
-		return Button.of(ButtonStyle.SECONDARY, (ephemeral ? "*" : "") + Emote.getId(emj), caption, emj);
-	}
-
-	/**
-	 * Whether the button is intended to be used in ephemeral messages or not. Currently, it serves no purpose other
-	 * than a placeholder for future features.
-	 *
-	 * @return Whether the {@link Button} will be used in ephemeral messages or not.
-	 */
-	public boolean isEphemeral() {
-		return ephemeral;
+		return Button.of(ButtonStyle.SECONDARY,  Emote.getId(emj), caption, emj);
 	}
 }
