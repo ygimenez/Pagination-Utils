@@ -67,6 +67,8 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 			}
 
 			InteractPage p = (InteractPage) e.getValue();
+			if (p == null) continue;
+
 			Button b = p.makeButton(e.getKey());
 			if (p.getContent() instanceof MessageEmbed) {
 				for (MessageEmbed embed : action.getEmbeds()) {
