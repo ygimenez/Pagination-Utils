@@ -1690,6 +1690,8 @@ public abstract class Pages {
 	 * Utility method for switching pages and applying message button states.
 	 *
 	 * @param msg     The {@link Message} holding the buttons.
+	 * @param p       The current {@link Page}.
+	 * @param helper  The {@link BaseHelper} responsible for this event.
 	 * @param changes {@link Map} containing desired changes, indexed by {@link Button} ID.
 	 */
 	public static void modifyButtons(Message msg, Page p, BaseHelper<?, ?> helper, Map<String, Function<Button, Button>> changes) {
