@@ -1,22 +1,23 @@
-[build]: https://github.com/ygimenez/PaginationUtils/tree/master
-
-[jitpack]: https://jitpack.io/#ygimenez/PaginationUtils
-
 [mvncentral]: https://mvnrepository.com/artifact/com.github.ygimenez/Pagination-Utils
 
-[license]: https://github.com/ygimenez/PaginationUtils/blob/master/LICENSE
+[jitpack]: https://jitpack.io/#ygimenez/Pagination-Utils
 
-[issue]: https://github.com/ygimenez/PaginationUtils/issues
+[build]: https://github.com/ygimenez/Pagination-Utils/tree/master
 
-[build-shield]: https://img.shields.io/github/workflow/status/ygimenez/PaginationUtils/Java%20CI?label=Build
+[license]: https://github.com/ygimenez/Pagination-Utils/blob/master/LICENSE
 
-[jitpack-shield]: https://img.shields.io/badge/Download-Jitpack-success
+[issue]: https://github.com/ygimenez/Pagination-Utils/issues
 
 [mvncentral-shield]: https://img.shields.io/maven-central/v/com.github.ygimenez/Pagination-Utils?label=Maven%20Central
 
-[license-shield]: https://img.shields.io/github/license/ygimenez/PaginationUtils?color=lightgrey&label=License
+[jitpack-shield]: https://img.shields.io/badge/Download-Jitpack-success
 
-[issue-shield]: https://img.shields.io/github/issues/ygimenez/PaginationUtils?label=Issues
+[build-shield]: https://img.shields.io/github/workflow/status/ygimenez/Pagination-Utils/Java%20CI?label=Build
+
+[license-shield]: https://img.shields.io/github/license/ygimenez/Pagination-Utils?color=lightgrey&label=License
+
+[issue-shield]: https://img.shields.io/github/issues/ygimenez/Pagination-Utils?label=Issues
+
 [ ![mvncentral-shield][] ][mvncentral]
 [ ![jitpack-shield][] ][jitpack]
 [ ![build-shield][] ][build]
@@ -31,35 +32,34 @@ With this library you will be using pages, categories and buttons in your bot in
 
 ## What is a page/category/button?
 
-![Pagination Example](https://i.imgur.com/5Cain0U.gif)
+![Pagination Example](https://i.imgur.com/k5zA0ix.gif)
 
-![Categorization Example](https://i.imgur.com/AEusZQ1.gif)
+![Categorization Example](https://i.imgur.com/9xhs4Gf.gif)
 
-![Buttonization Example](https://i.imgur.com/4PBVoTn.gif)
-
-Have you been using a bot and came across one of those three GIFs and thought: "That must've been hard to make." or "I'd
+Have you been using a bot and came across one of those GIFs and thought: "That must've been hard to make." or "I'd
 like one of those in my bot!"? Fear no more, Pagination Utils to the rescue!
 
 ## How do I paginate?
 
-Before we start the fun stuff, there're a few things we need to check:
+Before we start the fun stuff, there are a few things we need to check:
 
 - You're using Java JDK 9 or above.
 - Your bot has the following permissions:
-	- MESSAGE_ADD_REACTION
-	- MESSAGE_EXT_EMOJI
-	- MESSAGE_READ/WRITE
-	- VIEW_CHANNEL
+  - MESSAGE_READ/WRITE
+  - VIEW_CHANNEL 
+  - If using reactions:
+    - MESSAGE_ADD_REACTION
+    - MESSAGE_EXT_EMOJI
 - If using `JDABuilder.createLight()`, you added the following gateway intents:
-	- GUILD_MESSAGES
-	- GUILD_MESSAGE_REACTIONS
+  - GUILD_MESSAGES
+  - GUILD_MESSAGE_REACTIONS
 
-Now we can finally start, which is easier than it seems! The first step is to set a JDA client object as the event
+Now we can finally start, which is easier than it seems! The first step is to set a JDA/SharmManager client object as the event
 holder, which can be done in a single line:
 
 ```java
 JDA bot = ... // Creation of bot client
-		
+
 Pages.activate(PaginatorBuilder.createSimplePaginator(bot));
 ```
 
@@ -68,13 +68,13 @@ But if you want some customization of the library's behaviour, you can opt to us
 ```java
 JDA bot = ... // Creation of bot client
 
-Paginator paginator = PaginatorBuilder.createPaginator()
-		// Defines which handler will be used
-		.setHandler(bot)
-		// Whether reactions will be removed on click
-		.shouldRemoveOnReaction(false)
+Paginator paginator = PaginatorBuilder.createPaginator(bot)
+        // Whether reactions will be removed on click
+        .shouldRemoveOnReaction(false)
 		// Prevents double-click on buttons and guarantee an event will only happen when previous processing has finished
 		.shouldEventLock(true)
+        // Whether to delete the message when the event ends (such as pressing CANCEL or timeout)
+        .shouldDeleteOnCancel(true)
 		// Finish configuration and activate the library
 		.activate();
 ```
@@ -84,17 +84,17 @@ If you want to go even further and change the default buttons' emotes, don't wor
 ```java
 JDA bot = ... // Creation of bot client
 
-Paginator paginator = PaginatorBuilder.createPaginator()
-		// Defines which handler will be used
-		.setHandler(bot)
+Paginator paginator = PaginatorBuilder.createPaginator(bot)
 		// Whether reactions will be removed on click
 		.shouldRemoveOnReaction(false)
 		// Prevents double-click on buttons and guarantee an event will only happen when previous processing has finished
 		.shouldEventLock(true)
+        // Whether to delete the message when the event ends (such as pressing CANCEL or timeout)
+        .shouldDeleteOnCancel(true)
 		// Changes the next button to 😙
-		.setEmote(Emote.NEXT, Emoji.fromMarkdown("😙"))
+		.setEmote(Emote.NEXT, Emoji.fromFormatted("😙"))
 		// Changes the previous button to 😩
-		.setEmote(Emote.PREVIOUS, Emoji.fromMarkdown("😩"))
+		.setEmote(Emote.PREVIOUS, Emoji.fromFormatted("😩"))
 		// Finish configuration and activate the library
 		.activate();
 ```
@@ -111,24 +111,21 @@ mb.setContent("Hello World!");
 Page messagePage = new Page(mb.build());
 
 // Example using EmbedBuilder
-EmbedBuilder eb = new EmbedBuilder();
-eb.setTitle("Example Embed");
-eb.setDescription("Hello World!");
+EmbedBuilder eb = new EmbedBuilder()
+        .setTitle("Example Embed")
+        .setDescription("Hello World");
 
 Page embedPage = new InteractPage(eb.build());
 ```
 
-That said, you might want to create an `ArrayList` of pages to use the pagination, since a single page does not need to be paginated at all:
+That said, you might want to create a `List` of pages to use the pagination, since a single page does not need to be paginated at all:
 
 ```java
-ArrayList<Page> pages = new ArrayList<>();
-MessageBuilder mb = new MessageBuilder();
+List<Page> pages = new ArrayList<>();
 
 // Adding 10 pages to the list
 for (int i = 0; i < 10; i++) {
-	mb.clear();
-	mb.setContent("This is entry Nº " + i);
-	pages.add(new InteractPage(mb.build()));
+	pages.add(new InteractPage("This is entry Nº " + (i + 1)));
 }
 ```
 
@@ -144,6 +141,8 @@ exampleChannel.sendMessage((Message) pages.get(0).getContent()).queue(success ->
 });
 ```
 
+
+
 That's everything you have to do, the library will automatically add the navigation buttons to the target message, which
 will change its content based on the list's order.
 
@@ -153,25 +152,24 @@ To categorize it's almost the same process as paginating, however, the type of c
 of `ArrayList`:
 
 ```java
-HashMap<Emoji, Page> categories = new HashMap<>();
+Map<Emoji, Page> categories = new HashMap<>();
 MessageBuilder mb = new MessageBuilder();
 
 // Manually adding 3 categories to the map, you could use some kind of loop to fill it (see https://emojipedia.org/ for unicodes)
 mb.setContent("This is category 1");
-categories.put(Emoji.fromMarkdown("\u26f3"), new InteractPage(mb.build()));
+categories.put(Emoji.fromFormatted("\u26f3"), new InteractPage(mb.build()));
 
 mb.setContent("This is category 2");
-categories.put(Emoji.fromMarkdown("\u26bd"), new InteractPage(mb.build()));
+categories.put(Emoji.fromFormatted("\u26bd"), new InteractPage(mb.build()));
 
 mb.setContent("This is category 3");
-categories.put(Emoji.fromMarkdown("\u270f"), new InteractPage(mb.build()));
+categories.put(Emoji.fromFormatted("\u270f"), new InteractPage(mb.build()));
 ```
 
 Then just call `Pages.categorize()` method just like you did before:
 
 ```java
 exampleChannel.sendMessage("This is a menu message").queue(success -> {
-	// Third argument is whether you want to use reactions (false) or interaction buttons (true).
 	Pages.categorize(success, categories, /* Use buttons? */ true);
 });
 ```
@@ -189,10 +187,7 @@ ThrowingConsumer<ButtonWrapper> customFunction = (wrapper) -> {
 };
 
 exampleChannel.sendMessage("This is a sample message").queue(success -> {
-	// Same arguments, except the second that must extend map collection
-	// Third argument is whether you want to use reactions (false) or interaction buttons (true).
-	// The last argument defines whether to show cancel button or not
-	Pages.buttonize(success, Collections.singletonMap(Emoji.fromMarkdown("✅"), customFunction), /* Use buttons? */ true, /* Show cancel? */false);
+	Pages.buttonize(success, Collections.singletonMap(Emoji.fromFormatted("✅"), customFunction), /* Use buttons? */ true, /* Show cancel? */ true);
 });
 ```
 

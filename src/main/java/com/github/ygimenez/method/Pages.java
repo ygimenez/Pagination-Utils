@@ -1695,8 +1695,8 @@ public abstract class Pages {
 	public static void modifyButtons(Message msg, Page p, BaseHelper<?, ?> helper, Map<String, Function<Button, Button>> changes) {
 		MessageEditAction act = msg.editMessageComponents();
 
-		if (p.getContent() instanceof Message) {
-			act = act.setContent(((Message) p.getContent()).getContentRaw());
+		if (p.getContent() instanceof String) {
+			act = act.setContent((String) p.getContent());
 		} else if (p.getContent() instanceof MessageEmbed) {
 			act = act.setEmbeds((MessageEmbed) p.getContent());
 		}
