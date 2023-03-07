@@ -5,7 +5,7 @@
 
     <groupId>com.github.ygimenez</groupId>
     <artifactId>Pagination-Utils</artifactId>
-    <version>3.0.8</version>
+    <version>4.0.0</version>
     <packaging>jar</packaging>
 
     <name>Pagination Utils</name>
@@ -33,7 +33,7 @@
         <url>https://github.com/ygimenez/Pagination-Utils</url>
         <connection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</connection>
         <developerConnection>scm:git:git@github.com:ygimenez/Pagination-Utils.git</developerConnection>
-        <tag>Pagination-Utils-3.0.8</tag>
+        <tag>Pagination-Utils-4.0.0</tag>
     </scm>
 
     <distributionManagement>
@@ -118,9 +118,9 @@
 
     <repositories>
         <repository>
-            <id>jcenter</id>
-            <name>jcenter-bintray</name>
-            <url>https://jcenter.bintray.com</url>
+            <id>central</id>
+            <name>maven-central</name>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
             <id>dv8tion</id>
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.4.0_350</version>
+            <version>5.0.0-beta.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

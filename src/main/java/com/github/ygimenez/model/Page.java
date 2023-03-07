@@ -2,25 +2,25 @@ package com.github.ygimenez.model;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Class representing either a {@link Message} or {@link MessageEmbed} object.
+ * Class representing either a {@link String} or {@link MessageEmbed} object.
  */
 public class Page {
 	private final Object content;
 
 	/**
-	 * A {@link Page} object to be used in this library's methods. Currently, only {@link Message}
+	 * A {@link Page} object to be used in this library's methods. Currently, only {@link String}
 	 * and {@link MessageEmbed} are supported.
 	 * 
-	 * @param content The {@link Message}/{@link MessageEmbed} object to be used as pages.
-	 * @throws IllegalArgumentException Thrown if argument is not a {@link Message} nor {@link MessageEmbed}.
+	 * @param content The {@link String}/{@link MessageEmbed} object to be used as pages.
+	 * @throws IllegalArgumentException Thrown if argument is not a {@link String} nor {@link MessageEmbed}.
 	 */
-	public Page(@Nonnull Object content) throws IllegalArgumentException {
-		if (!(content instanceof Message) && !(content instanceof MessageEmbed))
-			throw new IllegalArgumentException("Page content must be either a Message or a MessageEmbed");
+	public Page(@NotNull Object content) throws IllegalArgumentException {
+		if (!(content instanceof String) && !(content instanceof MessageEmbed)) {
+			throw new IllegalArgumentException("Page content must be either a String or a MessageEmbed");
+		}
 
 		this.content = content;
 	}

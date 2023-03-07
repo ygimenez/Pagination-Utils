@@ -8,11 +8,12 @@ import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 /**
@@ -29,7 +30,7 @@ public class PaginatorBuilder {
 	 *
 	 * @param paginator The raw {@link Paginator} object to start building.
 	 */
-	private PaginatorBuilder(@Nonnull Paginator paginator) {
+	private PaginatorBuilder(@NotNull Paginator paginator) {
 		this.paginator = paginator;
 	}
 
@@ -43,12 +44,32 @@ public class PaginatorBuilder {
 	}
 
 	/**
+	 * Creates a new {@link PaginatorBuilder} instance and begin customization, use {@link #build()} to finish.
+	 *
+	 * @param handler The {@link JDA} instance that'll be used for event processing.
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 */
+	public static PaginatorBuilder createPaginator(@NotNull JDA handler) {
+		return new PaginatorBuilder(new Paginator(handler));
+	}
+
+	/**
+	 * Creates a new {@link PaginatorBuilder} instance and begin customization, use {@link #build()} to finish.
+	 *
+	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
+	 */
+	public static PaginatorBuilder createPaginator(@NotNull ShardManager handler) {
+		return new PaginatorBuilder(new Paginator(handler));
+	}
+
+	/**
 	 * Creates a new {@link Paginator} instance using default settings.
 	 *
 	 * @param handler The {@link JDA} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public static Paginator createSimplePaginator(@Nonnull JDA handler) {
+	public static Paginator createSimplePaginator(@NotNull JDA handler) {
 		Paginator p = new Paginator(handler);
 		p.finishEmotes();
 
@@ -61,7 +82,7 @@ public class PaginatorBuilder {
 	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public static Paginator createSimplePaginator(@Nonnull ShardManager handler) {
+	public static Paginator createSimplePaginator(@NotNull ShardManager handler) {
 		Paginator p = new Paginator(handler);
 		p.finishEmotes();
 
@@ -78,23 +99,23 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets the handler used for event processing.
+	 * Set the handler used for event processing.
 	 *
 	 * @param handler The {@link JDA} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public PaginatorBuilder setHandler(@Nonnull JDA handler) {
+	public PaginatorBuilder setHandler(@NotNull JDA handler) {
 		paginator.setHandler(handler);
 		return this;
 	}
 
 	/**
-	 * Sets the handler used for event processing.
+	 * Set the handler used for event processing.
 	 *
 	 * @param handler The {@link ShardManager} instance that'll be used for event processing.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
-	public PaginatorBuilder setHandler(@Nonnull ShardManager handler) {
+	public PaginatorBuilder setHandler(@NotNull ShardManager handler) {
 		paginator.setHandler(handler);
 		return this;
 	}
@@ -111,7 +132,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets whether user reactions will be removed after pressing the button or not.
+	 * Set whether user reactions will be removed after pressing the button or not.
 	 * If this is enabled, the bot will require {@link Permission#MESSAGE_MANAGE} permission
 	 * for the buttons to work.
 	 *
@@ -133,7 +154,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets whether evens should be locked to prevent double-activation of buttons before
+	 * Set whether evens should be locked to prevent double-activation of buttons before
 	 * it finished previous processing (can help if experiencing race condition).
 	 *
 	 * @param shouldLock Whether events should be locked (default: false).
@@ -156,7 +177,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Sets whether {@link Message} should be deleted or not when the button handler is removed.
+	 * Set whether {@link Message} should be deleted or not when the button handler is removed.
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param deleteOnCancel Whether the {@link Message} will be deleted or not (default: false).
@@ -173,13 +194,13 @@ public class PaginatorBuilder {
 	 * @param emote The {@link Emote} to be retrieved.
 	 * @return The {@link Emote}'s code.
 	 */
-	public Emoji getEmote(@Nonnull Emote emote) {
-		return paginator.getEmote(emote);
+	public Emoji getEmote(@NotNull Emote emote) {
+		return paginator.getEmoji(emote);
 	}
 
 	/**
 	 * Modify an {@link Emote}'s code from the {@link Map}. Beware, the code must be either unicode or
-	 * {@link net.dv8tion.jda.api.entities.Emote}'s mention,
+	 * {@link CustomEmoji}'s mention,
 	 * else the buttons <strong>WILL NOT BE ADDED</strong> and will lead to errors.
 	 *
 	 * @param emote The {@link Emote} to be set.
@@ -188,8 +209,8 @@ public class PaginatorBuilder {
 	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
 	 * object.
 	 */
-	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull String code) throws InvalidHandlerException {
-		return setEmote(emote, Emoji.fromMarkdown(code));
+	public PaginatorBuilder setEmote(@NotNull Emote emote, @NotNull String code) throws InvalidHandlerException {
+		return setEmote(emote, Emoji.fromFormatted(code));
 	}
 
 	/**
@@ -201,7 +222,7 @@ public class PaginatorBuilder {
 	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
 	 * object.
 	 */
-	public PaginatorBuilder setEmote(@Nonnull Emote emote, @Nonnull Emoji emoji) throws InvalidHandlerException {
+	public PaginatorBuilder setEmote(@NotNull Emote emote, @NotNull Emoji emoji) throws InvalidHandlerException {
 		if (paginator.getHandler() == null) throw new InvalidHandlerException();
 		else if (paginator.getEmotes().containsValue(emoji)) throw new AlreadyAssignedException();
 
@@ -215,8 +236,9 @@ public class PaginatorBuilder {
 	 * @return The {@link Paginator} instance.
 	 */
 	public Paginator build() {
-		if (paginator.getHandler() == null)
+		if (paginator.getHandler() == null) {
 			throw new InvalidStateException();
+		}
 
 		paginator.finishEmotes();
 		return paginator;
@@ -229,8 +251,9 @@ public class PaginatorBuilder {
 	 * @throws InvalidHandlerException Thrown if the handler isn't either a {@link JDA} or {@link ShardManager} object.
 	 */
 	public void activate() throws InvalidHandlerException {
-		if (paginator.getHandler() == null)
+		if (paginator.getHandler() == null) {
 			throw new InvalidStateException();
+		}
 
 		paginator.finishEmotes();
 		Pages.activate(paginator);

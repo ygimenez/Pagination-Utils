@@ -4,13 +4,15 @@ import com.github.ygimenez.model.PUtilsConfig.LogLevel;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * This is the core object for Pagination-Utils' settings.<br>
@@ -54,7 +56,7 @@ public class Paginator {
 	}
 
 	/**
-	 * Sets the handler used for event processing.
+	 * Set the handler used for event processing.
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param handler The handler that'll be used for event processing
@@ -77,7 +79,7 @@ public class Paginator {
 	}
 
 	/**
-	 * Sets whether user reactions will be removed after pressing the button or not.
+	 * Set whether user reactions will be removed after pressing the button or not.
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param removeOnReact Whether reactions will be removed on press or not.
@@ -97,7 +99,7 @@ public class Paginator {
 	}
 
 	/**
-	 * Sets whether evens should be locked to prevent double-activation.
+	 * Set whether evens should be locked to prevent double-activation.
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param hashLocking Whether events should be locked.
@@ -118,7 +120,7 @@ public class Paginator {
 	}
 
 	/**
-	 * Sets whether {@link Message} should be deleted or not when the button handler is removed.
+	 * Set whether {@link Message} should be deleted or not when the button handler is removed.
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param deleteOnCancel Whether the {@link Message} will be deleted or not.
@@ -138,25 +140,13 @@ public class Paginator {
 	}
 
 	/**
-	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
-	 * into IDs.
+	 * Retrieves the {@link Emoji} assigned to the supplied {@link Emote}.
 	 *
 	 * @param emote The {@link Emote} to be defined.
 	 * @return The {@link Emoji} representing this {@link Emote}.
 	 */
-	public Emoji getEmote(Emote emote) {
+	public Emoji getEmoji(Emote emote) {
 		return emotes.getOrDefault(emote, emote.getDefault());
-	}
-
-	/**
-	 * Same as {@link #getEmotes()} but this method will turn {@link net.dv8tion.jda.api.entities.Emote} mentions
-	 * into IDs.
-	 *
-	 * @param emote The {@link Emote} to be defined.
-	 * @return The {@link Emoji} representing this {@link Emote}.
-	 */
-	public String getStringEmote(Emote emote) {
-		return getEmote(emote).getAsMention().replaceAll("[<>]", "");
 	}
 
 	/**
@@ -187,8 +177,9 @@ public class Paginator {
 	 * @param t The {@link Throwable} to be added for more detailed information.
 	 */
 	public void log(LogLevel level, String msg, Throwable t) {
-		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0)
+		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0) {
 			logger.error("[" + level.name().replace("_", " ") + "] " + msg, t);
+		}
 	}
 
 	/**
@@ -200,7 +191,8 @@ public class Paginator {
 	 * @param msg The message to be logged.
 	 */
 	public void log(LogLevel level, String msg) {
-		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0)
+		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0) {
 			logger.error("[" + level.name().replace("_", " ") + "] " + msg);
+		}
 	}
 }

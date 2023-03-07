@@ -2,14 +2,13 @@ package com.github.ygimenez.model;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
@@ -21,7 +20,6 @@ import java.util.Objects;
 public class InteractPage extends Page {
 	private final Map<ButtonStyle, ButtonStyle> styles = new EnumMap<>(ButtonStyle.class);
 	private final Map<Emote, String> caption = new EnumMap<>(Emote.class);
-	private final boolean ephemeral;
 
 	/**
 	 * An {@link InteractPage} object to be used in this library's methods. Currently, only {@link Message}
@@ -32,7 +30,6 @@ public class InteractPage extends Page {
 	 */
 	public InteractPage(@NotNull Object content) throws IllegalArgumentException {
 		super(content);
-		this.ephemeral = false; //Attribute currently unused
 	}
 
 	/**
@@ -70,13 +67,13 @@ public class InteractPage extends Page {
 	 *            If you supply {@link Emote#NONE} a blank disabled button will be created.
 	 * @return The created {@link Button}.
 	 */
-	public Button makeButton(@Nonnull Emote emt) {
-		ButtonStyle style = styles.getOrDefault(emt.getStyle(), emt.getStyle());
+	public Button makeButton(@NotNull Emote emt) {
+		ButtonStyle style = styles.getOrDefault(emt.getStyle(), ButtonStyle.SECONDARY);
 
 		if (emt == Emote.NONE) {
 			return Button.secondary(emt.name() + "." + Objects.hash(Math.random()), "\u200B").asDisabled();
 		} else {
-			return Button.of(style, (ephemeral ? "*" : "") + emt.name(), caption.get(emt), Pages.getPaginator().getEmote(emt));
+			return Button.of(style, emt.name(), caption.get(emt), Pages.getPaginator().getEmoji(emt));
 		}
 	}
 
@@ -86,8 +83,8 @@ public class InteractPage extends Page {
 	 * @param emj The {@link Emoji} representing the {@link Button}, must never be null since it is also the ID.
 	 * @return The created {@link Button}.
 	 */
-	public Button makeButton(@Nonnull Emoji emj) {
-		return Button.secondary((ephemeral ? "*" : "") + emj.getId(), emj);
+	public Button makeButton(@NotNull Emoji emj) {
+		return Button.secondary(Emote.getId(emj), emj);
 	}
 
 	/**
@@ -97,17 +94,7 @@ public class InteractPage extends Page {
 	 * @param caption The desired caption for the {@link Button}.
 	 * @return The created {@link Button}.
 	 */
-	public Button makeButton(@Nonnull Emoji emj, String caption) {
-		return Button.of(ButtonStyle.SECONDARY, (ephemeral ? "*" : "") + emj.getId(), caption, emj);
-	}
-
-	/**
-	 * Whether the button is intended to be used in ephemeral messages or not. Currently, it serves no purpose other
-	 * than a placeholder for future features.
-	 *
-	 * @return Whether the {@link Button} will be used in ephemeral messages or not.
-	 */
-	public boolean isEphemeral() {
-		return ephemeral;
+	public Button makeButton(@NotNull Emoji emj, String caption) {
+		return Button.of(ButtonStyle.SECONDARY, Emote.getId(emj), caption, emj);
 	}
 }
