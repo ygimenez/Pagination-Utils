@@ -1680,6 +1680,8 @@ public abstract class Pages {
 	 * @param callback Action to be executed after removing reactions.
 	 */
 	public static void finalizeEvent(Message msg, Consumer<Void> callback) {
+		msg = reloadMessage(msg);
+
 		clearButtons(msg);
 		clearReactions(msg);
 
