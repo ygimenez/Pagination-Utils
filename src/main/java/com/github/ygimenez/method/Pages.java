@@ -1716,6 +1716,8 @@ public abstract class Pages {
 					}
 				}
 			}
+
+			act.setComponents(rows);
 		}
 
 		act.submit();
