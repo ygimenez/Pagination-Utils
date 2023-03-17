@@ -60,7 +60,7 @@ holder, which can be done in a single line:
 ```java
 JDA bot = ... // Creation of bot client
 
-        Pages.activate(PaginatorBuilder.createSimplePaginator(bot));
+Pages.activate(PaginatorBuilder.createSimplePaginator(bot));
 ```
 
 But if you want some customization of the library's behaviour, you can opt to use the full builder:
@@ -68,9 +68,9 @@ But if you want some customization of the library's behaviour, you can opt to us
 ```java
 JDA bot = ... // Creation of bot client
 
-        Paginator paginator = PaginatorBuilder.createPaginator(bot)
-        // Whether reactions will be removed on click
-        .shouldRemoveOnReaction(false)
+Paginator paginator = PaginatorBuilder.createPaginator(bot)
+// Whether reactions will be removed on click
+	.shouldRemoveOnReaction(false)
         // Prevents double-click on buttons and guarantee an event will only happen when previous processing has finished
         .shouldEventLock(true)
         // Whether to delete the message when the event ends (such as pressing CANCEL or timeout)
@@ -84,7 +84,7 @@ If you want to go even further and change the default buttons' emotes, don't wor
 ```java
 JDA bot = ... // Creation of bot client
 
-        Paginator paginator = PaginatorBuilder.createPaginator(bot)
+Paginator paginator = PaginatorBuilder.createPaginator(bot)
         // Whether reactions will be removed on click
         .shouldRemoveOnReaction(false)
         // Prevents double-click on buttons and guarantee an event will only happen when previous processing has finished
@@ -106,16 +106,16 @@ Example:
 ```java
 // Example using MessageBuilder
 MessageBuilder mb = new MessageBuilder();
-        mb.setContent("Hello World!");
+mb.setContent("Hello World!");
 
-        Page messagePage = new Page(mb.build());
+Page messagePage = new Page(mb.build());
 
 // Example using EmbedBuilder
-        EmbedBuilder eb = new EmbedBuilder()
+EmbedBuilder eb = new EmbedBuilder()
         .setTitle("Example Embed")
         .setDescription("Hello World");
 
-        Page embedPage = new InteractPage(eb.build());
+Page embedPage = new InteractPage(eb.build());
 ```
 
 That said, you might want to create a `List` of pages to use the pagination, since a single page does not need to be paginated at all:
@@ -124,9 +124,9 @@ That said, you might want to create a `List` of pages to use the pagination, sin
 List<Page> pages = new ArrayList<>();
 
 // Adding 10 pages to the list
-        for (int i = 0; i < 10; i++) {
+for (int i = 0; i < 10; i++) {
         pages.add(new InteractPage("This is entry Nº " + (i + 1)));
-        }
+}
 ```
 
 Then all you have to do is call `Pages.paginate()` method:
