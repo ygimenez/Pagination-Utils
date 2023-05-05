@@ -1185,16 +1185,19 @@ public abstract class Pages {
 						return;
 					}
 
+					Button button;
 					InteractionHook hook;
 					if (wrapper.getSource() instanceof ButtonInteractionEvent) {
+						button = (Button) wrapper.getContent();
 						hook = ((ButtonInteractionEvent) wrapper.getSource()).getHook();
 					} else {
+						button = null;
 						hook = null;
 					}
 
 					ThrowingConsumer<ButtonWrapper> act = lookupValue(btns, emoji);
 					if (act != null) {
-						act.accept(new ButtonWrapper(wrapper.getUser(), hook, m));
+						act.accept(new ButtonWrapper(wrapper.getUser(), hook, button, m));
 					}
 
 					if (timeout != null) {

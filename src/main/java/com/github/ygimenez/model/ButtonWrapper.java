@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Wrapper for {@link Pages#buttonize} arguments containing necessary data for processing.
@@ -15,18 +16,21 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 public class ButtonWrapper {
 	private final User user;
 	private final InteractionHook hook;
+	private final Button button;
 	private Message message;
 
 	/**
 	 * Constructs a new {@link ButtonWrapper} instance. You probably shouldn't be creating one yourself.
 	 *
-	 * @param user  The {@link User} who pressed the button.
+	 * @param user    The {@link User} who pressed the button.
 	 * @param hook    The {@link InteractionHook} referencing interaction event, or null if it's not an interaction.
+	 * @param button  The {@link Button} that triggered this event.
 	 * @param message The parent {@link Message}.
 	 */
-	public ButtonWrapper(User user, InteractionHook hook, Message message) {
+	public ButtonWrapper(User user, InteractionHook hook, Button button, Message message) {
 		this.user = user;
 		this.hook = hook;
+		this.button = button;
 		this.message = message;
 	}
 
@@ -54,8 +58,19 @@ public class ButtonWrapper {
 	 *
 	 * @return The {@link InteractionHook} referencing interaction event, or null if it's not an interaction.
 	 */
+	@Nullable
 	public InteractionHook getHook() {
 		return hook;
+	}
+
+	/**
+	 * Retrieves the {@link Button} that triggered the event.
+	 *
+	 * @return The {@link Button} that triggered the event, or null if it's not an interaction.
+	 */
+	@Nullable
+	public Button getButton() {
+		return button;
 	}
 
 	/**
