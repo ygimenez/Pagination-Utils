@@ -3,6 +3,7 @@ package com.github.ygimenez.model;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,16 +13,19 @@ public class EmbedCluster {
     private final List<MessageEmbed> embeds;
 
     /**
+     * Creates an empty {@link MessageEmbed} cluster to be used for multi-embed pages.
+     */
+    public EmbedCluster() {
+        this.embeds = new ArrayList<>();
+    }
+
+    /**
      * Creates a new {@link MessageEmbed} cluster to be used for multi-embed pages. While this constructor allows null
      * entries, it's advised not to as it'll likely result in errors during pagination.
      *
-     * @param embeds The embeds to be used, amount must be between 1 and 10.
+     * @param embeds The embeds to be used, up to 10 embeds at most.
      */
     public EmbedCluster(@NotNull List<MessageEmbed> embeds) {
-        if (embeds.size() < 1 || embeds.size() >= 10) {
-            throw new IllegalArgumentException("Embed count must be at least 1 and at most 10");
-        }
-
         this.embeds = embeds;
     }
 
@@ -29,7 +33,7 @@ public class EmbedCluster {
      * Creates a new {@link MessageEmbed} cluster to be used for multi-embed pages. This constructor will use an
      * immutable {@link List}, and cannot receive null values.
      *
-     * @param embeds The embeds to be used, amount must be between 1 and 10.
+     * @param embeds The embeds to be used, up to 10 embeds at most.
      * @throws NullPointerException If any of the embeds is null.
      */
     public EmbedCluster(@NotNull MessageEmbed... embeds) {
