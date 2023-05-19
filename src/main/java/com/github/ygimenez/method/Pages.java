@@ -1707,6 +1707,8 @@ public abstract class Pages {
                 act = msg.editMessage((String) p.getContent());
             } else if (p.getContent() instanceof MessageEmbed) {
                 act = msg.editMessageEmbeds((MessageEmbed) p.getContent());
+            } else if (p.getContent() instanceof EmbedCluster) {
+                act = msg.editMessageEmbeds(((EmbedCluster) p.getContent()).getEmbeds());
             }
         }
 

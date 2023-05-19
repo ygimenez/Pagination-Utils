@@ -2,7 +2,6 @@ package com.github.ygimenez.model;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -14,22 +13,45 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Class representing either a {@link Message} or {@link MessageEmbed} object.
+ * Class representing either a {@link String}, {@link MessageEmbed} or {@link EmbedCluster} object.
  * Fundamentally the same as {@link Page} but will use {@link Button}s instead of emotes.
  */
 public class InteractPage extends Page {
 	private final Map<ButtonStyle, ButtonStyle> styles = new EnumMap<>(ButtonStyle.class);
 	private final Map<Emote, String> caption = new EnumMap<>(Emote.class);
 
-	/**
-	 * An {@link InteractPage} object to be used in this library's methods. Currently, only {@link Message}
-	 * and {@link MessageEmbed} are supported.
-	 *
-	 * @param content The {@link Message}/{@link MessageEmbed} object to be used as pages.
-	 * @throws IllegalArgumentException Thrown if argument is not a {@link Message} nor {@link MessageEmbed}.
-	 */
-	public InteractPage(@NotNull Object content) throws IllegalArgumentException {
+	protected InteractPage(@NotNull Object content) {
 		super(content);
+	}
+
+	/**
+	 * Create a new {@link InteractPage} for embed-less page, with support for interaction buttons.
+	 *
+	 * @param content The desired content
+	 * @return A new {@link InteractPage} instance.
+	 */
+	public static InteractPage of(@NotNull String content) {
+		return new InteractPage(content);
+	}
+
+	/**
+	 * Create a new {@link InteractPage} for single-embed page, with support for interaction buttons.
+	 *
+	 * @param content The desired content
+	 * @return A new {@link InteractPage} instance.
+	 */
+	public static InteractPage of(@NotNull MessageEmbed content) {
+		return new InteractPage(content);
+	}
+
+	/**
+	 * Create a new {@link InteractPage} for multi-embed page, with support for interaction buttons.
+	 *
+	 * @param content The desired content
+	 * @return A new {@link InteractPage} instance.
+	 */
+	public static InteractPage of(@NotNull EmbedCluster content) {
+		return new InteractPage(content);
 	}
 
 	/**

@@ -108,14 +108,14 @@ Example:
 MessageBuilder mb = new MessageBuilder();
 mb.setContent("Hello World!");
 
-Page messagePage = new Page(mb.build());
+Page messagePage = Page.of(mb.build());
 
 // Example using EmbedBuilder
 EmbedBuilder eb = new EmbedBuilder()
         .setTitle("Example Embed")
         .setDescription("Hello World");
 
-Page embedPage = new InteractPage(eb.build());
+Page embedPage = InteractPage.of(eb.build());
 ```
 
 That said, you might want to create a `List` of pages to use the pagination, since a single page does not need to be paginated at all:
@@ -125,7 +125,7 @@ List<Page> pages = new ArrayList<>();
 
 // Adding 10 pages to the list
 for (int i = 0; i < 10; i++) {
-        pages.add(new InteractPage("This is entry Nº " + (i + 1)));
+        pages.add(InteractPage.of("This is entry Nº " + (i + 1)));
 }
 ```
 
@@ -155,13 +155,13 @@ Map<Emoji, Page> categories = new HashMap<>();
 
 // Manually adding 3 categories to the map, you could use some kind of loop to fill it (see https://emojipedia.org/ for unicodes)
 mb.setContent("This is category 1");
-categories.put(Emoji.fromFormatted("\u26f3"), new InteractPage("This is category 1"));
+categories.put(Emoji.fromFormatted("\u26f3"), InteractPage.of("This is category 1"));
 
 mb.setContent("This is category 2");
-categories.put(Emoji.fromFormatted("\u26bd"), new InteractPage("This is category 2"));
+categories.put(Emoji.fromFormatted("\u26bd"), InteractPage.of("This is category 2"));
 
 mb.setContent("This is category 3");
-categories.put(Emoji.fromFormatted("\u270f"), new InteractPage("This is category 3"));
+categories.put(Emoji.fromFormatted("\u270f"), InteractPage.of("This is category 3"));
 ```
 
 Then just call `Pages.categorize()` method just like you did before:
@@ -212,7 +212,7 @@ for (int i = 0; i < 2; i++) {
 }
 
 ThrowingFunction<Integer, Page> func = i -> {
-	return new InteractPage(data.get(i));
+	return InteractPage.of(data.get(i));
 };
 ```
 
