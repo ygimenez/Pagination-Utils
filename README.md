@@ -274,4 +274,4 @@ Maven:
 
 ## Feedback
 
-If you have any issues using this library, feel free to create a new issue and I'll review it as soon as possible!
+If you have any issues using this library feel free to create a new issue, I'll review it as soon as possible!
