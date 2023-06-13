@@ -29,7 +29,7 @@ Make sure that you've checked all the items below.
 
 What libraries versions are you using.
 - JDA version X.XXX
-- PaginationUtils version X.XXX
+- Pagination-Utils version X.XXX
 
 
 **Describe the bug**
