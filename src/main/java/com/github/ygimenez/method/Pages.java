@@ -887,7 +887,10 @@ public abstract class Pages {
                         Page pg = lookupValue(cats, emoji);
                         if (pg != null) {
                             currCat = emoji;
-                            modifyButtons(m, pg, Map.of(Emote.getId(currCat), Button::asDisabled));
+                            modifyButtons(m, pg, Map.of(
+                                    Emote.getId(currCat), Button::asDisabled,
+                                    "default", Button::asEnabled
+                            ));
                         }
                     }
 
@@ -1722,6 +1725,8 @@ public abstract class Pages {
                     Button b = (Button) c;
                     if (changes.containsKey(b.getId())) {
                         row.set(i, changes.get(b.getId()).apply((Button) c));
+                    } else if (changes.containsKey("default")) {
+                        row.set(i, changes.get("default").apply((Button) c));
                     }
                 }
             }
