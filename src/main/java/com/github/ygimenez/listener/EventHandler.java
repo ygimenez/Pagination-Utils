@@ -140,11 +140,12 @@ public class EventHandler extends ListenerAdapter {
 			return;
 		}
 
-		evt.retrieveUser().submit()
-				.whenComplete((u, t) -> processEvent(
+		evt.retrieveMessage().submit().whenComplete((m, t) ->
+				evt.retrieveUser().submit().whenComplete((u, thr) -> processEvent(
 						t, id, u,
-						new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getReaction(), evt.isFromGuild())
-				));
+						new PaginationEventWrapper(evt, u, evt.getChannel(), m, evt.getReaction(), evt.isFromGuild())
+				))
+		);
 	}
 
 	@Override
@@ -157,14 +158,13 @@ public class EventHandler extends ListenerAdapter {
 			return;
 		}
 
-		evt.deferEdit().submit()
-				.whenComplete((hook, t) -> {
-					User u = hook.getInteraction().getUser();
-					processEvent(
-							t, id, u,
-							new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessageId(), evt.getButton(), evt.isFromGuild())
-					);
-				});
+		evt.deferEdit().submit().whenComplete((hook, t) -> {
+			User u = hook.getInteraction().getUser();
+			processEvent(
+					t, id, u,
+					new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessage(), evt.getButton(), evt.isFromGuild())
+			);
+		});
 	}
 
 	private void processEvent(Throwable t, String id, User u, PaginationEventWrapper evt) {
@@ -207,11 +207,10 @@ public class EventHandler extends ListenerAdapter {
 			return;
 		}
 
-		evt.deferEdit().submit()
-				.whenComplete((hook, t) ->
-						dropdownValues.computeIfAbsent(id, k -> new HashMap<>())
-								.put(evt.getComponentId(), evt.getValues())
-				);
+		evt.deferEdit().submit().whenComplete((hook, t) ->
+				dropdownValues.computeIfAbsent(id, k -> new HashMap<>())
+						.put(evt.getComponentId(), evt.getValues())
+		);
 	}
 
 	public Map<String, List<?>> getDropdownValues(String eventId) {

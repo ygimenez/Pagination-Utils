@@ -1,5 +1,6 @@
 package com.github.ygimenez.model;
 
+import com.github.ygimenez.method.Pages;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -9,7 +10,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -19,7 +19,7 @@ public class PaginationEventWrapper {
 	private final Object source;
 	private final User user;
 	private final MessageChannel channel;
-	private final String messageId;
+	private final Message message;
 	private final Object content;
 	private final InteractionHook hook;
 	private final boolean isFromGuild;
@@ -30,11 +30,11 @@ public class PaginationEventWrapper {
 	 * @param source      The source event, will be either a {@link GenericMessageReactionEvent} or a {@link ButtonInteractionEvent}.
 	 * @param user        The {@link User} who triggered the event.
 	 * @param channel     The {@link MessageChannel} where the event happened.
-	 * @param messageId   The {@link Message} ID.
+	 * @param message     The {@link Message}.
 	 * @param content     The button which was pressed, will be either a {@link MessageReaction} or a {@link Button}.
 	 * @param isFromGuild Whether the event happened on a {@link Guild} or not.
 	 */
-	public PaginationEventWrapper(Object source, User user, MessageChannel channel, String messageId, Object content, boolean isFromGuild) {
+	public PaginationEventWrapper(Object source, User user, MessageChannel channel, Message message, Object content, boolean isFromGuild) {
 		if (source instanceof ButtonInteractionEvent) {
 			hook = ((ButtonInteractionEvent) source).getHook();
 		} else {
@@ -44,7 +44,7 @@ public class PaginationEventWrapper {
 		this.source = source;
 		this.user = user;
 		this.channel = channel;
-		this.messageId = messageId;
+		this.message = message;
 		this.content = content;
 		this.isFromGuild = isFromGuild;
 	}
@@ -73,16 +73,20 @@ public class PaginationEventWrapper {
 	 * @return The {@link Message} ID.
 	 */
 	public String getMessageId() {
-		return messageId;
+		return message.getId();
 	}
 
 	/**
-	 * Fetch the {@link Message} from the event's {@link Message} ID.
+	 * Retrieves the {@link Message} from the event. Will not fetch the new state if the message is ephemeral.
 	 *
-	 * @return The {@link RestAction} for retrieving the {@link Message}.
+	 * @return The {@link Message}.
 	 */
-	public RestAction<Message> retrieveMessage() {
-		return channel.retrieveMessageById(messageId);
+	public Message retrieveMessage() {
+		if (message.isEphemeral()) {
+			return message;
+		}
+
+		return Pages.subGet(channel.retrieveMessageById(message.getId()));
 	}
 
 	/**

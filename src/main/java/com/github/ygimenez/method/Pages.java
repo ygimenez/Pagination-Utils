@@ -595,7 +595,7 @@ public abstract class Pages {
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
-				Message m = subGet(wrapper.retrieveMessage());
+				Message m = wrapper.retrieveMessage();
 
 				if (helper.canInteract(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
@@ -865,7 +865,7 @@ public abstract class Pages {
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
-				Message m = subGet(wrapper.retrieveMessage());
+				Message m = wrapper.retrieveMessage();
 
 				if (helper.canInteract(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
@@ -1174,7 +1174,7 @@ public abstract class Pages {
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
-				Message m = subGet(wrapper.retrieveMessage());
+				Message m = wrapper.retrieveMessage();
 
 				if (helper.canInteract(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
@@ -1513,7 +1513,7 @@ public abstract class Pages {
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
-				Message m = subGet(wrapper.retrieveMessage());
+				Message m = wrapper.retrieveMessage();
 
 				if (helper.canInteract(u)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
