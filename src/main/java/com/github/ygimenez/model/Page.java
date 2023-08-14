@@ -12,6 +12,12 @@ import java.util.stream.Collectors;
 public class Page {
 	private final Object content;
 
+	/**
+	 * Create a new {@link Page} for embed-less page.
+	 * <b>THIS MUST NEVER BE CALLED.</b>
+	 *
+	 * @param content The desired content
+	 */
 	protected Page(@NotNull Object content) throws IllegalArgumentException {
 		if (!(content instanceof String || content instanceof MessageEmbed || content instanceof EmbedCluster)) {
 			throw new IllegalArgumentException("Page content must be either a String or a MessageEmbed");
@@ -21,7 +27,7 @@ public class Page {
 	}
 
 	/**
-	 * Create a new {@link Page} for embed-less page, with support for interaction buttons.
+	 * Create a new {@link Page} for embed-less page.
 	 *
 	 * @param content The desired content
 	 * @return A new {@link Page} instance.
@@ -31,7 +37,7 @@ public class Page {
 	}
 
 	/**
-	 * Create a new {@link Page} for single-embed page, with support for interaction buttons.
+	 * Create a new {@link Page} for single-embed page.
 	 *
 	 * @param content The desired content
 	 * @return A new {@link Page} instance.
@@ -41,7 +47,7 @@ public class Page {
 	}
 
 	/**
-	 * Create a new {@link Page} for multi-embed page, with support for interaction buttons.
+	 * Create a new {@link Page} for multi-embed page.
 	 *
 	 * @param content The desired content
 	 * @return A new {@link Page} instance.

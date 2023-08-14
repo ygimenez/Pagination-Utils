@@ -20,6 +20,12 @@ public class InteractPage extends Page {
 	private final Map<ButtonStyle, ButtonStyle> styles = new EnumMap<>(ButtonStyle.class);
 	private final Map<Emote, String> caption = new EnumMap<>(Emote.class);
 
+	/**
+	 * Create a new {@link InteractPage} for embed-less page, with support for interaction buttons.
+	 * <b>THIS MUST NEVER BE CALLED.</b>
+	 *
+	 * @param content The desired content
+	 */
 	protected InteractPage(@NotNull Object content) {
 		super(content);
 	}

@@ -80,6 +80,11 @@ public class ButtonWrapper {
 		return button;
 	}
 
+	/**
+	 * Retrieves the {@link SelectMenu} values currently set for this context.
+	 *
+	 * @return The {@link SelectMenu} values.
+	 */
 	public Map<String, List<?>> getDropdownValues() {
 		return dropdownValues;
 	}

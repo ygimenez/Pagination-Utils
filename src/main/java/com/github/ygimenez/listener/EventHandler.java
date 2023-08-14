@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -213,8 +214,15 @@ public class EventHandler extends ListenerAdapter {
 		);
 	}
 
+	/**
+	 * Retrieves the {@link SelectMenu} values for the supplied event ID.
+	 *
+	 * @param eventId The event ID.
+	 * @return The {@link Map} containing the values for this event, or null if the event doesn't exist.
+	 */
 	public Map<String, List<?>> getDropdownValues(String eventId) {
-		return dropdownValues.get(eventId);
+		if (!events.containsKey(eventId)) return null;
+		return dropdownValues.computeIfAbsent(eventId, k -> new HashMap<>());
 	}
 
 	/**
