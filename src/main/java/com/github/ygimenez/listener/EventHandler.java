@@ -207,8 +207,11 @@ public class EventHandler extends ListenerAdapter {
 			return;
 		}
 
-		dropdownValues.computeIfAbsent(id, k -> new HashMap<>())
-				.put(evt.getComponentId(), evt.getValues());
+		evt.deferEdit().submit()
+				.whenComplete((hook, t) ->
+						dropdownValues.computeIfAbsent(id, k -> new HashMap<>())
+								.put(evt.getComponentId(), evt.getValues())
+				);
 	}
 
 	public Map<String, List<?>> getDropdownValues(String eventId) {

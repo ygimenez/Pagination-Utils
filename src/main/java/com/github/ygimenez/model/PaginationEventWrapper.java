@@ -7,8 +7,10 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Wrapper for library events containing necessary data for handling.
@@ -19,6 +21,7 @@ public class PaginationEventWrapper {
 	private final MessageChannel channel;
 	private final String messageId;
 	private final Object content;
+	private final InteractionHook hook;
 	private final boolean isFromGuild;
 
 	/**
@@ -32,6 +35,12 @@ public class PaginationEventWrapper {
 	 * @param isFromGuild Whether the event happened on a {@link Guild} or not.
 	 */
 	public PaginationEventWrapper(Object source, User user, MessageChannel channel, String messageId, Object content, boolean isFromGuild) {
+		if (source instanceof ButtonInteractionEvent) {
+			hook = ((ButtonInteractionEvent) source).getHook();
+		} else {
+			hook = null;
+		}
+
 		this.source = source;
 		this.user = user;
 		this.channel = channel;
@@ -92,5 +101,15 @@ public class PaginationEventWrapper {
 	 */
 	public boolean isFromGuild() {
 		return isFromGuild;
+	}
+
+	/**
+	 * Retrieves the {@link InteractionHook} linked to this event.
+	 *
+	 * @return The {@link InteractionHook}, or null if it isn't an interaction.
+	 */
+	@Nullable
+	public InteractionHook getHook() {
+		return hook;
 	}
 }
