@@ -1728,7 +1728,7 @@ public abstract class Pages {
 	 * @param callback Action to be executed after finalizing.
 	 */
 	public static void finalizeEvent(InteractionHook hook, Consumer<Void> callback) {
-		hook.editOriginalComponents().queue();
+		hook.deleteOriginal().queue();
 		callback.accept(null);
 	}
 
