@@ -1582,8 +1582,10 @@ public abstract class Pages {
      * @param msg The {@link Message} to be reloaded.
      * @return The updated message instance.
      */
+    @Nullable
     public static Message reloadMessage(@NotNull Message msg) {
-        return subGet(msg.getChannel().retrieveMessageById(msg.getId()), msg);
+        Message out = subGet(msg.getChannel().retrieveMessageById(msg.getId()), msg);
+        return out == null ? msg : out;
     }
 
     /**

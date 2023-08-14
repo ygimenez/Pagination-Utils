@@ -201,6 +201,11 @@ public class EventHandler extends ListenerAdapter {
 	public void onGenericSelectMenuInteraction(@NotNull GenericSelectMenuInteractionEvent evt) {
 		String id = getEventId(evt.getMessage());
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received dropdown values for event with ID " + id);
+		if (!events.containsKey(id)) {
+			evt.deferEdit().submit().whenComplete((hook, t) -> PUtilsConfig.getOnRemove().accept(evt.getHook()));
+			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
+			return;
+		}
 
 		dropdownValues.computeIfAbsent(id, k -> new HashMap<>())
 				.put(evt.getComponentId(), evt.getValues());
