@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -19,9 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.CRC32;
 
@@ -29,15 +28,16 @@ import java.util.zip.CRC32;
  * Class responsible for handling reaction events sent by the handler.<br>
  * Only one event is added to the handler to prevent cluttering and unnecessary listeners.
  */
-public class MessageHandler extends ListenerAdapter {
+public class EventHandler extends ListenerAdapter {
 	private final Map<String, ThrowingBiConsumer<User, PaginationEventWrapper>> events = new ConcurrentHashMap<>();
+	private final Map<String, Map<String, List<?>>> dropdownValues = new ConcurrentHashMap<>();
 	private final Set<String> locks = ConcurrentHashMap.newKeySet();
 	private final CRC32 crc = new CRC32();
 
 	/**
-	 * Creates a new {@link MessageHandler} instance.
+	 * Creates a new {@link EventHandler} instance.
 	 */
-	public MessageHandler() {
+	public EventHandler() {
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class MessageHandler extends ListenerAdapter {
 	 * @param msg The {@link Message} to hold the event.
 	 * @param act The action to be executed when the button is pressed.
 	 * @return An {@link ActionReference} pointing to this event. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (ie. garbage collected).
+	 * is still being processed or was already removed (i.e. garbage collected).
 	 */
 	public ActionReference addEvent(@NotNull Message msg, @NotNull ThrowingBiConsumer<User, PaginationEventWrapper> act) {
 		String id = getEventId(msg);
@@ -66,6 +66,7 @@ public class MessageHandler extends ListenerAdapter {
 		String id = getEventId(msg);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Removed event with ID " + id);
 		events.remove(id);
+		dropdownValues.remove(id);
 	}
 
 	/**
@@ -97,6 +98,7 @@ public class MessageHandler extends ListenerAdapter {
 	public void clear() {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Cleared all active events");
 		events.clear();
+		dropdownValues.clear();
 	}
 
 	private synchronized void lock(@NotNull String id) {
@@ -107,10 +109,6 @@ public class MessageHandler extends ListenerAdapter {
 	private synchronized void unlock(@NotNull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Unlocked event with ID " + id);
 		locks.remove(id);
-	}
-
-	private synchronized boolean isLocked(@NotNull GenericMessageReactionEvent evt) {
-		return locks.contains(getEventId(evt));
 	}
 
 	private synchronized boolean isLocked(@NotNull String id) {
@@ -136,7 +134,7 @@ public class MessageHandler extends ListenerAdapter {
 
 	private void execute(GenericMessageReactionEvent evt) {
 		String id = getEventId(evt);
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received reaction event with ID " + id);
 		if (!events.containsKey(id)) {
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
 			return;
@@ -152,7 +150,7 @@ public class MessageHandler extends ListenerAdapter {
 	@Override
 	public void onButtonInteraction(@NotNull ButtonInteractionEvent evt) {
 		String id = getEventId(evt);
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received event with ID " + id);
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received button event with ID " + id);
 		if (!events.containsKey(id)) {
 			evt.deferEdit().submit().whenComplete((hook, t) -> PUtilsConfig.getOnRemove().accept(evt.getHook()));
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
@@ -199,6 +197,34 @@ public class MessageHandler extends ListenerAdapter {
 		}
 	}
 
+	@Override
+	public void onGenericSelectMenuInteraction(@NotNull GenericSelectMenuInteractionEvent evt) {
+		String id = getEventId(evt.getMessage());
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received dropdown values for event with ID " + id);
+
+		dropdownValues.computeIfAbsent(id, k -> new HashMap<>())
+				.put(evt.getComponentId(), evt.getValues());
+	}
+
+	public Map<String, List<?>> getDropdownValues(String eventId) {
+		return dropdownValues.get(eventId);
+	}
+
+	/**
+	 * Calculate internal event ID from given message. This does not mean the event exists though, but the ID will be
+	 * valid if a {@link Pages} action is created for this message.
+	 *
+	 * @param msg Message to be calculated the ID from.
+	 * @return The event ID.
+	 */
+	public String getEventId(Message msg) {
+		crc.reset();
+		String rawId = (msg.isFromGuild() ? "GUILD_" : "PRIVATE_") + msg.getChannel().getId() + "_" + msg.getId();
+		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
+
+		return Long.toHexString(crc.getValue());
+	}
+
 	private String getEventId(GenericMessageEvent evt) {
 		crc.reset();
 		String rawId = (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getMessageId();
@@ -210,14 +236,6 @@ public class MessageHandler extends ListenerAdapter {
 	private String getEventId(ButtonInteractionEvent evt) {
 		crc.reset();
 		String rawId = (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getMessageId();
-		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
-
-		return Long.toHexString(crc.getValue());
-	}
-
-	private String getEventId(Message msg) {
-		crc.reset();
-		String rawId = (msg.isFromGuild() ? "GUILD_" : "PRIVATE_") + msg.getChannel().getId() + "_" + msg.getId();
 		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
 
 		return Long.toHexString(crc.getValue());

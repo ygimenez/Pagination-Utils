@@ -8,7 +8,11 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Wrapper for {@link Pages#buttonize} arguments containing necessary data for processing.
@@ -17,20 +21,23 @@ public class ButtonWrapper {
 	private final User user;
 	private final InteractionHook hook;
 	private final Button button;
+	private final Map<String, List<?>> dropdownValues;
 	private Message message;
 
 	/**
 	 * Constructs a new {@link ButtonWrapper} instance. You probably shouldn't be creating one yourself.
 	 *
-	 * @param user    The {@link User} who pressed the button.
-	 * @param hook    The {@link InteractionHook} referencing interaction event, or null if it's not an interaction.
-	 * @param button  The {@link Button} that triggered this event.
-	 * @param message The parent {@link Message}.
+	 * @param user           The {@link User} who pressed the button.
+	 * @param hook           The {@link InteractionHook} referencing interaction event, or null if it's not an interaction.
+	 * @param button         The {@link Button} that triggered this event.
+	 * @param dropdownValues The currently selected {@link SelectMenu} values, if any.
+	 * @param message        The parent {@link Message}.
 	 */
-	public ButtonWrapper(User user, InteractionHook hook, Button button, Message message) {
+	public ButtonWrapper(User user, InteractionHook hook, Button button, Map<String, List<?>> dropdownValues, Message message) {
 		this.user = user;
 		this.hook = hook;
 		this.button = button;
+		this.dropdownValues = dropdownValues;
 		this.message = message;
 	}
 
@@ -71,6 +78,10 @@ public class ButtonWrapper {
 	@Nullable
 	public Button getButton() {
 		return button;
+	}
+
+	public Map<String, List<?>> getDropdownValues() {
+		return dropdownValues;
 	}
 
 	/**

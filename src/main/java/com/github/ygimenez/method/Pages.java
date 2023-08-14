@@ -3,7 +3,7 @@ package com.github.ygimenez.method;
 import com.github.ygimenez.exception.AlreadyActivatedException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
-import com.github.ygimenez.listener.MessageHandler;
+import com.github.ygimenez.listener.EventHandler;
 import com.github.ygimenez.model.*;
 import com.github.ygimenez.model.helper.*;
 import com.github.ygimenez.type.Emote;
@@ -41,7 +41,7 @@ import static com.github.ygimenez.type.Emote.*;
  */
 public abstract class Pages {
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private static final MessageHandler handler = new MessageHandler();
+    private static final EventHandler handler = new EventHandler();
     private static Paginator paginator;
 
     private Pages() {
@@ -114,11 +114,11 @@ public abstract class Pages {
     }
 
     /**
-     * Retrieves the library's {@link MessageHandler} object.
+     * Retrieves the library's {@link EventHandler} object.
      *
-     * @return The {@link MessageHandler} object.
+     * @return The {@link EventHandler} object.
      */
-    public static MessageHandler getHandler() {
+    public static EventHandler getHandler() {
         return handler;
     }
 
@@ -132,7 +132,7 @@ public abstract class Pages {
      * @param useButtons Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
      *                   {@link Message} was not sent by the bot.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -160,7 +160,7 @@ public abstract class Pages {
      * @param unit       The time's {@link TimeUnit} (recommended:
      *                   {@link TimeUnit#SECONDS}).
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -184,7 +184,7 @@ public abstract class Pages {
      * @param canInteract {@link Predicate} to determine whether the {@link User}
      *                    that pressed the button can interact with it or not.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -214,7 +214,7 @@ public abstract class Pages {
      * @param canInteract {@link Predicate} to determine whether the {@link User}
      *                    that pressed the button can interact with it or not.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -237,7 +237,7 @@ public abstract class Pages {
      *                    {@link Message} was not sent by the bot.
      * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -266,7 +266,7 @@ public abstract class Pages {
      *                    {@link TimeUnit#SECONDS}).
      * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -291,7 +291,7 @@ public abstract class Pages {
      * @param canInteract {@link Predicate} to determine whether the {@link User}
      *                    that pressed the button can interact with it or not.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -322,7 +322,7 @@ public abstract class Pages {
      * @param canInteract {@link Predicate} to determine whether the {@link User}
      *                    that pressed the button can interact with it or not.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -346,7 +346,7 @@ public abstract class Pages {
      * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
      *                   and {@link Emote#SKIP_FORWARD} buttons.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -376,7 +376,7 @@ public abstract class Pages {
      * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
      *                   and {@link Emote#SKIP_FORWARD} buttons.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -402,7 +402,7 @@ public abstract class Pages {
      * @param canInteract {@link Predicate} to determine whether the {@link User}
      *                    that pressed the button can interact with it or not.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -434,7 +434,7 @@ public abstract class Pages {
      * @param canInteract {@link Predicate} to determine whether the {@link User}
      *                    that pressed the button can interact with it or not.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -461,7 +461,7 @@ public abstract class Pages {
      * @param canInteract {@link Predicate} to determine whether the {@link User}
      *                    that pressed the button can interact with it or not.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -492,7 +492,7 @@ public abstract class Pages {
      *                    and {@link Emote#SKIP_FORWARD} buttons.
      * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -525,7 +525,7 @@ public abstract class Pages {
      * @param canInteract {@link Predicate} to determine whether the {@link User}
      *                    that pressed the button can interact with it or not.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -550,7 +550,7 @@ public abstract class Pages {
      * @param msg    The {@link Message} sent which will be paginated.
      * @param helper A {@link PaginateHelper} holding desired pagination settings.
      * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-     * is still being processed or was already removed (ie. garbage collected).
+     * is still being processed or was already removed (i.e. garbage collected).
      * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
      *                                         or cannot be accessed when triggering a
      *                                         {@link GenericMessageReactionEvent}.
@@ -1201,7 +1201,11 @@ public abstract class Pages {
 
                     ThrowingConsumer<ButtonWrapper> act = lookupValue(btns, emoji);
                     if (act != null) {
-                        act.accept(new ButtonWrapper(wrapper.getUser(), hook, button, m));
+                        act.accept(new ButtonWrapper(
+                                wrapper.getUser(), hook, button,
+                                handler.getDropdownValues(handler.getEventId(m)),
+                                m
+                        ));
                     }
 
                     if (timeout != null) {
