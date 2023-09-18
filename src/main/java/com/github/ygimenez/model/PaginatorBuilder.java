@@ -202,6 +202,7 @@ public class PaginatorBuilder {
 	 * message buttons.
 	 *
 	 * @param onRemove The action to be performed (the interaction is automatically acknowledged).
+	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 */
 	public PaginatorBuilder setOnRemove(ThrowingConsumer<InteractionHook> onRemove) {
 		paginator.setOnRemove(onRemove);
