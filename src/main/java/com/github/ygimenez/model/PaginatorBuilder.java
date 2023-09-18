@@ -203,8 +203,9 @@ public class PaginatorBuilder {
 	 *
 	 * @param onRemove The action to be performed (the interaction is automatically acknowledged).
 	 */
-	public void setOnRemove(ThrowingConsumer<InteractionHook> onRemove) {
+	public PaginatorBuilder setOnRemove(ThrowingConsumer<InteractionHook> onRemove) {
 		paginator.setOnRemove(onRemove);
+		return this;
 	}
 
 	/**
