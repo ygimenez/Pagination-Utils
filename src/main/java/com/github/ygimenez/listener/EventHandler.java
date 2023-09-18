@@ -154,7 +154,7 @@ public class EventHandler extends ListenerAdapter {
 		String id = getEventId(evt);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received button event with ID " + id);
 		if (!events.containsKey(id)) {
-			evt.deferEdit().submit().whenComplete((hook, t) -> PUtilsConfig.getOnRemove().accept(evt.getHook()));
+			evt.deferEdit().submit().whenComplete((hook, t) -> Pages.getPaginator().getOnRemove().accept(evt.getHook()));
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
 			return;
 		}
@@ -203,7 +203,7 @@ public class EventHandler extends ListenerAdapter {
 		String id = getEventId(evt.getMessage());
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received dropdown values for event with ID " + id);
 		if (!events.containsKey(id)) {
-			evt.deferEdit().submit().whenComplete((hook, t) -> PUtilsConfig.getOnRemove().accept(evt.getHook()));
+			evt.deferEdit().submit().whenComplete((hook, t) -> Pages.getPaginator().getOnRemove().accept(evt.getHook()));
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
 			return;
 		}

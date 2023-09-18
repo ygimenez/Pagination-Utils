@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ public class Paginator {
 	private boolean eventLocked = false;
 	private boolean deleteOnCancel = false;
 	private Map<Emote, Emoji> emotes = new EnumMap<>(Emote.class);
+	private ThrowingConsumer<InteractionHook> onRemove = hook -> hook.editOriginalComponents().submit();
 	private Logger logger = null;
 
 	/**
@@ -57,6 +59,7 @@ public class Paginator {
 
 	/**
 	 * Set the handler used for event processing.
+	 * <br>
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param handler The handler that'll be used for event processing
@@ -80,6 +83,7 @@ public class Paginator {
 
 	/**
 	 * Set whether user reactions will be removed after pressing the button or not.
+	 * <br>
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param removeOnReact Whether reactions will be removed on press or not.
@@ -100,6 +104,7 @@ public class Paginator {
 
 	/**
 	 * Set whether evens should be locked to prevent double-activation.
+	 * <br>
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param hashLocking Whether events should be locked.
@@ -121,12 +126,34 @@ public class Paginator {
 
 	/**
 	 * Set whether {@link Message} should be deleted or not when the button handler is removed.
+	 * <br>
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param deleteOnCancel Whether the {@link Message} will be deleted or not.
 	 */
 	protected void setDeleteOnCancel(boolean deleteOnCancel) {
 		this.deleteOnCancel = deleteOnCancel;
+	}
+
+	/**
+	 * Retrieve the action performed when encountering an unmapped event.
+	 *
+	 * @return The action to be performed.
+	 */
+	public ThrowingConsumer<InteractionHook> getOnRemove() {
+		return onRemove;
+	}
+
+	/**
+	 * Set the action to be performed when encountering an unmapped event. This defaults to simply removing the
+	 * message buttons.
+	 * <br>
+	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
+	 *
+	 * @param onRemove The action to be performed (the interaction is automatically acknowledged).
+	 */
+	public void setOnRemove(ThrowingConsumer<InteractionHook> onRemove) {
+		this.onRemove = onRemove;
 	}
 
 	/**
@@ -151,6 +178,7 @@ public class Paginator {
 
 	/**
 	 * Make configured {@link Emote}s final.
+	 * <br>
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 */
 	protected void finishEmotes() {

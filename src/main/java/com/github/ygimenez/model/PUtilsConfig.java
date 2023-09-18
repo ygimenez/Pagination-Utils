@@ -1,13 +1,10 @@
 package com.github.ygimenez.model;
 
-import net.dv8tion.jda.api.interactions.InteractionHook;
-
 /**
  * Utility class holding library-wide settings.
  */
 public abstract class PUtilsConfig {
 	private static LogLevel logLevel = LogLevel.LEVEL_1;
-	private static ThrowingConsumer<InteractionHook> onRemove = hook -> hook.editOriginalComponents().submit();
 
 	private PUtilsConfig() {
 	}
@@ -54,24 +51,5 @@ public abstract class PUtilsConfig {
 	 */
 	public static void setLogLevel(LogLevel logLevel) {
 		PUtilsConfig.logLevel = logLevel;
-	}
-
-	/**
-	 * Retrieve the action performed when encounteing an unmapped event.
-	 *
-	 * @return The action to be performed.
-	 */
-	public static ThrowingConsumer<InteractionHook> getOnRemove() {
-		return onRemove;
-	}
-
-	/**
-	 * Set the action to be performed when encountering an unmapped event. This defaults to simply removing the
-	 * message buttons.
-	 *
-	 * @param onRemove The action to be performed (the interaction is automatically acknowledged).
-	 */
-	public static void setOnRemove(ThrowingConsumer<InteractionHook> onRemove) {
-		PUtilsConfig.onRemove = onRemove;
 	}
 }

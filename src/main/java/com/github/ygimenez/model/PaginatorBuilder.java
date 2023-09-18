@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -178,7 +179,6 @@ public class PaginatorBuilder {
 
 	/**
 	 * Set whether {@link Message} should be deleted or not when the button handler is removed.
-	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 *
 	 * @param deleteOnCancel Whether the {@link Message} will be deleted or not (default: false).
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
@@ -186,6 +186,25 @@ public class PaginatorBuilder {
 	public PaginatorBuilder setDeleteOnCancel(boolean deleteOnCancel) {
 		paginator.setDeleteOnCancel(deleteOnCancel);
 		return this;
+	}
+
+	/**
+	 * Retrieve the action performed when encountering an unmapped event.
+	 *
+	 * @return The action to be performed.
+	 */
+	public ThrowingConsumer<InteractionHook> getOnRemove() {
+		return paginator.getOnRemove();
+	}
+
+	/**
+	 * Set the action to be performed when encountering an unmapped event. This defaults to simply removing the
+	 * message buttons.
+	 *
+	 * @param onRemove The action to be performed (the interaction is automatically acknowledged).
+	 */
+	public void setOnRemove(ThrowingConsumer<InteractionHook> onRemove) {
+		paginator.setOnRemove(onRemove);
 	}
 
 	/**
