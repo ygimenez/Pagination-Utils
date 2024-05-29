@@ -40,7 +40,6 @@ import static com.github.ygimenez.type.Emote.*;
  * to {@link #paginate}, {@link #categorize}, {@link #buttonize} and {@link #lazyPaginate}.
  */
 public abstract class Pages {
-	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private static final EventHandler handler = new EventHandler();
 	private static Paginator paginator;
 
@@ -571,10 +570,11 @@ public abstract class Pages {
 			addReactions(msg, helper.getSkipAmount() > 1, helper.isFastForward());
 		}
 
+		Executor executor = CompletableFuture.delayedExecutor(helper.getTimeout(), TimeUnit.MILLISECONDS);
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
-			private ScheduledFuture<?> timeout;
+			private CompletableFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
 				if (timeout != null) {
 					timeout.cancel(true);
@@ -589,16 +589,16 @@ public abstract class Pages {
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = CompletableFuture.runAsync(() -> finalizeEvent(msg, success), executor);
 				}
 			}
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
-				Message m = wrapper.retrieveMessage();
+				Message msg = wrapper.retrieveMessage();
 
 				if (helper.canInteract(u)) {
-					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
+					if (u.isBot() || msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emote emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
@@ -652,10 +652,10 @@ public abstract class Pages {
 							}
 							break;
 						case CANCEL:
-							if (m.isEphemeral() && wrapper.getHook() != null) {
+							if (msg.isEphemeral() && wrapper.getHook() != null) {
 								finalizeEvent(wrapper.getHook(), success);
 							} else {
-								finalizeEvent(m, success);
+								finalizeEvent(msg, success);
 							}
 
 							return;
@@ -663,7 +663,7 @@ public abstract class Pages {
 
 					if (update) {
 						pg = pgs.get(p);
-						modifyButtons(m, pg, Map.of(
+						modifyButtons(msg, pg, Map.of(
 								PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
 								SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
 								GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
@@ -678,7 +678,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = executor.schedule(() -> finalizeEvent(m, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = CompletableFuture.runAsync(() -> finalizeEvent(msg, success), executor);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -845,9 +845,10 @@ public abstract class Pages {
 			msg.addReaction(paginator.getEmoji(CANCEL)).submit();
 		}
 
+		Executor executor = CompletableFuture.delayedExecutor(helper.getTimeout(), TimeUnit.MILLISECONDS);
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private Emoji currCat = null;
-			private ScheduledFuture<?> timeout;
+			private CompletableFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
 				if (timeout != null) {
 					timeout.cancel(true);
@@ -859,7 +860,7 @@ public abstract class Pages {
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = CompletableFuture.runAsync(() -> finalizeEvent(msg, success), executor);
 				}
 			}
 
@@ -908,7 +909,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = CompletableFuture.runAsync(() -> finalizeEvent(msg, success), executor);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -1154,8 +1155,9 @@ public abstract class Pages {
 			}
 		}
 
+		Executor executor = CompletableFuture.delayedExecutor(helper.getTimeout(), TimeUnit.MILLISECONDS);
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
-			private ScheduledFuture<?> timeout;
+			private CompletableFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
 				if (timeout != null) {
 					timeout.cancel(true);
@@ -1168,7 +1170,7 @@ public abstract class Pages {
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = CompletableFuture.runAsync(() -> finalizeEvent(msg, success), executor);
 				}
 			}
 
@@ -1227,7 +1229,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = CompletableFuture.runAsync(() -> finalizeEvent(msg, success), executor);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -1491,9 +1493,10 @@ public abstract class Pages {
 			addReactions(msg, false, false);
 		}
 
+		Executor executor = CompletableFuture.delayedExecutor(helper.getTimeout(), TimeUnit.MILLISECONDS);
 		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
 			private int p = 0;
-			private ScheduledFuture<?> timeout;
+			private CompletableFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
 				if (timeout != null) {
 					timeout.cancel(true);
@@ -1507,16 +1510,16 @@ public abstract class Pages {
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = executor.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = CompletableFuture.runAsync(() -> finalizeEvent(msg, success), executor);
 				}
 			}
 
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
-				Message m = wrapper.retrieveMessage();
+				Message msg = wrapper.retrieveMessage();
 
 				if (helper.canInteract(u)) {
-					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
+					if (u.isBot() || msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emote emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
@@ -1564,17 +1567,17 @@ public abstract class Pages {
 							if (cache) helper.getContent().add(pg);
 							break;
 						case CANCEL:
-							if (m.isEphemeral() && wrapper.getHook() != null) {
+							if (msg.isEphemeral() && wrapper.getHook() != null) {
 								finalizeEvent(wrapper.getHook(), success);
 							} else {
-								finalizeEvent(m, success);
+								finalizeEvent(msg, success);
 							}
 
 							return;
 					}
 
 					if (update) {
-						modifyButtons(m, pg, Map.of(
+						modifyButtons(msg, pg, Map.of(
 								PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
 								SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
 								GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK
@@ -1585,7 +1588,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = executor.schedule(() -> finalizeEvent(m, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = CompletableFuture.runAsync(() -> finalizeEvent(msg, success), executor);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
