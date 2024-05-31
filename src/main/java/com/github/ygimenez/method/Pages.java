@@ -597,7 +597,7 @@ public abstract class Pages {
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message msg = wrapper.retrieveMessage();
 
-				if (helper.canInteract(u)) {
+				if (helper.canInteract(u, wrapper)) {
 					if (u.isBot() || msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emote emt = NONE;
@@ -868,7 +868,7 @@ public abstract class Pages {
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message m = wrapper.retrieveMessage();
 
-				if (helper.canInteract(u)) {
+				if (helper.canInteract(u, wrapper)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emoji emoji = null;
@@ -1178,7 +1178,7 @@ public abstract class Pages {
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message m = wrapper.retrieveMessage();
 
-				if (helper.canInteract(u)) {
+				if (helper.canInteract(u, wrapper)) {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emoji emoji = null;
@@ -1518,7 +1518,7 @@ public abstract class Pages {
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message msg = wrapper.retrieveMessage();
 
-				if (helper.canInteract(u)) {
+				if (helper.canInteract(u, wrapper)) {
 					if (u.isBot() || msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					Emote emt = NONE;

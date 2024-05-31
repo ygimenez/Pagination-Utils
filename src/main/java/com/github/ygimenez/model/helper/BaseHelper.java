@@ -1,16 +1,19 @@
 package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.PaginationEventWrapper;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -28,13 +31,13 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 
 	private boolean cancellable = true;
 	private long time = 0;
-	private Predicate<User> canInteract = null;
+	private BiPredicate<User, Button> canInteract = null;
 
 	/**
 	 * Constructor for {@link BaseHelper}.
 	 *
-	 * @param subClass A class that extends {@link BaseHelper}.
-	 * @param buttons The collection used to store pages.
+	 * @param subClass   A class that extends {@link BaseHelper}.
+	 * @param buttons    The collection used to store pages.
 	 * @param useButtons Whether to use interaction buttons or not.
 	 */
 	protected BaseHelper(Class<Helper> subClass, T buttons, boolean useButtons) {
@@ -109,11 +112,17 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 	/**
 	 * Checks whether the supplied {@link User} can interact with the event.
 	 *
-	 * @param user The {@link User} to check.
+	 * @param user    The {@link User} to check.
+	 * @param wrapper The click event.
 	 * @return Whether the suppied user can interact with the event.
 	 */
-	public boolean canInteract(User user) {
-		return canInteract == null || canInteract.test(user);
+	public boolean canInteract(User user, PaginationEventWrapper wrapper) {
+		Button btn = null;
+		if (wrapper.getContent() instanceof Button) {
+			btn = (Button) wrapper.getContent();
+		}
+
+		return canInteract == null || canInteract.test(user, btn);
 	}
 
 	/**
@@ -123,6 +132,18 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 	 * @return The {@link Helper} instance for chaining convenience.
 	 */
 	public Helper setCanInteract(@Nullable Predicate<User> canInteract) {
+		this.canInteract = canInteract == null ? null : (u, b) -> canInteract.test(u);
+		return subClass.cast(this);
+	}
+
+	/**
+	 * Set the condition used to check if a given user can interact with the event buttons.
+	 *
+	 * @param canInteract A {@link BiPredicate} for checking if a given user can interact with the buttons, also giving
+	 *                    which {@link Button} was pressed (will be null if using reaction buttons). (default: null).
+	 * @return The {@link Helper} instance for chaining convenience.
+	 */
+	public Helper setCanInteract(@Nullable BiPredicate<User, Button> canInteract) {
 		this.canInteract = canInteract;
 		return subClass.cast(this);
 	}

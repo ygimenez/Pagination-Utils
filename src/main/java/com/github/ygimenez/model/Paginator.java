@@ -206,7 +206,7 @@ public class Paginator {
 	 */
 	public void log(LogLevel level, String msg, Throwable t) {
 		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0) {
-			logger.error("[" + level.name().replace("_", " ") + "] " + msg, t);
+			logger.error("[{}] {}", level.name().replace("_", " "), msg, t);
 		}
 	}
 
@@ -220,7 +220,7 @@ public class Paginator {
 	 */
 	public void log(LogLevel level, String msg) {
 		if (PUtilsConfig.getLogLevel().compareTo(level) >= 0) {
-			logger.error("[" + level.name().replace("_", " ") + "] " + msg);
+			logger.error("[{}] {}", level.name().replace("_", " "), msg);
 		}
 	}
 }
