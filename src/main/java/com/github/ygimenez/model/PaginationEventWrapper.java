@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.Nullable;
@@ -86,7 +87,11 @@ public class PaginationEventWrapper {
 			return message;
 		}
 
-		return Pages.subGet(channel.retrieveMessageById(message.getId()));
+		try {
+			return Pages.subGet(channel.retrieveMessageById(message.getId()));
+		} catch (InsufficientPermissionException e) {
+			return message;
+		}
 	}
 
 	/**

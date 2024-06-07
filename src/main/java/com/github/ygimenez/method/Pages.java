@@ -1606,7 +1606,11 @@ public abstract class Pages {
 	 * @return The updated message instance.
 	 */
 	public static Message reloadMessage(@NotNull Message msg) {
-		return subGet(msg.getChannel().retrieveMessageById(msg.getId()), msg);
+		try {
+			return subGet(msg.getChannel().retrieveMessageById(msg.getId()), msg);
+		} catch (InsufficientPermissionException e) {
+			return msg;
+		}
 	}
 
 	/**
