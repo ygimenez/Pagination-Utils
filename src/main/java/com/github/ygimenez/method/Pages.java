@@ -1611,7 +1611,7 @@ public abstract class Pages {
 	}
 
 	/**
-	 * Utility method for submitting a {@link RestAction} and awaiting its result.
+	 * Utility method for submitting a {@link RestAction} and awaiting its result for up to 5 seconds.
 	 *
 	 * @param future The {@link RestAction} to be executed.
 	 * @param <T>    Return type for the {@link RestAction}.
@@ -1619,8 +1619,8 @@ public abstract class Pages {
 	 */
 	public static <T> T subGet(@NotNull RestAction<T> future) {
 		try {
-			return future.submit().get();
-		} catch (InterruptedException | ExecutionException e) {
+			return future.submit().get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			paginator.log(PUtilsConfig.LogLevel.LEVEL_4, "Exception during future execution:", e);
 			return null;
 		}
