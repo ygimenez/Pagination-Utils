@@ -3,7 +3,6 @@ package com.github.ygimenez.model;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -108,21 +107,15 @@ public class InteractPage extends Page {
 	/**
 	 * Creates a new {@link Button}, but without any style or caption applied to it.
 	 *
-	 * @param emj The {@link Emoji} representing the {@link Button}, must never be null since it is also the ID.
+	 * @param id The {@link EmojiId} or {@link TextId} representing the {@link Button}, must never be null since it is also the ID.
 	 * @return The created {@link Button}.
 	 */
-	public Button makeButton(@NotNull Emoji emj) {
-		return Button.secondary(Emote.getId(emj), emj);
-	}
+	public Button makeButton(@NotNull ButtonId<?> id) {
+		if (id instanceof EmojiId) {
+			return Button.secondary(id.extractId(), ((EmojiId) id).getId());
+		}
 
-	/**
-	 * Creates a new {@link Button}, but without any style applied to it.
-	 *
-	 * @param emj     The {@link Emoji} representing the {@link Button}, must never be null since it is also the ID.
-	 * @param caption The desired caption for the {@link Button}.
-	 * @return The created {@link Button}.
-	 */
-	public Button makeButton(@NotNull Emoji emj, String caption) {
-		return Button.of(ButtonStyle.SECONDARY, Emote.getId(emj), caption, emj);
+		String key = id.extractId();
+		return Button.secondary(key, key);
 	}
 }

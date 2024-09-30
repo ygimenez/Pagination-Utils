@@ -1,8 +1,7 @@
 package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.model.InteractPage;
-import com.github.ygimenez.model.Page;
+import com.github.ygimenez.model.*;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -21,7 +20,7 @@ import static com.github.ygimenez.type.Emote.CANCEL;
 /**
  * Helper class for building categorize events, safe for reuse.
  */
-public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Page>> {
+public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<?>, Page>> {
 	/**
 	 * Creates a new categorize event helper with the default map implementation ({@link LinkedHashMap}).
 	 *
@@ -37,7 +36,7 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 	 * @param categories A map containing the initial categories.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public CategorizeHelper(Map<Emoji, Page> categories, boolean useButtons) {
+	public CategorizeHelper(Map<ButtonId<?>, Page> categories, boolean useButtons) {
 		super(CategorizeHelper.class, categories, useButtons);
 	}
 
@@ -49,7 +48,19 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 	 * @return The {@link CategorizeHelper} instance for chaining convenience.
 	 */
 	public CategorizeHelper addCategory(Emoji emoji, Page page) {
-		getContent().put(emoji, page);
+		getContent().put(new EmojiId(emoji), page);
+		return this;
+	}
+
+	/**
+	 * Adds a new category to the map.
+	 *
+	 * @param label The label representing this category.
+	 * @param page The page linked to this category.
+	 * @return The {@link CategorizeHelper} instance for chaining convenience.
+	 */
+	public CategorizeHelper addCategory(String label, Page page) {
+		getContent().put(new TextId(label), page);
 		return this;
 	}
 
@@ -60,7 +71,7 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<Emoji, Pa
 		List<LayoutComponent> rows = new ArrayList<>();
 
 		List<ItemComponent> row = new ArrayList<>();
-		for (Map.Entry<Emoji, Page> e : getContent().entrySet()) {
+		for (Map.Entry<ButtonId<?>, Page> e : getContent().entrySet()) {
 			if (row.size() == 5) {
 				rows.add(ActionRow.of(row));
 				row = new ArrayList<>();

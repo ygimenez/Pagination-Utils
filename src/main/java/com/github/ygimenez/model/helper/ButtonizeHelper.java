@@ -1,8 +1,7 @@
 package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.model.ButtonWrapper;
-import com.github.ygimenez.model.ThrowingConsumer;
+import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -22,7 +21,7 @@ import static com.github.ygimenez.type.Emote.CANCEL;
 /**
  * Helper class for building buttonize events, safe for reuse.
  */
-public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, ThrowingConsumer<ButtonWrapper>>> {
+public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>>> {
 	private Consumer<Message> onFinalization = null;
 
 	/**
@@ -40,7 +39,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, Thro
 	 * @param buttons A map containing the initial buttons.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public ButtonizeHelper(Map<Emoji, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
+	public ButtonizeHelper(Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
 		super(ButtonizeHelper.class, buttons, useButtons);
 	}
 
@@ -51,8 +50,20 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, Thro
 	 * @param action The action to be performed on click.
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
-	public ButtonizeHelper addAction(Emoji emoji, ThrowingConsumer<ButtonWrapper> action) {
-		getContent().put(emoji, action);
+	public <T> ButtonizeHelper addAction(Emoji emoji, ThrowingConsumer<ButtonWrapper> action) {
+		getContent().put(new EmojiId(emoji), action);
+		return this;
+	}
+
+	/**
+	 * Adds a new button to the map.
+	 *
+	 * @param label The label representing this button.
+	 * @param action The action to be performed on click.
+	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
+	 */
+	public <T> ButtonizeHelper addAction(String label, ThrowingConsumer<ButtonWrapper> action) {
+		getContent().put(new TextId(label), action);
 		return this;
 	}
 
@@ -83,16 +94,23 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, Thro
 		List<LayoutComponent> rows = new ArrayList<>();
 
 		List<ItemComponent> row = new ArrayList<>();
-		for (Emoji k : getContent().keySet()) {
+		for (ButtonId<?> k : getContent().keySet()) {
 			if (row.size() == 5) {
 				rows.add(ActionRow.of(row));
 				row = new ArrayList<>();
 			}
 
-			row.add(Button.secondary(Emote.getId(k), k));
+			if (k instanceof TextId) {
+				String id = k.extractId();
+				row.add(Button.secondary(id, id));
+			} else {
+				Emoji id = ((EmojiId) k).getId();
+				row.add(Button.secondary(k.extractId(), id));
+			}
 		}
 
-		if (!getContent().containsKey(Pages.getPaginator().getEmoji(CANCEL)) && isCancellable()) {
+		boolean hasCancel = getContent().keySet().stream().anyMatch(b -> Objects.equals(b.getId(), Pages.getPaginator().getEmoji(CANCEL)));
+		if (!hasCancel && isCancellable()) {
 			Button button = Button.danger(CANCEL.name(), Pages.getPaginator().getEmoji(CANCEL));
 
 			if (rows.size() == 5 && row.size() == 5) {
@@ -117,13 +135,27 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<Emoji, Thro
 	public boolean shouldUpdate(Message msg) {
 		if (!isUsingButtons()) return false;
 
-		Predicate<Set<Emoji>> checks = e -> !isCancellable() || e.contains(Pages.getPaginator().getEmoji(CANCEL));
-		Set<Emoji> emojis = msg.getButtons().stream()
-				.map(Button::getEmoji)
+		Predicate<Set<String>> checks = ids -> !isCancellable() || ids.contains(Emote.getId(Pages.getPaginator().getEmoji(CANCEL)));
+		checks = checks.and(ids -> {
+			for (ButtonId<?> id : getContent().keySet()) {
+				String key;
+
+				if (id instanceof EmojiId) {
+					key = Emote.getId(((EmojiId) id).getId());
+				} else {
+					key = String.valueOf(id.getId());
+				}
+
+				if (!ids.contains(key)) return false;
+			}
+
+			return true;
+		});
+
+		Set<String> ids = msg.getButtons().stream()
+				.map(Button::getId)
 				.collect(Collectors.toSet());
 
-		checks = checks.and(e -> e.containsAll(getContent().keySet()));
-
-		return !checks.test(emojis);
+		return !checks.test(ids);
 	}
 }
