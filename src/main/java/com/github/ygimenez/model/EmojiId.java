@@ -4,9 +4,16 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.util.Objects;
 
+/**
+ * Subclass of {@link ButtonId} to represent {@link Emoji}-only buttons.
+ */
 public class EmojiId implements ButtonId<Emoji> {
 	private final Emoji id;
 
+	/**
+	 * Creates a new instance.
+	 * @param id The {@link Emoji} to be used
+	 */
 	public EmojiId(Emoji id) {
 		this.id = id;
 	}

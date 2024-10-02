@@ -50,7 +50,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @param action The action to be performed on click.
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
-	public <T> ButtonizeHelper addAction(Emoji emoji, ThrowingConsumer<ButtonWrapper> action) {
+	public ButtonizeHelper addAction(Emoji emoji, ThrowingConsumer<ButtonWrapper> action) {
 		getContent().put(new EmojiId(emoji), action);
 		return this;
 	}
@@ -62,7 +62,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @param action The action to be performed on click.
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
-	public <T> ButtonizeHelper addAction(String label, ThrowingConsumer<ButtonWrapper> action) {
+	public ButtonizeHelper addAction(String label, ThrowingConsumer<ButtonWrapper> action) {
 		getContent().put(new TextId(label), action);
 		return this;
 	}

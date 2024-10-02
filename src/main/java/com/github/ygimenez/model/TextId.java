@@ -2,9 +2,16 @@ package com.github.ygimenez.model;
 
 import java.util.Objects;
 
+/**
+ * Subclass of {@link ButtonId} to represent text-only buttons.
+ */
 public class TextId implements ButtonId<String> {
 	private final String id;
 
+	/**
+	 * Creates a new instance.
+	 * @param id The {@link String} to be used
+	 */
 	public TextId(String id) {
 		this.id = id;
 	}
