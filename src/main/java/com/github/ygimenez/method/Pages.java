@@ -712,7 +712,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<ButtonId<?>, Page> categories, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference categorize(@NotNull Message msg, @NotNull Mapping<Page> categories, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
 		return categorize(msg, categories, useButtons, 0, null, null);
 	}
 
@@ -743,7 +743,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<ButtonId<?>, Page> categories, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference categorize(@NotNull Message msg, @NotNull Mapping<Page> categories, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		return categorize(msg, categories, useButtons, time, unit, null);
 	}
 
@@ -770,7 +770,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<ButtonId<?>, Page> categories, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference categorize(@NotNull Message msg, @NotNull Mapping<Page> categories, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return categorize(msg, categories, useButtons, 0, null, canInteract);
 	}
 
@@ -803,8 +803,8 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<ButtonId<?>, Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
-		return categorize(msg, new CategorizeHelper(categories, useButtons)
+	public static ActionReference categorize(@NotNull Message msg, @NotNull Mapping<Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+		return categorize(msg, new CategorizeHelper(categories.toMap(), useButtons)
 				.setTimeout(time, unit)
 				.setCanInteract(canInteract)
 		);
@@ -950,7 +950,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Mapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, buttons, useButtons, showCancelButton, 0, null, null, null);
 	}
 
@@ -982,7 +982,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Mapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, buttons, useButtons, showCancelButton, time, unit, null, null);
 	}
 
@@ -1012,7 +1012,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Mapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, null);
 	}
 
@@ -1047,7 +1047,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Mapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, buttons, useButtons, showCancelButton, time, unit, canInteract, null);
 	}
 
@@ -1078,7 +1078,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Mapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, onCancel);
 	}
 
@@ -1114,8 +1114,8 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean cancellable, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
-		return buttonize(msg, new ButtonizeHelper(buttons, useButtons)
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Mapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean cancellable, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+		return buttonize(msg, new ButtonizeHelper(buttons.toMap(), useButtons)
 				.setCancellable(cancellable)
 				.setTimeout(time, unit)
 				.setCanInteract(canInteract)

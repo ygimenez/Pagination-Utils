@@ -26,9 +26,9 @@ public class EmojiId implements ButtonId<Emoji> {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		EmojiId emojiId = (EmojiId) o;
-		return Objects.equals(id, emojiId.id);
+		if (!(o instanceof ButtonId<?>)) return false;
+		ButtonId<?> textId = (ButtonId<?>) o;
+		return Objects.equals(id, textId.getId());
 	}
 
 	@Override

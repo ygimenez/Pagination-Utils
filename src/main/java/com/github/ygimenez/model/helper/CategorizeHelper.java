@@ -41,10 +41,30 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	}
 
 	/**
+	 * Creates a new categorize event helper with the supplied mapping. Utility constructor for {@link String}-mapped categories.
+	 *
+	 * @param categories A {@link TextMapping} containing the initial categories.
+	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
+	 */
+	public CategorizeHelper(TextMapping<Page> categories, boolean useButtons) {
+		this(categories.toMap(), useButtons);
+	}
+
+	/**
+	 * Creates a new categorize event helper with the supplied mapping. Utility constructor for {@link Emoji}-mapped categories.
+	 *
+	 * @param categories An {@link EmojiMapping} containing the initial categories.
+	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
+	 */
+	public CategorizeHelper(EmojiMapping<Page> categories, boolean useButtons) {
+		this(categories.toMap(), useButtons);
+	}
+
+	/**
 	 * Adds a new category to the map.
 	 *
 	 * @param emoji The emoji representing this category.
-	 * @param page The page linked to this category.
+	 * @param page  The page linked to this category.
 	 * @return The {@link CategorizeHelper} instance for chaining convenience.
 	 */
 	public CategorizeHelper addCategory(Emoji emoji, Page page) {
@@ -56,7 +76,7 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	 * Adds a new category to the map.
 	 *
 	 * @param label The label representing this category.
-	 * @param page The page linked to this category.
+	 * @param page  The page linked to this category.
 	 * @return The {@link CategorizeHelper} instance for chaining convenience.
 	 */
 	public CategorizeHelper addCategory(String label, Page page) {
@@ -114,7 +134,9 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 		return rows;
 	}
 
-	/** {@inheritDoc} **/
+	/**
+	 * {@inheritDoc}
+	 **/
 	@Override
 	public boolean shouldUpdate(Message msg) {
 		if (!isUsingButtons()) return false;

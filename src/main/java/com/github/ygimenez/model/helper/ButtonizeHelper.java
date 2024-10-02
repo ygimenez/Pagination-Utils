@@ -36,11 +36,31 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	/**
 	 * Creates a new buttonize event helper with the supplied map.
 	 *
-	 * @param buttons A map containing the initial buttons.
+	 * @param buttons A map containing the initial categories.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
 	public ButtonizeHelper(Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
 		super(ButtonizeHelper.class, buttons, useButtons);
+	}
+
+	/**
+	 * Creates a new buttonize event helper with the supplied mapping. Utility constructor for {@link String}-mapped buttons.
+	 *
+	 * @param buttons A {@link TextMapping} containing the initial categories.
+	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
+	 */
+	public ButtonizeHelper(TextMapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
+		this(buttons.toMap(), useButtons);
+	}
+
+	/**
+	 * Creates a new buttonize event helper with the supplied mapping. Utility constructor for {@link Emoji}-mapped buttons.
+	 *
+	 * @param buttons An {@link EmojiMapping} containing the initial categories.
+	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
+	 */
+	public ButtonizeHelper(EmojiMapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
+		this(buttons.toMap(), useButtons);
 	}
 
 	/**

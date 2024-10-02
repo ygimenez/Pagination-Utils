@@ -3,22 +3,19 @@ package com.github.ygimenez.model;
 import java.util.Objects;
 
 /**
- * Subclass of {@link ButtonId} to represent text-only buttons.
+ * Subclass of {@link ButtonId} to act as a cursor for other mappers. Shouldn't be used outside the library.
+ * @param <T> The type of the cursor
  */
-public class TextId implements ButtonId<String> {
-	private final String id;
-
-	/**
-	 * Creates a new instance.
-	 * @param id The {@link String} to be used
-	 */
-	public TextId(String id) {
-		this.id = id;
-	}
+class IdCursor<T> implements ButtonId<T> {
+	private T id;
 
 	@Override
-	public String getId() {
+	public T getId() {
 		return id;
+	}
+
+	public void setId(T id) {
+		this.id = id;
 	}
 
 	@Override
