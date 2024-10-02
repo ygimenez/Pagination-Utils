@@ -10,8 +10,23 @@ import java.util.*;
  * Effectively a {@link HashMap} with {@link Emoji} key and {@link Page} values, with built-in conversion.
  */
 public class EmojiMapping<V> implements Mapping<V> {
-	private final Map<ButtonId<?>, V> mapping = new LinkedHashMap<>();
+	private final Map<ButtonId<?>, V> mapping;
 	private final IdCursor<Emoji> cursor = new IdCursor<>();
+
+	/**
+	 * Creates a new instance, with default map implementation.
+	 */
+	public EmojiMapping() {
+		this(new LinkedHashMap<>());
+	}
+
+	/**
+	 * Creates a new instance, using supplied map.
+	 * @param mapping The map to be used internally to store mappings.
+	 */
+	public EmojiMapping(Map<ButtonId<?>, V> mapping) {
+		this.mapping = mapping;
+	}
 
 	public Map<ButtonId<?>, V> toMap() {
 		return mapping;

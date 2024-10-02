@@ -9,8 +9,23 @@ import java.util.*;
  * Effectively a {@link HashMap} with {@link String} key and {@link Page} values, with built-in conversion.
  */
 public class TextMapping<V> implements Mapping<V> {
-	private final Map<ButtonId<?>, V> mapping = new LinkedHashMap<>();
+	private final Map<ButtonId<?>, V> mapping;
 	private final IdCursor<String> cursor = new IdCursor<>();
+
+	/**
+	 * Creates a new instance, with default map implementation.
+	 */
+	public TextMapping() {
+		this(new LinkedHashMap<>());
+	}
+
+	/**
+	 * Creates a new instance, using supplied map.
+	 * @param mapping The map to be used internally to store mappings.
+	 */
+	public TextMapping(Map<ButtonId<?>, V> mapping) {
+		this.mapping = mapping;
+	}
 
 	public Map<ButtonId<?>, V> toMap() {
 		return mapping;
