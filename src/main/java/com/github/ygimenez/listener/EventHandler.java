@@ -45,13 +45,12 @@ public class EventHandler extends ListenerAdapter {
 	 * Adds an event to the handler, which will be executed whenever a button with the same
 	 * ID is pressed.
 	 *
-	 * @param msg The {@link Message} to hold the event.
+	 * @param id The event ID.
 	 * @param act The action to be executed when the button is pressed.
 	 * @return An {@link ActionReference} pointing to this event. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (i.e. garbage collected).
 	 */
-	public ActionReference addEvent(@NotNull Message msg, @NotNull ThrowingBiConsumer<User, PaginationEventWrapper> act) {
-		String id = getEventId(msg);
+	public ActionReference addEvent(@NotNull String id, @NotNull ThrowingBiConsumer<User, PaginationEventWrapper> act) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
 		events.put(id, act);
 
@@ -61,10 +60,9 @@ public class EventHandler extends ListenerAdapter {
 	/**
 	 * Removes an event from the handler.
 	 *
-	 * @param msg The {@link Message} which had attached events.
+	 * @param id The event ID.
 	 */
-	public void removeEvent(@NotNull Message msg) {
-		String id = getEventId(msg);
+	public void removeEvent(@NotNull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Removed event with ID " + id);
 		events.remove(id);
 		dropdownValues.remove(id);

@@ -42,7 +42,7 @@ import static com.github.ygimenez.type.Emote.*;
  * to {@link #paginate}, {@link #categorize}, {@link #buttonize} and {@link #lazyPaginate}.
  */
 public abstract class Pages {
-	private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
+	private static final TaskScheduler scheduler = new TaskScheduler();
 	private static final EventHandler handler = new EventHandler();
 	private static Paginator paginator;
 
@@ -573,7 +573,8 @@ public abstract class Pages {
 			addReactions(msg, helper.getSkipAmount() > 1, helper.isFastForward());
 		}
 
-		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
+		String evt = handler.getEventId(msg);
+		return handler.addEvent(evt, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
@@ -582,7 +583,7 @@ public abstract class Pages {
 					timeout.cancel(true);
 				}
 
-				handler.removeEvent(msg);
+				handler.removeEvent(evt);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
@@ -591,7 +592,7 @@ public abstract class Pages {
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = worker.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 				}
 			}
 
@@ -680,7 +681,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = worker.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -849,7 +850,8 @@ public abstract class Pages {
 			msg.addReaction(paginator.getEmoji(CANCEL)).submit();
 		}
 
-		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
+		String evt = handler.getEventId(msg);
+		return handler.addEvent(evt, new ThrowingBiConsumer<>() {
 			private ButtonId<?> currCat = null;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -857,13 +859,13 @@ public abstract class Pages {
 					timeout.cancel(true);
 				}
 
-				handler.removeEvent(msg);
+				handler.removeEvent(evt);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = worker.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 				}
 			}
 
@@ -916,7 +918,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = worker.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -1165,21 +1167,22 @@ public abstract class Pages {
 			}
 		}
 
-		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
+		String evt = handler.getEventId(msg);
+		return handler.addEvent(evt, new ThrowingBiConsumer<>() {
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
 				if (timeout != null) {
 					timeout.cancel(true);
 				}
 
-				handler.removeEvent(msg);
+				handler.removeEvent(evt);
 				if (helper.getOnFinalization() != null) helper.getOnFinalization().accept(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = worker.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 				}
 			}
 
@@ -1243,7 +1246,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = worker.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -1507,7 +1510,8 @@ public abstract class Pages {
 			addReactions(msg, false, false);
 		}
 
-		return handler.addEvent(msg, new ThrowingBiConsumer<>() {
+		String evt = handler.getEventId(msg);
+		return handler.addEvent(evt, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -1515,7 +1519,7 @@ public abstract class Pages {
 					timeout.cancel(true);
 				}
 
-				handler.removeEvent(msg);
+				handler.removeEvent(evt);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
@@ -1523,7 +1527,7 @@ public abstract class Pages {
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = worker.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 				}
 			}
 
@@ -1601,7 +1605,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = worker.schedule(() -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
