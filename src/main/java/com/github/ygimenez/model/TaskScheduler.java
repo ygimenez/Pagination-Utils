@@ -14,11 +14,11 @@ public class TaskScheduler {
 	/**
 	 * Schedule a new task, cancelling and replacing the previous if exists.
 	 *
-	 * @param id   The task identifier.
-	 * @param task The task itself.
-	 * @param time The time for the timeout.
-	 * @param unit The unit for the timeout.
-	 * @return
+	 * @param id   The task identifier
+	 * @param task The task itself
+	 * @param time The time for the timeout
+	 * @param unit The unit for the timeout
+	 * @return The task that will be executed
 	 */
 	public ScheduledFuture<?> schedule(String id, Runnable task, long time, TimeUnit unit) {
 		ScheduledFuture<?> t = worker.schedule(task, time, unit);
