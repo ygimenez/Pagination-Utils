@@ -97,7 +97,7 @@ public class TextMapping<V> implements Mapping<V> {
 	 *
 	 * @param key The key representing the value to be retrieved
 	 * @return The value mapped by given key
-	 * @see #put(String, V)
+	 * @see #put(String, Object)
 	 */
 	public V get(String key) {
 		cursor.setId(key);

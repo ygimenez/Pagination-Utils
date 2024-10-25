@@ -98,7 +98,7 @@ public class EmojiMapping<V> implements Mapping<V> {
 	 *
 	 * @param key The key representing the value to be retrieved
 	 * @return The value mapped by given key
-	 * @see #put(Emoji, V)
+	 * @see #put(Emoji, Object)
 	 */
 	public V get(Emoji key) {
 		cursor.setId(key);
