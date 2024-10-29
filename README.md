@@ -147,11 +147,13 @@ will change its content based on the list's order.
 
 ## How do I categorize?
 
-To categorize it's almost the same process as paginating, however, the type of collection is `HashMap` instead
+To categorize it's almost the same process as paginating, however, you'll use `Mapping` instead
 of `ArrayList`:
 
 ```java
-Map<Emoji, Page> categories = new HashMap<>();
+// There are 2 types of Mapping subclasses - TextMapping (for text buttons) and EmojiMapping (for emoji buttons)
+// If you wish to mix both you'll need to use CategorizeHelper instead
+EmojiMapping<Page> categories = new EmojiMapping<>();
 
 // Manually adding 3 categories to the map, you could use some kind of loop to fill it (see https://emojipedia.org/ for unicodes)
 mb.setContent("This is category 1");
@@ -182,15 +184,19 @@ exampleChannel.sendMessage("This is the main menu").queue(success -> {
 To do it, you first need to setup a few things:
 
 ```java
+// There are 2 types of Mapping subclasses - TextMapping (for text buttons) and EmojiMapping (for emoji buttons)
+// If you wish to mix both you'll need to use ButtonizeHelper instead
+EmojiMapping<ThrowingConsumer<ButtonWrapper>> buttons = new EmojiMapping<>();
+
 // A Consumer is a callback function that uses one arguments and returns nothing
 // Here, wrapper is a class containing useful data related to the click event
-ThrowingConsumer<ButtonWrapper> customFunction = (wrapper) -> {
-	// Example of giving a role to anyone who presses this button
-	guild.addRoleToMember(wrapper.getMember(), guild.getRoleById("123456789")).queue();
-};
+buttons.put(Emoji.fromFormatted("✅"), (wrapper) -> {
+        // Example of giving a role to anyone who presses this button
+        guild.addRoleToMember(wrapper.getMember(), guild.getRoleById("123456789")).queue();
+});
 
 exampleChannel.sendMessage("Click to get role").queue(success -> {
-	Pages.buttonize(success, Collections.singletonMap(Emoji.fromFormatted("✅"), customFunction), /* Use buttons? */ true, /* Show cancel? */ false);
+	Pages.buttonize(success, buttons, /* Use buttons? */ true, /* Show cancel? */ false);
 });
 ```
 
