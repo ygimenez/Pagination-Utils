@@ -1,5 +1,6 @@
 package com.github.ygimenez.model;
 
+import com.github.ygimenez.listener.EventHandler;
 import com.github.ygimenez.model.PUtilsConfig.LogLevel;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.JDA;
@@ -24,6 +25,9 @@ import java.util.Map;
  * <strong>This class must only be instantiated by {@link PaginatorBuilder}</strong>.
  */
 public class Paginator {
+	private final TaskScheduler scheduler = new TaskScheduler();
+	private final EventHandler evtHandler = new EventHandler();
+
 	private Object handler = null;
 	private boolean removeOnReact = false;
 	private boolean eventLocked = false;
@@ -183,6 +187,24 @@ public class Paginator {
 	 */
 	protected void finishEmotes() {
 		emotes = Collections.unmodifiableMap(emotes);
+	}
+
+	/**
+	 * Retrieves this {@link Paginator}'s {@link TaskScheduler} instance.
+	 *
+	 * @return The {@link TaskScheduler} instance.
+	 */
+	public TaskScheduler getScheduler() {
+		return scheduler;
+	}
+
+	/**
+	 * Retrieves this {@link Paginator}'s {@link EventHandler} instance.
+	 *
+	 * @return The {@link EventHandler} instance.
+	 */
+	public EventHandler getEvtHandler() {
+		return evtHandler;
 	}
 
 	/**

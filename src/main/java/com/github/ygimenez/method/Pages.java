@@ -42,8 +42,6 @@ import static com.github.ygimenez.type.Emote.*;
  * to {@link #paginate}, {@link #categorize}, {@link #buttonize} and {@link #lazyPaginate}.
  */
 public abstract class Pages {
-	private static final TaskScheduler scheduler = new TaskScheduler();
-	private static final EventHandler handler = new EventHandler();
 	private static Paginator paginator;
 
 	private Pages() {
@@ -67,9 +65,9 @@ public abstract class Pages {
 
 		Object hand = paginator.getHandler();
 		if (hand instanceof JDA) {
-			((JDA) hand).addEventListener(handler);
+			((JDA) hand).addEventListener(paginator.getEvtHandler());
 		} else if (hand instanceof ShardManager) {
-			((ShardManager) hand).addEventListener(handler);
+			((ShardManager) hand).addEventListener(paginator.getEvtHandler());
 		} else {
 			throw new InvalidHandlerException();
 		}
@@ -88,9 +86,9 @@ public abstract class Pages {
 
 		Object hand = paginator.getHandler();
 		if (hand instanceof JDA) {
-			((JDA) hand).removeEventListener(handler);
+			((JDA) hand).removeEventListener(paginator.getEvtHandler());
 		} else if (hand instanceof ShardManager) {
-			((ShardManager) hand).removeEventListener(handler);
+			((ShardManager) hand).removeEventListener(paginator.getEvtHandler());
 		}
 
 		paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Pagination Utils deactivated successfully");
@@ -116,12 +114,21 @@ public abstract class Pages {
 	}
 
 	/**
-	 * Retrieves the library's {@link EventHandler} object.
+	 * Retrieves the current {@link Paginator}'s {@link EventHandler} instance.
 	 *
-	 * @return The {@link EventHandler} object.
+	 * @return The {@link EventHandler} instance.
 	 */
 	public static EventHandler getHandler() {
-		return handler;
+		return paginator.getEvtHandler();
+	}
+
+	/**
+	 * Retrieves the current {@link Paginator}'s {@link TaskScheduler} instance.
+	 *
+	 * @return The {@link TaskScheduler} instance.
+	 */
+	public static TaskScheduler getScheduler() {
+		return paginator.getScheduler();
 	}
 
 	/**
@@ -573,8 +580,8 @@ public abstract class Pages {
 			addReactions(msg, helper.getSkipAmount() > 1, helper.isFastForward());
 		}
 
-		String evt = handler.getEventId(msg);
-		return handler.addEvent(evt, new ThrowingBiConsumer<>() {
+		String evt = getHandler().getEventId(msg);
+		return getHandler().addEvent(evt, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
@@ -583,7 +590,7 @@ public abstract class Pages {
 					timeout.cancel(true);
 				}
 
-				handler.removeEvent(evt);
+				getHandler().removeEvent(evt);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
@@ -592,7 +599,7 @@ public abstract class Pages {
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 				}
 			}
 
@@ -681,7 +688,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -850,8 +857,8 @@ public abstract class Pages {
 			msg.addReaction(paginator.getEmoji(CANCEL)).submit();
 		}
 
-		String evt = handler.getEventId(msg);
-		return handler.addEvent(evt, new ThrowingBiConsumer<>() {
+		String evt = getHandler().getEventId(msg);
+		return getHandler().addEvent(evt, new ThrowingBiConsumer<>() {
 			private ButtonId<?> currCat = null;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -859,13 +866,13 @@ public abstract class Pages {
 					timeout.cancel(true);
 				}
 
-				handler.removeEvent(evt);
+				getHandler().removeEvent(evt);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 				}
 			}
 
@@ -918,7 +925,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -1167,22 +1174,22 @@ public abstract class Pages {
 			}
 		}
 
-		String evt = handler.getEventId(msg);
-		return handler.addEvent(evt, new ThrowingBiConsumer<>() {
+		String evt = getHandler().getEventId(msg);
+		return getHandler().addEvent(evt, new ThrowingBiConsumer<>() {
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
 				if (timeout != null) {
 					timeout.cancel(true);
 				}
 
-				handler.removeEvent(evt);
+				getHandler().removeEvent(evt);
 				if (helper.getOnFinalization() != null) helper.getOnFinalization().accept(msg);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 				}
 			}
 
@@ -1237,7 +1244,7 @@ public abstract class Pages {
 					if (act != null) {
 						act.accept(new ButtonWrapper(
 								wrapper.getUser(), hook, button,
-								handler.getDropdownValues(handler.getEventId(m)),
+								getHandler().getDropdownValues(getHandler().getEventId(m)),
 								m
 						));
 					}
@@ -1246,7 +1253,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
@@ -1510,8 +1517,8 @@ public abstract class Pages {
 			addReactions(msg, false, false);
 		}
 
-		String evt = handler.getEventId(msg);
-		return handler.addEvent(evt, new ThrowingBiConsumer<>() {
+		String evt = getHandler().getEventId(msg);
+		return getHandler().addEvent(evt, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -1519,7 +1526,7 @@ public abstract class Pages {
 					timeout.cancel(true);
 				}
 
-				handler.removeEvent(evt);
+				getHandler().removeEvent(evt);
 				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
@@ -1527,7 +1534,7 @@ public abstract class Pages {
 
 			{
 				if (helper.getTimeout() > 0) {
-					timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+					timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 				}
 			}
 
@@ -1605,7 +1612,7 @@ public abstract class Pages {
 						timeout.cancel(true);
 					}
 					if (helper.getTimeout() > 0) {
-						timeout = scheduler.schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+						timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
 					}
 
 					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
