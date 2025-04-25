@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -40,7 +41,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	 * @param pages A list containing the initial pages.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public PaginateHelper(List<Page> pages, boolean useButtons) {
+	public PaginateHelper(@NotNull List<Page> pages, boolean useButtons) {
 		super(PaginateHelper.class, pages, useButtons);
 	}
 
@@ -50,25 +51,35 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	 * @param page The page to be added.
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
-	public PaginateHelper addPage(Page page) {
+	public PaginateHelper addPage(@NotNull Page page) {
 		getContent().add(page);
 		return this;
 	}
 
 	/**
-	 * Retrieves the configured amount of pages to be skipped on pressing {@link Emote#SKIP_BACKWARD} or
+	 * Clear all pages.
+	 *
+	 * @return The {@link PaginateHelper} instance for chaining convenience.
+	 */
+	public PaginateHelper clearPages() {
+		getContent().clear();
+		return this;
+	}
+
+	/**
+	 * Retrieves the configured number of pages to be skipped on pressing {@link Emote#SKIP_BACKWARD} or
 	 * {@link Emote#SKIP_FORWARD}.
 	 *
-	 * @return The configured amount of pages to skip.
+	 * @return The configured number of pages to skip.
 	 */
 	public int getSkipAmount() {
 		return skipAmount;
 	}
 
 	/**
-	 * Set the amount of pages to be skipped on pressing {@link Emote#SKIP_BACKWARD} or {@link Emote#SKIP_FORWARD}.
+	 * Set the number of pages to be skipped on pressing {@link Emote#SKIP_BACKWARD} or {@link Emote#SKIP_FORWARD}.
 	 *
-	 * @param skipAmount The amount of pages to skip (default: 0).
+	 * @param skipAmount The number of pages to skip (default: 0).
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
 	public PaginateHelper setSkipAmount(int skipAmount) {

@@ -9,7 +9,9 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -39,7 +41,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @param buttons A map containing the initial categories.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public ButtonizeHelper(Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
+	public ButtonizeHelper(@NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
 		super(ButtonizeHelper.class, buttons, useButtons);
 	}
 
@@ -49,7 +51,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @param buttons A {@link TextMapping} containing the initial categories.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public ButtonizeHelper(TextMapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
+	public ButtonizeHelper(@NotNull TextMapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
 		this(buttons.toMap(), useButtons);
 	}
 
@@ -59,7 +61,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @param buttons An {@link EmojiMapping} containing the initial categories.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public ButtonizeHelper(EmojiMapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
+	public ButtonizeHelper(@NotNull EmojiMapping<ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons) {
 		this(buttons.toMap(), useButtons);
 	}
 
@@ -70,8 +72,20 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @param action The action to be performed on click.
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
-	public ButtonizeHelper addAction(Emoji emoji, ThrowingConsumer<ButtonWrapper> action) {
-		getContent().put(new EmojiId(emoji), action);
+	public ButtonizeHelper addAction(@NotNull Emoji emoji, @NotNull ThrowingConsumer<ButtonWrapper> action) {
+		return addAction(emoji, ButtonStyle.SECONDARY, action);
+	}
+
+	/**
+	 * Adds a new button to the map.
+	 *
+	 * @param emoji The emoji representing this button.
+	 * @param style The style of this button.
+	 * @param action The action to be performed on click.
+	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
+	 */
+	public ButtonizeHelper addAction(@NotNull Emoji emoji, @NotNull ButtonStyle style, @NotNull ThrowingConsumer<ButtonWrapper> action) {
+		getContent().put(new EmojiId(emoji, style), action);
 		return this;
 	}
 
@@ -82,8 +96,30 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @param action The action to be performed on click.
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
-	public ButtonizeHelper addAction(String label, ThrowingConsumer<ButtonWrapper> action) {
-		getContent().put(new TextId(label), action);
+	public ButtonizeHelper addAction(@NotNull String label, @NotNull ThrowingConsumer<ButtonWrapper> action) {
+		return addAction(label, ButtonStyle.SECONDARY, action);
+	}
+
+	/**
+	 * Adds a new button to the map with a specified style.
+	 *
+	 * @param label The label representing this button.
+	 * @param style The style of this button.
+	 * @param action The action to be performed on click.
+	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
+	 */
+	public ButtonizeHelper addAction(@NotNull String label, @NotNull ButtonStyle style, @NotNull ThrowingConsumer<ButtonWrapper> action) {
+		getContent().put(new TextId(label, style), action);
+		return this;
+	}
+
+	/**
+	 * Clear all buttons.
+	 *
+	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
+	 */
+	public ButtonizeHelper clearActions() {
+		getContent().clear();
 		return this;
 	}
 
@@ -122,10 +158,10 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 
 			if (k instanceof TextId) {
 				String id = k.extractId();
-				row.add(Button.secondary(id, id));
+				row.add(Button.of(k.getStyle(), id, id));
 			} else {
 				Emoji id = ((EmojiId) k).getId();
-				row.add(Button.secondary(k.extractId(), id));
+				row.add(Button.of(k.getStyle(), k.extractId(), id));
 			}
 		}
 

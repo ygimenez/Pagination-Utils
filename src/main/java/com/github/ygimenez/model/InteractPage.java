@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -100,22 +101,25 @@ public class InteractPage extends Page {
 		if (emt == Emote.NONE) {
 			return Button.secondary(emt.name() + "." + Objects.hash(Math.random()), "\u200B").asDisabled();
 		} else {
-			return Button.of(style, emt.name(), caption.get(emt), Pages.getPaginator().getEmoji(emt));
+			return Button.of(style, emt.name() + "." + Objects.hash(Math.random()), caption.get(emt), Pages.getPaginator().getEmoji(emt));
 		}
 	}
 
 	/**
 	 * Creates a new {@link Button}, but without any style or caption applied to it.
 	 *
-	 * @param id The {@link EmojiId} or {@link TextId} representing the {@link Button}, must never be null since it is also the ID.
+	 * @param id The {@link EmojiId} or {@link TextId} representing the {@link Button}. If null, a blank disabled button
+	 *           will be created.
 	 * @return The created {@link Button}.
 	 */
-	public Button makeButton(@NotNull ButtonId<?> id) {
-		if (id instanceof EmojiId) {
-			return Button.secondary(id.extractId(), ((EmojiId) id).getId());
+	public Button makeButton(@Nullable ButtonId<?> id) {
+		if (id == null) {
+			return Button.secondary(String.valueOf(Objects.hash(Math.random())), "\u200B").asDisabled();
+		} else if (id instanceof EmojiId) {
+			return Button.of(id.getStyle(), id.extractId() + "." + Objects.hash(Math.random()), ((EmojiId) id).getId());
 		}
 
 		String key = id.extractId();
-		return Button.secondary(key, key);
+		return Button.of(id.getStyle(), key + "." + Objects.hash(Math.random()), key);
 	}
 }

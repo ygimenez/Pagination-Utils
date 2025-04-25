@@ -2,6 +2,7 @@ package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.*;
+import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -9,7 +10,9 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -56,7 +59,7 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	 * @param categories An {@link EmojiMapping} containing the initial categories.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public CategorizeHelper(EmojiMapping<Page> categories, boolean useButtons) {
+	public CategorizeHelper(@NotNull EmojiMapping<Page> categories, boolean useButtons) {
 		this(categories.toMap(), useButtons);
 	}
 
@@ -67,8 +70,20 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	 * @param page  The page linked to this category.
 	 * @return The {@link CategorizeHelper} instance for chaining convenience.
 	 */
-	public CategorizeHelper addCategory(Emoji emoji, Page page) {
-		getContent().put(new EmojiId(emoji), page);
+	public CategorizeHelper addCategory(@NotNull Emoji emoji, @NotNull Page page) {
+		return addCategory(emoji, ButtonStyle.SECONDARY, page);
+	}
+
+	/**
+	 * Adds a new category to the map.
+	 *
+	 * @param emoji The emoji representing this category.
+	 * @param style The style of this category.
+	 * @param page  The page linked to this category.
+	 * @return The {@link CategorizeHelper} instance for chaining convenience.
+	 */
+	public CategorizeHelper addCategory(@NotNull Emoji emoji, @NotNull ButtonStyle style, @NotNull Page page) {
+		getContent().put(new EmojiId(emoji, style), page);
 		return this;
 	}
 
@@ -79,8 +94,30 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	 * @param page  The page linked to this category.
 	 * @return The {@link CategorizeHelper} instance for chaining convenience.
 	 */
-	public CategorizeHelper addCategory(String label, Page page) {
-		getContent().put(new TextId(label), page);
+	public CategorizeHelper addCategory(@NotNull String label, @NotNull Page page) {
+		return addCategory(label, ButtonStyle.SECONDARY, page);
+	}
+
+	/**
+	 * Adds a new category to the map.
+	 *
+	 * @param label The label representing this category.
+	 * @param style The style of this category.
+	 * @param page  The page linked to this category.
+	 * @return The {@link CategorizeHelper} instance for chaining convenience.
+	 */
+	public CategorizeHelper addCategory(@NotNull String label, @NotNull ButtonStyle style, @NotNull Page page) {
+		getContent().put(new TextId(label, style), page);
+		return this;
+	}
+
+	/**
+	 * Clear all categories.
+	 *
+	 * @return The {@link CategorizeHelper} instance for chaining convenience.
+	 */
+	public CategorizeHelper clearCategories() {
+		getContent().clear();
 		return this;
 	}
 
@@ -141,13 +178,27 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	public boolean shouldUpdate(Message msg) {
 		if (!isUsingButtons()) return false;
 
-		Predicate<Set<Emoji>> checks = e -> !isCancellable() || e.contains(Pages.getPaginator().getEmoji(CANCEL));
-		Set<Emoji> emojis = msg.getButtons().stream()
-				.map(Button::getEmoji)
+		Predicate<Set<String>> checks = ids -> !isCancellable() || ids.contains(Emote.getId(Pages.getPaginator().getEmoji(CANCEL)));
+		checks = checks.and(ids -> {
+			for (ButtonId<?> id : getContent().keySet()) {
+				String key;
+
+				if (id instanceof EmojiId) {
+					key = Emote.getId(((EmojiId) id).getId());
+				} else {
+					key = String.valueOf(id.getId());
+				}
+
+				if (!ids.contains(key)) return false;
+			}
+
+			return true;
+		});
+
+		Set<String> ids = msg.getButtons().stream()
+				.map(Button::getId)
 				.collect(Collectors.toSet());
 
-		checks = checks.and(e -> e.containsAll(getContent().keySet()));
-
-		return !checks.test(emojis);
+		return !checks.test(ids);
 	}
 }

@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 	 * @param pageLoader The lazy loader used to generate pages. The value supplied is the current page number.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public LazyPaginateHelper(ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) {
+	public LazyPaginateHelper(@NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) {
 		super(LazyPaginateHelper.class, new ArrayList<>(), useButtons);
 		this.pageLoader = pageLoader;
 		this.cache = true;
@@ -48,7 +49,7 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 	 * @param initialPages A {@link List} containing the initially available pages.
 	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
 	 */
-	public LazyPaginateHelper(ThrowingFunction<Integer, Page> pageLoader, @Nullable List<Page> initialPages, boolean useButtons) {
+	public LazyPaginateHelper(@NotNull ThrowingFunction<Integer, Page> pageLoader, @Nullable List<Page> initialPages, boolean useButtons) {
 		super(LazyPaginateHelper.class, initialPages, useButtons);
 		this.pageLoader = pageLoader;
 		this.cache = initialPages != null;
@@ -61,10 +62,20 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 	 * @param page The page to be added.
 	 * @return The {@link LazyPaginateHelper} instance for chaining convenience.
 	 */
-	public LazyPaginateHelper addPage(Page page) {
+	public LazyPaginateHelper addPage(@NotNull Page page) {
 		if (!cache) throw new IllegalStateException();
 
 		getContent().add(page);
+		return this;
+	}
+
+	/**
+	 * Clear all cached pages.
+	 *
+	 * @return The {@link LazyPaginateHelper} instance for chaining convenience.
+	 */
+	public LazyPaginateHelper clearPages() {
+		getContent().clear();
 		return this;
 	}
 

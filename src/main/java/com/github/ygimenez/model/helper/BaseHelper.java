@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -37,17 +38,17 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 	 * Constructor for {@link BaseHelper}.
 	 *
 	 * @param subClass   A class that extends {@link BaseHelper}.
-	 * @param buttons    The collection used to store pages.
+	 * @param content    This helper's content.
 	 * @param useButtons Whether to use interaction buttons or not.
 	 */
-	protected BaseHelper(Class<Helper> subClass, T buttons, boolean useButtons) {
+	protected BaseHelper(@NotNull Class<Helper> subClass, T content, boolean useButtons) {
 		this.subClass = subClass;
-		this.content = buttons;
+		this.content = content;
 		this.useButtons = useButtons;
 	}
 
 	/**
-	 * Retrieves the collection used by this helper to store the pages.
+	 * Retrieves the content of this helper.
 	 *
 	 * @return The underlying collection.
 	 */

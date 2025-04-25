@@ -2,6 +2,7 @@ package com.github.ygimenez.model;
 
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 /**
  * Internal interface for allowing both {@link String} and {@link Emoji} buttons to coexist.
@@ -13,6 +14,12 @@ public interface ButtonId<T> {
 	 * @return The original object, either a {@link String} for {@link TextId} or an {@link Emoji} for {@link EmojiId}
 	 */
 	T getId();
+
+	/**
+	 * Retrieves the style of this button.
+	 * @return The style of this button
+	 */
+	ButtonStyle getStyle();
 
 	/**
 	 * Converts the value into a {@link String} representation for usage in pagination handlers.

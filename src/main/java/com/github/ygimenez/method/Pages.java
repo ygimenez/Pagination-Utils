@@ -34,6 +34,7 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import static com.github.ygimenez.type.Emote.*;
 
@@ -352,7 +353,7 @@ public abstract class Pages {
 	 *                   define the order of the pages.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
-	 * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 * @param skipAmount The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                   and {@link Emote#SKIP_FORWARD} buttons.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (i.e. garbage collected).
@@ -382,7 +383,7 @@ public abstract class Pages {
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
 	 *                   {@link TimeUnit#SECONDS}).
-	 * @param skipAmount The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 * @param skipAmount The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                   and {@link Emote#SKIP_FORWARD} buttons.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (i.e. garbage collected).
@@ -406,7 +407,7 @@ public abstract class Pages {
 	 *                    define the order of the pages.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
@@ -438,7 +439,7 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
@@ -464,7 +465,7 @@ public abstract class Pages {
 	 *                    define the order of the pages.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
@@ -497,7 +498,7 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
@@ -528,7 +529,7 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param skipAmount  The amount of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
 	 *                    and {@link Emote#SKIP_FORWARD} buttons.
 	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
@@ -617,8 +618,8 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
-							emt = Emote.valueOf(btn.getId().replace("*", ""));
+						if (btn.getId() != null && Emote.isNative(btn)) {
+							emt = Emote.valueOf(btn.getId().split(Pattern.quote("."))[0]);
 						}
 					}
 
@@ -892,13 +893,13 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 						if (btn.getEmoji() == null) {
-							id = new TextId(btn.getId());
+							id = new TextId(Objects.requireNonNull(btn.getId()));
 						} else {
 							id = new EmojiId(btn.getEmoji());
 						}
 
-						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
-							emt = Emote.valueOf(btn.getId().replace("*", ""));
+						if (btn.getId() != null && Emote.isNative(btn)) {
+							emt = Emote.valueOf(btn.getId().split(Pattern.quote("."))[0]);
 						}
 					}
 
@@ -1209,13 +1210,13 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 						if (btn.getEmoji() == null) {
-							id = new TextId(btn.getId());
+							id = new TextId(Objects.requireNonNull(btn.getId()));
 						} else {
 							id = new EmojiId(btn.getEmoji());
 						}
 
-						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
-							emt = Emote.valueOf(btn.getId().replace("*", ""));
+						if (btn.getId() != null && Emote.isNative(btn)) {
+							emt = Emote.valueOf(btn.getId().split(Pattern.quote("."))[0]);
 						}
 					}
 
@@ -1552,8 +1553,8 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						if (btn.getId() != null && Emote.isNative(btn) && !btn.getId().contains(".")) {
-							emt = Emote.valueOf(btn.getId().replace("*", ""));
+						if (btn.getId() != null && Emote.isNative(btn)) {
+							emt = Emote.valueOf(btn.getId().split(Pattern.quote("."))[0]);
 						}
 					}
 
