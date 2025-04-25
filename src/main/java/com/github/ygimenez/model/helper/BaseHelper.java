@@ -24,7 +24,7 @@ import java.util.function.Predicate;
  * @param <Helper> A class that extends {@link BaseHelper}.
  * @param <T>      The type of collection used to store pages.
  */
-public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
+public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implements Cloneable {
 	private final Class<Helper> subClass;
 
 	private final T content;
@@ -182,4 +182,12 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> {
 	 * @return Whether it needs to be updated or not.
 	 */
 	public abstract boolean shouldUpdate(Message msg);
+
+	/**
+	 * Create a new helper with the same parameters as this one. The new content will be a shallow copy of the original.
+	 *
+	 * @return A clone of this helper.
+	 */
+	@Override
+	public abstract Helper clone();
 }

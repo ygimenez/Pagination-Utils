@@ -141,4 +141,9 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 
 		return !checks.test(emotes);
 	}
+
+	@Override
+	public LazyPaginateHelper clone() {
+		return new LazyPaginateHelper(pageLoader, cache ? new ArrayList<>(getContent()) : null, isUsingButtons());
+	}
 }

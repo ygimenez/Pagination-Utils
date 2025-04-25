@@ -214,4 +214,9 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 
 		return !checks.test(ids);
 	}
+
+	@Override
+	public ButtonizeHelper clone() {
+		return new ButtonizeHelper(new LinkedHashMap<>(getContent()), isUsingButtons());
+	}
 }

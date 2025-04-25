@@ -201,4 +201,9 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 
 		return !checks.test(ids);
 	}
+
+	@Override
+	public CategorizeHelper clone() {
+		return new CategorizeHelper(new LinkedHashMap<>(getContent()), isUsingButtons());
+	}
 }

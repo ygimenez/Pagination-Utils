@@ -169,4 +169,9 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 
 		return !checks.test(emotes);
 	}
+
+	@Override
+	public PaginateHelper clone() {
+		return new PaginateHelper(new ArrayList<>(getContent()), isUsingButtons());
+	}
 }
