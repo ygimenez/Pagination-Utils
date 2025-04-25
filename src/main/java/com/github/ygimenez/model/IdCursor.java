@@ -1,5 +1,7 @@
 package com.github.ygimenez.model;
 
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
 import java.util.Objects;
 
 /**
@@ -12,6 +14,11 @@ class IdCursor<T> implements ButtonId<T> {
 	@Override
 	public T getId() {
 		return id;
+	}
+
+	@Override
+	public ButtonStyle getStyle() {
+		return ButtonStyle.SECONDARY;
 	}
 
 	public void setId(T id) {
