@@ -3,6 +3,7 @@ package com.github.ygimenez.model;
 import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Internal interface for allowing both {@link String} and {@link Emoji} buttons to coexist.
@@ -10,10 +11,17 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
  */
 public interface ButtonId<T> {
 	/**
-	 * Retrieves the value used to instantiate this object.
-	 * @return The original object, either a {@link String} for {@link TextId} or an {@link Emoji} for {@link EmojiId}
+	 * Retrieves the value used to create this instance.
+	 * @return The original value, either a {@link String} for {@link TextId} or an {@link Emoji} for {@link EmojiId}
 	 */
 	T getId();
+
+	/**
+	 * Retrieves the label for this instance.
+	 * @return The label for this instance, will be null if not declared during instantiation.
+	 */
+	@Nullable
+	String getLabel();
 
 	/**
 	 * Retrieves the style of this button.
@@ -23,7 +31,7 @@ public interface ButtonId<T> {
 
 	/**
 	 * Converts the value into a {@link String} representation for usage in pagination handlers.
-	 * @return The original object, converted into its {@link String} representation
+	 * @return The original value, converted into its {@link String} representation
 	 */
 	default String extractId() {
 		if (this instanceof TextId) return ((TextId) this).getId();

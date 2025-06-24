@@ -1,6 +1,7 @@
 package com.github.ygimenez.model;
 
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -14,6 +15,12 @@ class IdCursor<T> implements ButtonId<T> {
 	@Override
 	public T getId() {
 		return id;
+	}
+
+	@Nullable
+	@Override
+	public String getLabel() {
+		return null;
 	}
 
 	@Override

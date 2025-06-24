@@ -3,6 +3,7 @@ package com.github.ygimenez.model;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -11,29 +12,56 @@ import java.util.Objects;
  */
 public class EmojiId implements ButtonId<Emoji> {
 	private final Emoji id;
+	private final String label;
 	private final ButtonStyle style;
 
 	/**
 	 * Creates a new instance.
-	 * @param id The {@link Emoji} to be used
+	 * @param id The {@link Emoji} to be used.
 	 */
 	public EmojiId(@NotNull Emoji id) {
 		this(id, ButtonStyle.SECONDARY);
 	}
 
 	/**
-	 * Creates a new instance with chosen style.
-	 * @param id The {@link Emoji} to be used
+	 * Creates a new instance with a chosen style.
+	 * @param id The {@link Emoji} to be used.
+	 * @param label The label to be used.
+	 */
+	public EmojiId(@NotNull Emoji id, String label) {
+		this(id, label, ButtonStyle.SECONDARY);
+	}
+
+	/**
+	 * Creates a new instance with a chosen style.
+	 * @param id The {@link Emoji} to be used.
 	 * @param style The {@link ButtonStyle} to be used.
 	 */
 	public EmojiId(@NotNull Emoji id, @NotNull ButtonStyle style) {
+		this(id, null, style);
+	}
+
+	/**
+	 * Creates a new instance with a label and chosen style.
+	 * @param id The {@link Emoji} to be used.
+	 * @param label The label to be used, can be null.
+	 * @param style The {@link ButtonStyle} to be used.
+	 */
+	public EmojiId(@NotNull Emoji id, String label, @NotNull ButtonStyle style) {
 		this.id = id;
+		this.label = label;
 		this.style = style;
 	}
 
 	@Override
 	public Emoji getId() {
 		return id;
+	}
+
+	@Nullable
+	@Override
+	public String getLabel() {
+		return label;
 	}
 
 	@Override

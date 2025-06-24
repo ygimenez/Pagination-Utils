@@ -113,13 +113,16 @@ public class InteractPage extends Page {
 	 * @return The created {@link Button}.
 	 */
 	public Button makeButton(@Nullable ButtonId<?> id) {
-		if (id == null) {
-			return Button.secondary(String.valueOf(Objects.hash(Math.random())), "\u200B").asDisabled();
-		} else if (id instanceof EmojiId) {
-			return Button.of(id.getStyle(), id.extractId() + "." + Objects.hash(Math.random()), ((EmojiId) id).getId());
+		if (id != null) {
+			String key = id.extractId() + "." + Objects.hash(Math.random());
+
+			if (id instanceof TextId) {
+				return Button.of(id.getStyle(), key, id.getLabel());
+			} else if (id instanceof EmojiId) {
+				return Button.of(id.getStyle(), key, id.getLabel(), ((EmojiId) id).getId());
+			}
 		}
 
-		String key = id.extractId();
-		return Button.of(id.getStyle(), key + "." + Objects.hash(Math.random()), key);
+		return Button.secondary(String.valueOf(Objects.hash(Math.random())), "\u200B").asDisabled();
 	}
 }
