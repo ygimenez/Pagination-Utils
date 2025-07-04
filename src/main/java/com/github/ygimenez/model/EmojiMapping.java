@@ -8,6 +8,7 @@ import java.util.*;
 
 /**
  * Effectively a {@link HashMap} with {@link Emoji} key and {@link Page} values, with built-in conversion.
+ * @param <V> The type of the values stored in this mapping.
  */
 public class EmojiMapping<V> implements Mapping<V> {
 	private final Map<ButtonId<?>, V> mapping;

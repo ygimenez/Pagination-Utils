@@ -7,6 +7,7 @@ import java.util.*;
 
 /**
  * Effectively a {@link HashMap} with {@link String} key and {@link Page} values, with built-in conversion.
+ * @param <V> The type of the values stored in this mapping.
  */
 public class TextMapping<V> implements Mapping<V> {
 	private final Map<ButtonId<?>, V> mapping;

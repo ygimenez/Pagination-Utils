@@ -12,6 +12,12 @@ public class TaskScheduler {
 	private final Map<String, ScheduledFuture<?>> tasks = new HashMap<>();
 
 	/**
+	 * Default constructor.
+	 */
+	public TaskScheduler() {
+	}
+
+	/**
 	 * Schedule a new task, cancelling and replacing the previous if exists.
 	 *
 	 * @param id   The task identifier
