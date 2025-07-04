@@ -1,6 +1,7 @@
 package com.github.ygimenez.type;
 
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.ButtonId;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -106,8 +107,10 @@ public enum Emote {
 	 */
 	public static boolean isNative(@NotNull Button btn) {
 		if (btn.getId() == null) return false;
-		else for (Emote emt : values()) {
-			if (emt.name().equals(btn.getId())) return true;
+		String id = ButtonId.getActualId(btn.getId());
+
+		for (Emote emt : values()) {
+			if (emt.name().equals(id)) return true;
 		}
 
 		return false;

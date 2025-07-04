@@ -30,11 +30,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import static com.github.ygimenez.type.Emote.*;
 
@@ -619,7 +621,7 @@ public abstract class Pages {
 						Button btn = (Button) wrapper.getContent();
 
 						if (btn.getId() != null && Emote.isNative(btn)) {
-							emt = Emote.valueOf(btn.getId().split(Pattern.quote("."))[0]);
+							emt = Emote.valueOf(ButtonId.getActualId(btn.getId()));
 						}
 					}
 
@@ -899,7 +901,7 @@ public abstract class Pages {
 						}
 
 						if (btn.getId() != null && Emote.isNative(btn)) {
-							emt = Emote.valueOf(btn.getId().split(Pattern.quote("."))[0]);
+							emt = Emote.valueOf(ButtonId.getActualId(btn.getId()));
 						}
 					}
 
@@ -1216,7 +1218,7 @@ public abstract class Pages {
 						}
 
 						if (btn.getId() != null && Emote.isNative(btn)) {
-							emt = Emote.valueOf(btn.getId().split(Pattern.quote("."))[0]);
+							emt = Emote.valueOf(ButtonId.getActualId(btn.getId()));
 						}
 					}
 
@@ -1554,7 +1556,7 @@ public abstract class Pages {
 						Button btn = (Button) wrapper.getContent();
 
 						if (btn.getId() != null && Emote.isNative(btn)) {
-							emt = Emote.valueOf(btn.getId().split(Pattern.quote("."))[0]);
+							emt = Emote.valueOf(ButtonId.getActualId(btn.getId()));
 						}
 					}
 

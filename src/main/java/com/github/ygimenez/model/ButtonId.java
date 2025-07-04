@@ -38,4 +38,13 @@ public interface ButtonId<T> {
 
 		return Emote.getId(((EmojiId) this).getId());
 	}
+
+	/**
+	 * Extract the actual ID used by the library. Shouldn't be used outside the library.
+	 * @param id The ID to be extracted. Must be a valid ID created by the library.
+	 * @return The actual ID used by the library.
+	 */
+	static String getActualId(String id) {
+		return id.substring(0, id.indexOf("."));
+	}
 }
