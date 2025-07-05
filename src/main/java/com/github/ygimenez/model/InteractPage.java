@@ -1,7 +1,7 @@
 package com.github.ygimenez.model;
 
 import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 public class InteractPage extends Page {
 	private final Map<ButtonStyle, ButtonStyle> styles = new EnumMap<>(ButtonStyle.class);
-	private final Map<Emote, String> caption = new EnumMap<>(Emote.class);
+	private final Map<Action, String> caption = new EnumMap<>(Action.class);
 
 	/**
 	 * Create a new {@link InteractPage} for embed-less page, with support for interaction buttons.
@@ -70,7 +70,7 @@ public class InteractPage extends Page {
 	}
 
 	/**
-	 * Override a {@link Button} style (for example, making {@link Emote#ACCEPT} button become red).
+	 * Override a {@link Button} style (for example, making {@link Action#ACCEPT} button become red).
 	 *
 	 * @param original The original style to be overridden.
 	 * @param override The new style.
@@ -84,24 +84,25 @@ public class InteractPage extends Page {
 	 *
 	 * @return The {@link Map} of captions.
 	 */
-	public Map<Emote, String> getCaptions() {
+	public Map<Action, String> getCaptions() {
 		return caption;
 	}
 
 	/**
 	 * Creates a new {@link Button} from configured styles and captions.
 	 *
-	 * @param emt The {@link Emote} representing the {@link Button}, must never be null since it is also the ID.<br>
-	 *            If you supply {@link Emote#NONE} a blank disabled button will be created.
+	 * @param action The {@link Action} representing the {@link Button}, must never be null since it is also the ID.<br>
+	 *            If you supply {@link Action#NONE} a blank disabled button will be created.
 	 * @return The created {@link Button}.
 	 */
-	public Button makeButton(@NotNull Emote emt) {
-		ButtonStyle style = styles.getOrDefault(emt.getStyle(), ButtonStyle.SECONDARY);
+	public Button makeButton(@NotNull Action action) {
+		ButtonStyle style = styles.getOrDefault(action.getStyle(), ButtonStyle.SECONDARY);
+		String key = action.name() + "." + Objects.hash(Math.random());
 
-		if (emt == Emote.NONE) {
-			return Button.secondary(emt.name() + "." + Objects.hash(Math.random()), "\u200B").asDisabled();
+		if (action == Action.NONE) {
+			return Button.secondary(key, "\u200B").asDisabled();
 		} else {
-			return Button.of(style, emt.name() + "." + Objects.hash(Math.random()), caption.get(emt), Pages.getPaginator().getEmoji(emt));
+			return Button.of(style, key, caption.get(action), Pages.getPaginator().getEmoji(action));
 		}
 	}
 

@@ -79,7 +79,7 @@ Paginator paginator = PaginatorBuilder.createPaginator(bot)
         .activate();
 ```
 
-If you want to go even further and change the default buttons' emotes, don't worry, we got you covered:
+If you want to go even further and change the default buttons' actions, don't worry, we got you covered:
 
 ```java
 JDA bot = ... // Creation of bot client

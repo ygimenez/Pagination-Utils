@@ -9,7 +9,7 @@ import com.github.ygimenez.model.helper.ButtonizeHelper;
 import com.github.ygimenez.model.helper.CategorizeHelper;
 import com.github.ygimenez.model.helper.LazyPaginateHelper;
 import com.github.ygimenez.model.helper.PaginateHelper;
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.ygimenez.type.Emote.*;
+import static com.github.ygimenez.type.Action.*;
 
 /**
  * The main class containing all pagination-related methods, including but not limited
@@ -247,7 +247,7 @@ public abstract class Pages {
 	 *                    define the order of the pages.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (i.e. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -276,7 +276,7 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (i.e. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -299,7 +299,7 @@ public abstract class Pages {
 	 *                    define the order of the pages.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
@@ -330,7 +330,7 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
@@ -355,8 +355,8 @@ public abstract class Pages {
 	 *                   define the order of the pages.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
-	 * @param skipAmount The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                   and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param skipAmount The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
+	 *                   and {@link Action#SKIP_FORWARD} buttons.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (i.e. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -385,8 +385,8 @@ public abstract class Pages {
 	 *                   for further events (recommended: 60).
 	 * @param unit       The time's {@link TimeUnit} (recommended:
 	 *                   {@link TimeUnit#SECONDS}).
-	 * @param skipAmount The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                   and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param skipAmount The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
+	 *                   and {@link Action#SKIP_FORWARD} buttons.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (i.e. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -409,8 +409,8 @@ public abstract class Pages {
 	 *                    define the order of the pages.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
+	 *                    and {@link Action#SKIP_FORWARD} buttons.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
@@ -441,8 +441,8 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                    and {@link Emote#SKIP_FORWARD} buttons.
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
+	 *                    and {@link Action#SKIP_FORWARD} buttons.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
@@ -467,9 +467,9 @@ public abstract class Pages {
 	 *                    define the order of the pages.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                    and {@link Emote#SKIP_FORWARD} buttons.
-	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
+	 *                    and {@link Action#SKIP_FORWARD} buttons.
+	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
@@ -500,9 +500,9 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                    and {@link Emote#SKIP_FORWARD} buttons.
-	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
+	 *                    and {@link Action#SKIP_FORWARD} buttons.
+	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
 	 * is still being processed or was already removed (i.e. garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -531,9 +531,9 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param skipAmount  The number of pages to be skipped when clicking {@link Emote#SKIP_BACKWARD}
-	 *                    and {@link Emote#SKIP_FORWARD} buttons.
-	 * @param fastForward Whether the {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons should be shown.
+	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
+	 *                    and {@link Action#SKIP_FORWARD} buttons.
+	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @param canInteract {@link Predicate} to determine whether the {@link User}
 	 *                    that pressed the button can interact with it or not.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
@@ -613,15 +613,15 @@ public abstract class Pages {
 				if (helper.canInteract(u, wrapper)) {
 					if (u.isBot() || msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
-					Emote emt = NONE;
+					Action emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
 						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						if (btn.getId() != null && Emote.isNative(btn)) {
-							emt = Emote.valueOf(ButtonId.getActualId(btn.getId()));
+						if (btn.getId() != null && Action.isNative(btn)) {
+							emt = Action.valueOf(ButtonId.getActualId(btn.getId()));
 						}
 					}
 
@@ -887,7 +887,7 @@ public abstract class Pages {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					ButtonId<?> id = null;
-					Emote emt = NONE;
+					Action emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
 						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
 						id = new EmojiId(toEmoji(reaction));
@@ -900,8 +900,8 @@ public abstract class Pages {
 							id = new EmojiId(btn.getEmoji());
 						}
 
-						if (btn.getId() != null && Emote.isNative(btn)) {
-							emt = Emote.valueOf(ButtonId.getActualId(btn.getId()));
+						if (btn.getId() != null && Action.isNative(btn)) {
+							emt = Action.valueOf(ButtonId.getActualId(btn.getId()));
 						}
 					}
 
@@ -952,7 +952,7 @@ public abstract class Pages {
 	 *                         containing desired behavior as value.
 	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                         {@link Message} was not sent by the bot.
-	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param showCancelButton Should the {@link Action#CANCEL} button be created automatically?
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
 	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -980,7 +980,7 @@ public abstract class Pages {
 	 *                         containing desired behavior as value.
 	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                         {@link Message} was not sent by the bot.
-	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param showCancelButton Should the {@link Action#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
 	 *                         listening for further events (recommended: 60).
 	 * @param unit             The time's {@link TimeUnit} (recommended:
@@ -1011,7 +1011,7 @@ public abstract class Pages {
 	 *                         containing desired behavior as value.
 	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                         {@link Message} was not sent by the bot.
-	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param showCancelButton Should the {@link Action#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
 	 *                         with it or not.
@@ -1042,7 +1042,7 @@ public abstract class Pages {
 	 *                         containing desired behavior as value.
 	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                         {@link Message} was not sent by the bot.
-	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param showCancelButton Should the {@link Action#CANCEL} button be created automatically?
 	 * @param time             The time before the listener automatically stop
 	 *                         listening for further events (recommended: 60).
 	 * @param unit             The time's {@link TimeUnit} (recommended:
@@ -1076,7 +1076,7 @@ public abstract class Pages {
 	 *                         containing desired behavior as value.
 	 * @param useButtons       Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                         {@link Message} was not sent by the bot.
-	 * @param showCancelButton Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param showCancelButton Should the {@link Action#CANCEL} button be created automatically?
 	 * @param canInteract      {@link Predicate} to determine whether the
 	 *                         {@link User} that pressed the button can interact
 	 *                         with it or not.
@@ -1108,7 +1108,7 @@ public abstract class Pages {
 	 *                    containing desired behavior as value.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param cancellable Should the {@link Emote#CANCEL} button be created automatically?
+	 * @param cancellable Should the {@link Action#CANCEL} button be created automatically?
 	 * @param time        The time before the listener automatically stop
 	 *                    listening for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
@@ -1204,7 +1204,7 @@ public abstract class Pages {
 					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
 					ButtonId<?> id = null;
-					Emote emt = NONE;
+					Action emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
 						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
 						id = new EmojiId(toEmoji(reaction));
@@ -1217,8 +1217,8 @@ public abstract class Pages {
 							id = new EmojiId(btn.getEmoji());
 						}
 
-						if (btn.getId() != null && Emote.isNative(btn)) {
-							emt = Emote.valueOf(ButtonId.getActualId(btn.getId()));
+						if (btn.getId() != null && Action.isNative(btn)) {
+							emt = Action.valueOf(ButtonId.getActualId(btn.getId()));
 						}
 					}
 
@@ -1548,15 +1548,15 @@ public abstract class Pages {
 				if (helper.canInteract(u, wrapper)) {
 					if (u.isBot() || msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
-					Emote emt = NONE;
+					Action emt = NONE;
 					if (wrapper.getContent() instanceof MessageReaction) {
 						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						if (btn.getId() != null && Emote.isNative(btn)) {
-							emt = Emote.valueOf(ButtonId.getActualId(btn.getId()));
+						if (btn.getId() != null && Action.isNative(btn)) {
+							emt = Action.valueOf(ButtonId.getActualId(btn.getId()));
 						}
 					}
 
@@ -1673,8 +1673,8 @@ public abstract class Pages {
 		}
 	}
 
-	private static Emote toEmote(EmojiUnion reaction) {
-		return Emote.getByEmoji(toEmoji(reaction));
+	private static Action toEmote(EmojiUnion reaction) {
+		return Action.getByEmoji(toEmoji(reaction));
 	}
 
 	private static Emoji toEmoji(EmojiUnion reaction) {
@@ -1796,8 +1796,8 @@ public abstract class Pages {
 	 * Utility method to add navigation buttons.
 	 *
 	 * @param msg      The {@link Message} to have reactions removed from.
-	 * @param withSkip Whether to include {@link Emote#SKIP_BACKWARD} and {@link Emote#SKIP_FORWARD} buttons.
-	 * @param withGoto Whether to include {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons.
+	 * @param withSkip Whether to include {@link Action#SKIP_BACKWARD} and {@link Action#SKIP_FORWARD} buttons.
+	 * @param withGoto Whether to include {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons.
 	 */
 	public static void addReactions(Message msg, boolean withSkip, boolean withGoto) {
 		clearButtons(msg);

@@ -5,7 +5,7 @@ import com.github.ygimenez.exception.AlreadyAssignedException;
 import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.exception.InvalidStateException;
 import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -210,44 +210,44 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Retrieves an {@link Emote}'s code from the current emote {@link Map}.
+	 * Retrieves an {@link Action}'s code from the current emote {@link Map}.
 	 *
-	 * @param emote The {@link Emote} to be retrieved.
-	 * @return The {@link Emote}'s code.
+	 * @param action The {@link Action} to be retrieved.
+	 * @return The {@link Action}'s code.
 	 */
-	public Emoji getEmote(@NotNull Emote emote) {
-		return paginator.getEmoji(emote);
+	public Emoji getEmote(@NotNull Action action) {
+		return paginator.getEmoji(action);
 	}
 
 	/**
-	 * Modify an {@link Emote}'s code from the {@link Map}. Beware, the code must be either unicode or
+	 * Modify an {@link Action}'s code from the {@link Map}. Beware, the code must be either unicode or
 	 * {@link CustomEmoji}'s mention,
 	 * else the buttons <strong>WILL NOT BE ADDED</strong> and will lead to errors.
 	 *
-	 * @param emote The {@link Emote} to be set.
-	 * @param code  The new {@link Emote}'s code.
+	 * @param action The {@link Action} to be set.
+	 * @param code  The new {@link Action}'s code.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
 	 * object.
 	 */
-	public PaginatorBuilder setEmote(@NotNull Emote emote, @NotNull String code) throws InvalidHandlerException {
-		return setEmote(emote, Emoji.fromFormatted(code));
+	public PaginatorBuilder setEmote(@NotNull Action action, @NotNull String code) throws InvalidHandlerException {
+		return setEmote(action, Emoji.fromFormatted(code));
 	}
 
 	/**
-	 * Modify an {@link Emote} from the {@link Map}.
+	 * Modify an {@link Action} from the {@link Map}.
 	 *
-	 * @param emote The {@link Emote} to be set.
-	 * @param emoji  The new {@link Emote}'s {@link Emoji}.
+	 * @param action The {@link Action} to be set.
+	 * @param emoji  The new {@link Action}'s {@link Emoji}.
 	 * @return The {@link PaginatorBuilder} instance for chaining convenience.
 	 * @throws InvalidHandlerException If the configured handler is not a {@link JDA} or {@link ShardManager}
 	 * object.
 	 */
-	public PaginatorBuilder setEmote(@NotNull Emote emote, @NotNull Emoji emoji) throws InvalidHandlerException {
+	public PaginatorBuilder setEmote(@NotNull Action action, @NotNull Emoji emoji) throws InvalidHandlerException {
 		if (paginator.getHandler() == null) throw new InvalidHandlerException();
 		else if (paginator.getEmotes().containsValue(emoji)) throw new AlreadyAssignedException();
 
-		paginator.getEmotes().put(emote, emoji);
+		paginator.getEmotes().put(action, emoji);
 		return this;
 	}
 

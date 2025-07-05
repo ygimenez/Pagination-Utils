@@ -4,7 +4,7 @@ import com.github.ygimenez.exception.NullPageException;
 import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.ThrowingFunction;
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.github.ygimenez.type.Emote.*;
+import static com.github.ygimenez.type.Action.*;
 
 /**
  * Helper class for building lazy-paginate events, safe for reuse.
@@ -130,16 +130,16 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 	public boolean shouldUpdate(Message msg) {
 		if (!isUsingButtons()) return true;
 
-		Predicate<Set<Emote>> checks = e -> e.containsAll(Set.of(PREVIOUS, NEXT));
-		Set<Emote> emotes = msg.getButtons().stream()
-				.map(Emote::fromButton)
+		Predicate<Set<Action>> checks = e -> e.containsAll(Set.of(PREVIOUS, NEXT));
+		Set<Action> actions = msg.getButtons().stream()
+				.map(Action::fromButton)
 				.collect(Collectors.toSet());
 
 		if (isCancellable()) {
 			checks = checks.and(e -> e.contains(CANCEL));
 		}
 
-		return !checks.test(emotes);
+		return !checks.test(actions);
 	}
 
 	@Override

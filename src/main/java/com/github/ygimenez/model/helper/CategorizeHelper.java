@@ -2,7 +2,7 @@ package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.*;
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.github.ygimenez.type.Emote.CANCEL;
+import static com.github.ygimenez.type.Action.CANCEL;
 
 /**
  * Helper class for building categorize events, safe for reuse.
@@ -178,13 +178,13 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	public boolean shouldUpdate(Message msg) {
 		if (!isUsingButtons()) return false;
 
-		Predicate<Set<String>> checks = ids -> !isCancellable() || ids.contains(Emote.getId(Pages.getPaginator().getEmoji(CANCEL)));
+		Predicate<Set<String>> checks = ids -> !isCancellable() || ids.contains(Action.getId(Pages.getPaginator().getEmoji(CANCEL)));
 		checks = checks.and(ids -> {
 			for (ButtonId<?> id : getContent().keySet()) {
 				String key;
 
 				if (id instanceof EmojiId) {
-					key = Emote.getId(((EmojiId) id).getId());
+					key = Action.getId(((EmojiId) id).getId());
 				} else {
 					key = String.valueOf(id.getId());
 				}

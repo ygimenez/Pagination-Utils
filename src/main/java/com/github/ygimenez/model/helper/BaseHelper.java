@@ -2,7 +2,7 @@ package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.PaginationEventWrapper;
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Component;
@@ -66,7 +66,7 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 	}
 
 	/**
-	 * Returns whether the {@link Emote#CANCEL} button will be included or not.
+	 * Returns whether the {@link Action#CANCEL} button will be included or not.
 	 *
 	 * @return Whether the event is cancellable or not.
 	 */
@@ -75,7 +75,7 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 	}
 
 	/**
-	 * Set whether the event is cancellable through {@link Emote#CANCEL}.
+	 * Set whether the event is cancellable through {@link Action#CANCEL}.
 	 *
 	 * @param cancellable Whether the event can be cancelled or not (default: true).
 	 * @return The {@link Helper} instance for chaining convenience.

@@ -1,6 +1,6 @@
 package com.github.ygimenez.model;
 
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,7 @@ public interface ButtonId<T> {
 	default String extractId() {
 		if (this instanceof TextId) return ((TextId) this).getId();
 
-		return Emote.getId(((EmojiId) this).getId());
+		return Action.getId(((EmojiId) this).getId());
 	}
 
 	/**

@@ -2,7 +2,7 @@ package com.github.ygimenez.model;
 
 import com.github.ygimenez.listener.EventHandler;
 import com.github.ygimenez.model.PUtilsConfig.LogLevel;
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -32,7 +32,7 @@ public class Paginator {
 	private boolean removeOnReact = false;
 	private boolean eventLocked = false;
 	private boolean deleteOnCancel = false;
-	private Map<Emote, Emoji> emotes = new EnumMap<>(Emote.class);
+	private Map<Action, Emoji> emotes = new EnumMap<>(Action.class);
 	private ThrowingConsumer<InteractionHook> onRemove = hook -> hook.editOriginalComponents().submit();
 	private Logger logger = null;
 
@@ -161,27 +161,27 @@ public class Paginator {
 	}
 
 	/**
-	 * The {@link Map} containing configured {@link Emote}s for this {@link Paginator}. This {@link Map}
+	 * The {@link Map} containing configured {@link Action}s for this {@link Paginator}. This {@link Map}
 	 * must not be modified after construction of this {@link Paginator}.
 	 *
-	 * @return The {@link Map} containing configured {@link Emote}s for this {@link Paginator}.
+	 * @return The {@link Map} containing configured {@link Action}s for this {@link Paginator}.
 	 */
-	public Map<Emote, Emoji> getEmotes() {
+	public Map<Action, Emoji> getEmotes() {
 		return emotes;
 	}
 
 	/**
-	 * Retrieves the {@link Emoji} assigned to the supplied {@link Emote}.
+	 * Retrieves the {@link Emoji} assigned to the supplied {@link Action}.
 	 *
-	 * @param emote The {@link Emote} to be defined.
-	 * @return The {@link Emoji} representing this {@link Emote}.
+	 * @param action The {@link Action} to be defined.
+	 * @return The {@link Emoji} representing this {@link Action}.
 	 */
-	public Emoji getEmoji(Emote emote) {
-		return emotes.getOrDefault(emote, emote.getDefault());
+	public Emoji getEmoji(Action action) {
+		return emotes.getOrDefault(action, action.getEmoji());
 	}
 
 	/**
-	 * Make configured {@link Emote}s final.
+	 * Make configured {@link Action}s final.
 	 * <br>
 	 * <strong>This must only be called by {@link PaginatorBuilder}</strong>.
 	 */

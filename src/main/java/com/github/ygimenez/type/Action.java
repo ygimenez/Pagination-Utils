@@ -17,82 +17,82 @@ import java.util.Objects;
 /**
  * Enumerator representing values required by non-dynamic buttons.
  */
-public enum Emote {
+public enum Action {
 	/**
-	 * {@link Emote} representing the "next" button (default: ▶).
+	 * {@link Action} representing the "next" button (default: ▶).
 	 */
 	NEXT(Emoji.fromUnicode("▶"), ButtonStyle.SECONDARY),
 	/**
-	 * {@link Emote} representing the "previous" button (default: ◀).
+	 * {@link Action} representing the "previous" button (default: ◀).
 	 */
 	PREVIOUS(Emoji.fromUnicode("◀"), ButtonStyle.SECONDARY),
 	/**
-	 * {@link Emote} representing the "accept" button (default: ✅).
+	 * {@link Action} representing the "accept" button (default: ✅).
 	 */
 	ACCEPT(Emoji.fromUnicode("✅"), ButtonStyle.SUCCESS),
 	/**
-	 * {@link Emote} representing the "cancel" button (default: ❎).
+	 * {@link Action} representing the "cancel" button (default: ❎).
 	 */
 	CANCEL(Emoji.fromUnicode("❎"), ButtonStyle.DANGER),
 	/**
-	 * {@link Emote} representing the "skip forward" button (default: ⏩).
+	 * {@link Action} representing the "skip forward" button (default: ⏩).
 	 */
 	SKIP_FORWARD(Emoji.fromUnicode("⏩"), ButtonStyle.SECONDARY),
 	/**
-	 * {@link Emote} representing the "skip backward" button (default: ⏪).
+	 * {@link Action} representing the "skip backward" button (default: ⏪).
 	 */
 	SKIP_BACKWARD(Emoji.fromUnicode("⏪"), ButtonStyle.SECONDARY),
 	/**
-	 * {@link Emote} representing the "go to first" button (default: ⏮).
+	 * {@link Action} representing the "go to first" button (default: ⏮).
 	 */
 	GOTO_FIRST(Emoji.fromUnicode("⏮"), ButtonStyle.SECONDARY),
 	/**
-	 * {@link Emote} representing the "go to last" button (default: ⏭).
+	 * {@link Action} representing the "go to last" button (default: ⏭).
 	 */
 	GOTO_LAST(Emoji.fromUnicode("⏭"), ButtonStyle.SECONDARY),
 	/**
-	 * {@link Emote} representing nothing.
+	 * {@link Action} representing nothing.
 	 */
 	NONE(null, ButtonStyle.SECONDARY);
 
 	private final Emoji emj;
 	private final ButtonStyle style;
 
-	Emote(Emoji emj, ButtonStyle style) {
+	Action(Emoji emj, ButtonStyle style) {
 		this.emj = emj;
 		this.style = style;
 	}
 
 	/**
-	 * Retrieves this {@link Emote}'s default {@link Emoji}.
+	 * Retrieves this {@link Action}'s {@link Emoji}.
 	 *
-	 * @return This {@link Emote}'s default {@link Emoji}.
+	 * @return This {@link Action}'s {@link Emoji}.
 	 */
-	public Emoji getDefault() {
+	public Emoji getEmoji() {
 		return emj;
 	}
 
 	/**
-	 * Retrieves this {@link Emote}'s {@link ButtonStyle}.
+	 * Retrieves this {@link Action}'s {@link ButtonStyle}.
 	 *
-	 * @return This {@link Emote}'s {@link ButtonStyle}.
+	 * @return This {@link Action}'s {@link ButtonStyle}.
 	 */
 	public ButtonStyle getStyle() {
 		return style;
 	}
 
 	/**
-	 * Retrieves the {@link Emote} linked to supplied {@link Emoji}.
+	 * Retrieves the {@link Action} linked to supplied {@link Emoji}.
 	 *
 	 * @param emoji The {@link Emoji} to be searched for.
-	 * @return The respective {@link Emote}, or {@link #NONE} if it didn't match any.
+	 * @return The respective {@link Action}, or {@link #NONE} if it didn't match any.
 	 */
-	public static Emote getByEmoji(@NotNull Emoji emoji) {
-		for (Map.Entry<Emote, Emoji> entry : Pages.getPaginator().getEmotes().entrySet()) {
+	public static Action getByEmoji(@NotNull Emoji emoji) {
+		for (Map.Entry<Action, Emoji> entry : Pages.getPaginator().getEmotes().entrySet()) {
 			if (Objects.equals(entry.getValue(), emoji)) return entry.getKey();
 		}
 
-		for (Emote emt : values()) {
+		for (Action emt : values()) {
 			if (Objects.equals(emt.emj, emoji)) return emt;
 		}
 
@@ -103,13 +103,13 @@ public enum Emote {
 	 * Checks whether the supplied {@link Button} is referenced by a library emote or not.
 	 *
 	 * @param btn The {@link Button} to be checked.
-	 * @return Whether it uses a {@link Emote} value or not.
+	 * @return Whether it uses a {@link Action} value or not.
 	 */
 	public static boolean isNative(@NotNull Button btn) {
 		if (btn.getId() == null) return false;
 		String id = ButtonId.getActualId(btn.getId());
 
-		for (Emote emt : values()) {
+		for (Action emt : values()) {
 			if (emt.name().equals(id)) return true;
 		}
 
@@ -120,11 +120,11 @@ public enum Emote {
 	 * Checks whether the supplied {@link MessageReaction} is referenced by a library emote or not.
 	 *
 	 * @param react The {@link MessageReaction} to be checked.
-	 * @return Whether it uses a {@link Emote} value or not.
+	 * @return Whether it uses a {@link Action} value or not.
 	 */
 	public static boolean isNative(@NotNull MessageReaction react) {
 		Emoji emj = Emoji.fromFormatted(react.getEmoji().getAsReactionCode());
-		for (Emote emt : values()) {
+		for (Action emt : values()) {
 			if (emt.emj.equals(emj)) return false;
 		}
 
@@ -146,13 +146,13 @@ public enum Emote {
 	}
 
 	/**
-	 * Returns the {@link Emote} represented by the supplied {@link Button}, if any.
+	 * Returns the {@link Action} represented by the supplied {@link Button}, if any.
 	 *
 	 * @param btn The {@link Button} to be checked.
-	 * @return The {@link Emote} linked to the supplied {@link Button}, or null if none.
+	 * @return The {@link Action} linked to the supplied {@link Button}, or null if none.
 	 */
 	@Nullable
-	public static Emote fromButton(@NotNull Button btn) {
+	public static Action fromButton(@NotNull Button btn) {
 		return Arrays.stream(values())
 				.filter(e -> btn.getId() != null && btn.getId().contains(e.name()))
 				.findFirst().orElse(null);

@@ -2,7 +2,7 @@ package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
-import com.github.ygimenez.type.Emote;
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.github.ygimenez.type.Emote.*;
+import static com.github.ygimenez.type.Action.*;
 
 /**
  * Helper class for building paginate events, safe for reuse.
@@ -67,8 +67,8 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	}
 
 	/**
-	 * Retrieves the configured number of pages to be skipped on pressing {@link Emote#SKIP_BACKWARD} or
-	 * {@link Emote#SKIP_FORWARD}.
+	 * Retrieves the configured number of pages to be skipped on pressing {@link Action#SKIP_BACKWARD} or
+	 * {@link Action#SKIP_FORWARD}.
 	 *
 	 * @return The configured number of pages to skip.
 	 */
@@ -77,7 +77,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	}
 
 	/**
-	 * Set the number of pages to be skipped on pressing {@link Emote#SKIP_BACKWARD} or {@link Emote#SKIP_FORWARD}.
+	 * Set the number of pages to be skipped on pressing {@link Action#SKIP_BACKWARD} or {@link Action#SKIP_FORWARD}.
 	 *
 	 * @param skipAmount The number of pages to skip (default: 0).
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
@@ -88,7 +88,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	}
 
 	/**
-	 * Retrives whether this helper is configured to include {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST}
+	 * Retrives whether this helper is configured to include {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST}
 	 * buttons.
 	 *
 	 * @return Whether to include fast-forward buttons.
@@ -98,7 +98,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	}
 
 	/**
-	 * Set whether to include {@link Emote#GOTO_FIRST} and {@link Emote#GOTO_LAST} buttons for quick navigation
+	 * Set whether to include {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons for quick navigation
 	 * through the pages.
 	 *
 	 * @param fastForward Whether to include fast-forward buttons (default: false).
@@ -152,9 +152,9 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	public boolean shouldUpdate(Message msg) {
 		if (isUsingButtons()) return true;
 
-		Predicate<Set<Emote>> checks = e -> e.containsAll(Set.of(PREVIOUS, NEXT));
-		Set<Emote> emotes = msg.getButtons().stream()
-				.map(Emote::fromButton)
+		Predicate<Set<Action>> checks = e -> e.containsAll(Set.of(PREVIOUS, NEXT));
+		Set<Action> actions = msg.getButtons().stream()
+				.map(Action::fromButton)
 				.collect(Collectors.toSet());
 
 		if (isCancellable()) {
@@ -167,7 +167,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 			checks = checks.and(e -> e.containsAll(Set.of(GOTO_FIRST, GOTO_LAST)));
 		}
 
-		return !checks.test(emotes);
+		return !checks.test(actions);
 	}
 
 	@Override
