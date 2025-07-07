@@ -37,6 +37,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import static com.github.ygimenez.type.Action.*;
 
@@ -621,7 +622,7 @@ public abstract class Pages {
 						Button btn = (Button) wrapper.getContent();
 
 						if (btn.getId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(ButtonId.getActualId(btn.getId()));
+							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
 						}
 					}
 
@@ -901,7 +902,7 @@ public abstract class Pages {
 						}
 
 						if (btn.getId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(ButtonId.getActualId(btn.getId()));
+							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
 						}
 					}
 
@@ -1218,7 +1219,7 @@ public abstract class Pages {
 						}
 
 						if (btn.getId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(ButtonId.getActualId(btn.getId()));
+							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
 						}
 					}
 
@@ -1556,7 +1557,7 @@ public abstract class Pages {
 						Button btn = (Button) wrapper.getContent();
 
 						if (btn.getId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(ButtonId.getActualId(btn.getId()));
+							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
 						}
 					}
 

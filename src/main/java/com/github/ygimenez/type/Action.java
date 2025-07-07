@@ -1,7 +1,7 @@
 package com.github.ygimenez.type;
 
 import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.model.ButtonId;
+import com.github.ygimenez.model.TextId;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -107,7 +107,7 @@ public enum Action {
 	 */
 	public static boolean isNative(@NotNull Button btn) {
 		if (btn.getId() == null) return false;
-		String id = ButtonId.getActualId(btn.getId());
+		String id = TextId.ID_PATTERN.split(btn.getId())[0];
 
 		for (Action emt : values()) {
 			if (emt.name().equals(id)) return true;

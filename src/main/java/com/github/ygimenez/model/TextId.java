@@ -4,11 +4,14 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Subclass of {@link ButtonId} to represent text-only buttons.
  */
 public class TextId implements ButtonId<String> {
+	public static final Pattern ID_PATTERN = Pattern.compile("\\.(?=\\d+$)");
+
 	private final String id;
 	private final String label;
 	private final ButtonStyle style;
@@ -46,6 +49,10 @@ public class TextId implements ButtonId<String> {
 	 * @param style The {@link ButtonStyle} to be used.
 	 */
 	public TextId(@NotNull String id, @NotNull String label, @NotNull ButtonStyle style) {
+		if (id.contains(".")) {
+			id = ID_PATTERN.split(id)[0];
+		}
+
 		this.id = id;
 		this.label = label;
 		this.style = style;
