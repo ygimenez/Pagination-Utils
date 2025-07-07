@@ -37,7 +37,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import static com.github.ygimenez.type.Action.*;
 
@@ -1781,10 +1780,12 @@ public abstract class Pages {
 				ItemComponent c = row.get(i);
 				if (c instanceof Button) {
 					Button b = (Button) c;
-					if (changes.containsKey(b.getId())) {
-						row.set(i, changes.get(b.getId()).apply((Button) c));
+					String id = TextId.ID_PATTERN.split(b.getId())[0];
+
+					if (changes.containsKey(id)) {
+						row.set(i, changes.get(id).apply(b));
 					} else if (changes.containsKey("default")) {
-						row.set(i, changes.get("default").apply((Button) c));
+						row.set(i, changes.get("default").apply(b));
 					}
 				}
 			}
