@@ -620,7 +620,6 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						System.out.println(btn.getId());
 						if (btn.getId() != null && Action.isNative(btn)) {
 							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
 						}
@@ -917,11 +916,11 @@ public abstract class Pages {
 					} else if (id != null && !Objects.equals(id, currCat)) {
 						Page pg = lookupValue(cats, id);
 						if (pg != null) {
-							currCat = id;
 							modifyButtons(m, pg, Map.of(
-									currCat.extractId(), Button::asDisabled,
-									"default", Button::asEnabled
+									currCat.extractId(), Button::asEnabled,
+									id.extractId(), Button::asDisabled
 							));
+							currCat = id;
 						}
 					}
 
@@ -1785,8 +1784,6 @@ public abstract class Pages {
 
 					if (changes.containsKey(id)) {
 						row.set(i, changes.get(id).apply(b));
-					} else if (changes.containsKey("default")) {
-						row.set(i, changes.get("default").apply(b));
 					}
 				}
 			}
