@@ -1773,7 +1773,6 @@ public abstract class Pages {
 		}
 
 		List<LayoutComponent> rows = msg.getComponents();
-
 		for (LayoutComponent lc : rows) {
 			List<ItemComponent> row = lc.getComponents();
 			for (int i = 0; i < row.size(); i++) {

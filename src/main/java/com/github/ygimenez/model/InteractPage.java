@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Class representing either a {@link String}, {@link MessageEmbed} or {@link EmbedCluster} object.
@@ -97,7 +96,7 @@ public class InteractPage extends Page {
 	 */
 	public Button makeButton(@NotNull Action action) {
 		ButtonStyle style = styles.getOrDefault(action.getStyle(), ButtonStyle.SECONDARY);
-		String key = action.name() + "." + Objects.hash(Math.random());
+		String key = action.name() + "." + (int) (Math.random() * Integer.MAX_VALUE);
 
 		if (action == Action.NONE) {
 			return Button.secondary(key, "\u200B").asDisabled();
@@ -115,7 +114,7 @@ public class InteractPage extends Page {
 	 */
 	public Button makeButton(@Nullable ButtonId<?> id) {
 		if (id != null) {
-			String key = id.extractId() + "." + Objects.hash(Math.random());
+			String key = id.extractId() + "." + (int) (Math.random() * Integer.MAX_VALUE);
 
 			if (id instanceof TextId) {
 				return Button.of(id.getStyle(), key, id.getLabel());
@@ -124,6 +123,6 @@ public class InteractPage extends Page {
 			}
 		}
 
-		return Button.secondary(String.valueOf(Objects.hash(Math.random())), "\u200B").asDisabled();
+		return Button.secondary(String.valueOf((int) (Math.random() * Integer.MAX_VALUE)), "\u200B").asDisabled();
 	}
 }
