@@ -45,6 +45,9 @@ public interface ButtonId<T> {
 	 * @return The actual ID used by the library.
 	 */
 	static String getActualId(String id) {
-		return id.substring(0, id.indexOf("."));
+		int idx = id.indexOf(".");
+		if (idx < 0) return id;
+
+		return id.substring(0, idx);
 	}
 }
