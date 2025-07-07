@@ -916,11 +916,11 @@ public abstract class Pages {
 					} else if (id != null && !Objects.equals(id, currCat)) {
 						Page pg = lookupValue(cats, id);
 						if (pg != null) {
-							modifyButtons(m, pg, Map.of(
-									currCat.extractId(), Button::asEnabled,
-									id.extractId(), Button::asDisabled
-							));
-							currCat = id;
+							if (currCat != null) {
+								modifyButtons(m, pg, Map.of(currCat.extractId(), Button::asEnabled));
+							}
+
+							modifyButtons(m, pg, Map.of((currCat = id).extractId(), Button::asDisabled));
 						}
 					}
 
