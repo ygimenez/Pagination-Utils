@@ -620,6 +620,7 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
+						System.out.println(btn.getId());
 						if (btn.getId() != null && Action.isNative(btn)) {
 							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
 						}
