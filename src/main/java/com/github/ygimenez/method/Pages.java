@@ -1779,8 +1779,10 @@ public abstract class Pages {
 		MessageComponentTree tree = msg.getComponentTree().replace(c -> {
 			if (c instanceof Button) {
 				Button btn = (Button) c;
-				if (changes.containsKey(btn.getCustomId())) {
-					return changes.get(btn.getCustomId()).apply(btn);
+				String id = TextId.ID_PATTERN.split(btn.getCustomId())[0];
+
+				if (changes.containsKey(id)) {
+					return changes.get(id).apply(btn);
 				}
 			}
 
