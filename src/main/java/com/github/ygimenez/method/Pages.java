@@ -1787,7 +1787,7 @@ public abstract class Pages {
 			return c;
 		});
 
-		act.setComponents(tree);
+		act.setComponents(tree).submit();
 	}
 
 	/**
