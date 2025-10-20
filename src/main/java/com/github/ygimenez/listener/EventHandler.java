@@ -5,6 +5,7 @@ import com.github.ygimenez.model.ActionReference;
 import com.github.ygimenez.model.PUtilsConfig;
 import com.github.ygimenez.model.PaginationEventWrapper;
 import com.github.ygimenez.model.ThrowingBiConsumer;
+import net.dv8tion.jda.api.components.selections.SelectMenu;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -16,7 +17,6 @@ import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -224,7 +224,7 @@ public class EventHandler extends ListenerAdapter {
 	}
 
 	/**
-	 * Calculate internal event ID from given message. This does not mean the event exists though, but the ID will be
+	 * Calculate internal event ID from a given message. This does not mean the event exists though, but the ID will be
 	 * valid if a {@link Pages} action is created for this message.
 	 *
 	 * @param msg Message to be calculated the ID from.

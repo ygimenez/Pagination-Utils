@@ -3,14 +3,15 @@ package com.github.ygimenez.model.helper;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.Action;
+import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.jetbrains.annotations.NotNull;
 
@@ -122,12 +123,12 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	}
 
 	@Override
-	public <Out extends MessageRequest<Out>> List<LayoutComponent> getComponents(Out action) {
+	public <Out extends MessageRequest<Out>> List<MessageTopLevelComponent> getComponents(Out action) {
 		if (!isUsingButtons()) return List.of();
 
-		List<LayoutComponent> rows = new ArrayList<>();
+		List<MessageTopLevelComponent> rows = new ArrayList<>();
 
-		List<ItemComponent> row = new ArrayList<>();
+		List<ActionRowChildComponent> row = new ArrayList<>();
 		for (Map.Entry<ButtonId<?>, Page> e : getContent().entrySet()) {
 			if (row.size() == 5) {
 				rows.add(ActionRow.of(row));
@@ -195,8 +196,8 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 			return true;
 		});
 
-		Set<String> ids = msg.getButtons().stream()
-				.map(Button::getId)
+		Set<String> ids = Pages.getButtons(msg).stream()
+				.map(Button::getCustomId)
 				.collect(Collectors.toSet());
 
 		return !checks.test(ids);

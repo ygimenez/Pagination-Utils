@@ -11,6 +11,12 @@ import com.github.ygimenez.model.helper.LazyPaginateHelper;
 import com.github.ygimenez.model.helper.PaginateHelper;
 import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
@@ -20,9 +26,6 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -37,6 +40,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.github.ygimenez.type.Action.*;
 
@@ -620,8 +624,8 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						if (btn.getId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
+						if (btn.getCustomId() != null && Action.isNative(btn)) {
+							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getCustomId())[0]);
 						}
 					}
 
@@ -895,13 +899,13 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 						if (btn.getEmoji() == null) {
-							id = new TextId(Objects.requireNonNull(btn.getId()));
+							id = new TextId(Objects.requireNonNull(btn.getCustomId()));
 						} else {
 							id = new EmojiId(btn.getEmoji());
 						}
 
-						if (btn.getId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
+						if (btn.getCustomId() != null && Action.isNative(btn)) {
+							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getCustomId())[0]);
 						}
 					}
 
@@ -1212,13 +1216,13 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 						if (btn.getEmoji() == null) {
-							id = new TextId(Objects.requireNonNull(btn.getId()));
+							id = new TextId(Objects.requireNonNull(btn.getCustomId()));
 						} else {
 							id = new EmojiId(btn.getEmoji());
 						}
 
-						if (btn.getId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
+						if (btn.getCustomId() != null && Action.isNative(btn)) {
+							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getCustomId())[0]);
 						}
 					}
 
@@ -1555,8 +1559,8 @@ public abstract class Pages {
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
 
-						if (btn.getId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getId())[0]);
+						if (btn.getCustomId() != null && Action.isNative(btn)) {
+							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getCustomId())[0]);
 						}
 					}
 
@@ -1715,7 +1719,7 @@ public abstract class Pages {
 	 * @param msg The {@link Message} to have reactions/buttons removed from.
 	 */
 	public static void clearButtons(Message msg) {
-		if (msg.getButtons().isEmpty()) return;
+		if (Pages.getButtons(msg).isEmpty()) return;
 
 		try {
 			subGet(msg.editMessageComponents());
@@ -1772,23 +1776,16 @@ public abstract class Pages {
 			}
 		}
 
-		List<LayoutComponent> rows = msg.getComponents();
-		for (LayoutComponent lc : rows) {
-			List<ItemComponent> row = lc.getComponents();
-			for (int i = 0; i < row.size(); i++) {
-				ItemComponent c = row.get(i);
-				if (c instanceof Button) {
-					Button b = (Button) c;
-					String id = TextId.ID_PATTERN.split(b.getId())[0];
-
-					if (changes.containsKey(id)) {
-						row.set(i, changes.get(id).apply(b));
-					}
-				}
+		MessageComponentTree tree = msg.getComponentTree().replace(c -> {
+			if (c instanceof Button) {
+				Button btn = (Button) c;
+				return changes.get(btn.getCustomId()).apply(btn);
 			}
-		}
 
-		act.setComponents(rows).submit();
+			return c;
+		});
+
+		act.setComponents(tree);
 	}
 
 	/**
@@ -1813,5 +1810,19 @@ public abstract class Pages {
 		if (withGoto) acts.add(msg.addReaction(paginator.getEmoji(GOTO_LAST)));
 
 		RestAction.allOf(acts).submit();
+	}
+
+	/**
+	 * Utility method for extracting a {@link Message}'s {@link Button}s.
+	 * @param msg The {@link Message} to extract buttons from.
+	 * @return The {@link Message}'s {@link Button}s.
+	 */
+	public static List<Button> getButtons(Message msg) {
+		return msg.getComponents().stream()
+				.filter(c -> c instanceof ActionRow)
+				.map(MessageTopLevelComponentUnion::asActionRow)
+				.map(ActionRow::getButtons)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
 	}
 }

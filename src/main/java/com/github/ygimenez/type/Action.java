@@ -2,11 +2,11 @@ package com.github.ygimenez.type;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.TextId;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,8 +106,8 @@ public enum Action {
 	 * @return Whether it uses a {@link Action} value or not.
 	 */
 	public static boolean isNative(@NotNull Button btn) {
-		if (btn.getId() == null) return false;
-		String id = TextId.ID_PATTERN.split(btn.getId())[0];
+		if (btn.getCustomId() == null) return false;
+		String id = TextId.ID_PATTERN.split(btn.getCustomId())[0];
 
 		for (Action emt : values()) {
 			if (emt.name().equals(id)) return true;
@@ -154,7 +154,7 @@ public enum Action {
 	@Nullable
 	public static Action fromButton(@NotNull Button btn) {
 		return Arrays.stream(values())
-				.filter(e -> btn.getId() != null && btn.getId().contains(e.name()))
+				.filter(e -> btn.getCustomId() != null && btn.getCustomId().contains(e.name()))
 				.findFirst().orElse(null);
 	}
 }

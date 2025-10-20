@@ -1,13 +1,15 @@
 package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.exception.NullPageException;
+import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.ThrowingFunction;
 import com.github.ygimenez.type.Action;
+import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -110,7 +112,7 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 	}
 
 	@Override
-	public <Out extends MessageRequest<Out>> List<LayoutComponent> getComponents(Out action) {
+	public <Out extends MessageRequest<Out>> List<MessageTopLevelComponent> getComponents(Out action) {
 		if (!isUsingButtons()) return List.of();
 
 		InteractPage p = (InteractPage) load(0);
@@ -131,7 +133,7 @@ public class LazyPaginateHelper extends BaseHelper<LazyPaginateHelper, List<Page
 		if (!isUsingButtons()) return true;
 
 		Predicate<Set<Action>> checks = e -> e.containsAll(Set.of(PREVIOUS, NEXT));
-		Set<Action> actions = msg.getButtons().stream()
+		Set<Action> actions = Pages.getButtons(msg).stream()
 				.map(Action::fromButton)
 				.collect(Collectors.toSet());
 

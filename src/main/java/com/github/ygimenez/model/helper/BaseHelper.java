@@ -3,11 +3,11 @@ package com.github.ygimenez.model.helper;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.PaginationEventWrapper;
 import com.github.ygimenez.type.Action;
+import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.interactions.components.Component;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -156,7 +156,7 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 	 * @param <Out>  Generic for a {@link MessageRequest}
 	 * @return The list of components.
 	 */
-	public abstract <Out extends MessageRequest<Out>> List<LayoutComponent> getComponents(Out action);
+	public abstract <Out extends MessageRequest<Out>> List<MessageTopLevelComponent> getComponents(Out action);
 
 	/**
 	 * Prepares the message for being used by the library. This doesn't need to be called manually, this will

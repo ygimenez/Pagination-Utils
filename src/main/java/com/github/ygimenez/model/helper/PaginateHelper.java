@@ -1,12 +1,16 @@
 package com.github.ygimenez.model.helper;
 
+import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.type.Action;
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.jetbrains.annotations.NotNull;
 
@@ -110,14 +114,14 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 	}
 
 	@Override
-	public <Out extends MessageRequest<Out>> List<LayoutComponent> getComponents(Out action) {
+	public <Out extends MessageRequest<Out>> List<MessageTopLevelComponent> getComponents(Out action) {
 		if (!isUsingButtons()) return List.of();
 
 		InteractPage p = (InteractPage) getContent().get(0);
 
-		List<LayoutComponent> rows = new ArrayList<>();
+		List<MessageTopLevelComponent> rows = new ArrayList<>();
 
-		LinkedList<ItemComponent> row = new LinkedList<>() {{
+		LinkedList<ActionRowChildComponent> row = new LinkedList<>() {{
 			add(p.makeButton(PREVIOUS).asDisabled());
 			if (isCancellable()) add(p.makeButton(CANCEL));
 			add(p.makeButton(NEXT));
@@ -153,7 +157,7 @@ public class PaginateHelper extends BaseHelper<PaginateHelper, List<Page>> {
 		if (isUsingButtons()) return true;
 
 		Predicate<Set<Action>> checks = e -> e.containsAll(Set.of(PREVIOUS, NEXT));
-		Set<Action> actions = msg.getButtons().stream()
+		Set<Action> actions = Pages.getButtons(msg).stream()
 				.map(Action::fromButton)
 				.collect(Collectors.toSet());
 

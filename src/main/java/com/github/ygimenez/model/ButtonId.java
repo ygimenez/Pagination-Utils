@@ -1,8 +1,8 @@
 package com.github.ygimenez.model;
 
 import com.github.ygimenez.type.Action;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.Nullable;
 
 /**
