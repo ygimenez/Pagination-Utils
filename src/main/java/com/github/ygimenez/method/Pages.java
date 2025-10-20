@@ -1566,6 +1566,7 @@ public abstract class Pages {
 
 					Page pg = null;
 					boolean update = false;
+					boolean end = false;
 					switch (emt) {
 						case PREVIOUS:
 							if (p > 0) {
@@ -1584,18 +1585,20 @@ public abstract class Pages {
 									pg = helper.getPageLoader().apply(p);
 									if (pg == null) {
 										p--;
-										return;
+										end = true;
 									}
 								}
 							} else {
 								pg = helper.getPageLoader().apply(p);
 								if (pg == null) {
 									p--;
-									return;
+									end = true;
 								}
 							}
 
-							if (cache) helper.getContent().add(pg);
+							if (cache && pg != null) {
+								helper.getContent().add(pg);
+							}
 							break;
 						case CANCEL:
 							if (msg.isEphemeral() && wrapper.getHook() != null) {
@@ -1608,10 +1611,12 @@ public abstract class Pages {
 					}
 
 					if (update) {
+						boolean reachedEnd = end;
 						modifyButtons(msg, pg, Map.of(
 								PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
 								SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
-								GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK
+								GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
+								NEXT.name(), b -> b.withDisabled(reachedEnd)
 						));
 					}
 
@@ -1781,7 +1786,6 @@ public abstract class Pages {
 				Button btn = (Button) c;
 				String id = TextId.ID_PATTERN.split(btn.getCustomId())[0];
 
-				System.out.println("Contains[" + id + "]: " + changes.containsKey(id));
 				if (changes.containsKey(id)) {
 					return changes.get(id).apply(btn);
 				}
