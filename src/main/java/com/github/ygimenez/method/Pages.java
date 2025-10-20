@@ -11,12 +11,9 @@ import com.github.ygimenez.model.helper.LazyPaginateHelper;
 import com.github.ygimenez.model.helper.PaginateHelper;
 import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.components.Component;
-import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
@@ -921,10 +918,13 @@ public abstract class Pages {
 						Page pg = lookupValue(cats, id);
 						if (pg != null) {
 							if (currCat != null) {
-								modifyButtons(m, pg, Map.of(currCat.extractId(), Button::asEnabled));
+								modifyButtons(m, pg, Map.of(
+										currCat.extractId(), Button::asEnabled,
+										(currCat = id).extractId(), Button::asDisabled
+								));
+							} else {
+								modifyButtons(m, pg, Map.of((currCat = id).extractId(), Button::asDisabled));
 							}
-
-							modifyButtons(m, pg, Map.of((currCat = id).extractId(), Button::asDisabled));
 						}
 					}
 
@@ -1776,20 +1776,19 @@ public abstract class Pages {
 			}
 		}
 
-		MessageComponentTree tree = msg.getComponentTree().replace(c -> {
+		act.setComponents(msg.getComponentTree().replace(c -> {
 			if (c instanceof Button) {
 				Button btn = (Button) c;
 				String id = TextId.ID_PATTERN.split(btn.getCustomId())[0];
 
+				System.out.println("Contains[" + id + "]: " + changes.containsKey(id));
 				if (changes.containsKey(id)) {
 					return changes.get(id).apply(btn);
 				}
 			}
 
 			return c;
-		});
-
-		act.setComponents(tree).submit();
+		})).submit();
 	}
 
 	/**
