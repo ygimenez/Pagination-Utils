@@ -167,15 +167,15 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 			}
 
 			if (k instanceof TextId) {
-				String id = k.extractId();
+				String id = k.getId();
 				row.add(Button.of(k.getStyle(), id, id));
 			} else {
-				Emoji id = ((EmojiId) k).getId();
-				row.add(Button.of(k.getStyle(), k.extractId(), id));
+				Emoji id = ((EmojiId) k).getContent();
+				row.add(Button.of(k.getStyle(), k.getId(), id));
 			}
 		}
 
-		boolean hasCancel = getContent().keySet().stream().anyMatch(b -> Objects.equals(b.getId(), Pages.getPaginator().getEmoji(CANCEL)));
+		boolean hasCancel = getContent().keySet().stream().anyMatch(b -> Objects.equals(b.getContent(), Pages.getPaginator().getEmoji(CANCEL)));
 		if (!hasCancel && isCancellable()) {
 			Button button = Button.danger(CANCEL.name(), Pages.getPaginator().getEmoji(CANCEL));
 
@@ -204,15 +204,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 		Predicate<Set<String>> checks = ids -> !isCancellable() || ids.contains(Action.getId(Pages.getPaginator().getEmoji(CANCEL)));
 		checks = checks.and(ids -> {
 			for (ButtonId<?> id : getContent().keySet()) {
-				String key;
-
-				if (id instanceof EmojiId) {
-					key = Action.getId(((EmojiId) id).getId());
-				} else {
-					key = String.valueOf(id.getId());
-				}
-
-				if (!ids.contains(key)) return false;
+				if (!ids.contains(id.getId())) return false;
 			}
 
 			return true;

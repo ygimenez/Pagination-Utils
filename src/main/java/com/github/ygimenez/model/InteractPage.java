@@ -114,12 +114,12 @@ public class InteractPage extends Page {
 	 */
 	public Button makeButton(@Nullable ButtonId<?> id) {
 		if (id != null) {
-			String key = id.extractId() + "." + (int) (Math.random() * Integer.MAX_VALUE);
+			String key = id.getId() + "." + (int) (Math.random() * Integer.MAX_VALUE);
 
 			if (id instanceof TextId) {
 				return Button.of(id.getStyle(), key, id.getLabel());
 			} else if (id instanceof EmojiId) {
-				return Button.of(id.getStyle(), key, id.getLabel(), ((EmojiId) id).getId());
+				return Button.of(id.getStyle(), key, id.getLabel(), ((EmojiId) id).getContent());
 			}
 		}
 

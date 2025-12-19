@@ -1,5 +1,6 @@
 package com.github.ygimenez.model;
 
+import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.jetbrains.annotations.NotNull;
@@ -11,51 +12,68 @@ import java.util.Objects;
  * Subclass of {@link ButtonId} to represent {@link Emoji}-only buttons.
  */
 public class EmojiId implements ButtonId<Emoji> {
-	private final Emoji id;
+	private final String id;
+	private final Emoji content;
 	private final String label;
 	private final ButtonStyle style;
 
 	/**
 	 * Creates a new instance.
-	 * @param id The {@link Emoji} to be used.
+	 * @param content The {@link Emoji} to be used.
 	 */
-	public EmojiId(@NotNull Emoji id) {
-		this(id, ButtonStyle.SECONDARY);
+	public EmojiId(@NotNull Emoji content) {
+		this(content, ButtonStyle.SECONDARY);
 	}
 
 	/**
 	 * Creates a new instance with a chosen style.
-	 * @param id The {@link Emoji} to be used.
+	 * @param content The {@link Emoji} to be used.
 	 * @param label The label to be used.
 	 */
-	public EmojiId(@NotNull Emoji id, String label) {
-		this(id, label, ButtonStyle.SECONDARY);
+	public EmojiId(@NotNull Emoji content, String label) {
+		this(content, label, ButtonStyle.SECONDARY);
 	}
 
 	/**
 	 * Creates a new instance with a chosen style.
-	 * @param id The {@link Emoji} to be used.
+	 * @param content The {@link Emoji} to be used.
 	 * @param style The {@link ButtonStyle} to be used.
 	 */
-	public EmojiId(@NotNull Emoji id, @NotNull ButtonStyle style) {
-		this(id, null, style);
+	public EmojiId(@NotNull Emoji content, @NotNull ButtonStyle style) {
+		this(content, null, style);
 	}
 
 	/**
 	 * Creates a new instance with a label and chosen style.
+	 * @param content The {@link Emoji} to be used.
+	 * @param label The label to be used, can be null.
+	 * @param style The {@link ButtonStyle} to be used.
+	 */
+	public EmojiId(@NotNull Emoji content, String label, @NotNull ButtonStyle style) {
+		this(Action.getId(content), content, label, style);
+	}
+
+	/**
+	 * Creates a new instance with a specific id, label and chosen style.
 	 * @param id The {@link Emoji} to be used.
 	 * @param label The label to be used, can be null.
 	 * @param style The {@link ButtonStyle} to be used.
 	 */
-	public EmojiId(@NotNull Emoji id, String label, @NotNull ButtonStyle style) {
+	public EmojiId(@NotNull String id, @NotNull Emoji content, String label, @NotNull ButtonStyle style) {
 		this.id = id;
+		this.content = content;
 		this.label = label;
 		this.style = style;
 	}
 
 	@Override
-	public Emoji getId() {
+	public String getId() {
 		return id;
+	}
+
+	@Override
+	public Emoji getContent() {
+		return content;
 	}
 
 	@Nullable

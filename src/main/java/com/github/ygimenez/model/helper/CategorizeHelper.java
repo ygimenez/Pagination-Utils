@@ -191,15 +191,7 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 		Predicate<Set<String>> checks = ids -> !isCancellable() || ids.contains(Action.getId(Pages.getPaginator().getEmoji(CANCEL)));
 		checks = checks.and(ids -> {
 			for (ButtonId<?> id : getContent().keySet()) {
-				String key;
-
-				if (id instanceof EmojiId) {
-					key = Action.getId(((EmojiId) id).getId());
-				} else {
-					key = String.valueOf(id.getId());
-				}
-
-				if (!ids.contains(key)) return false;
+				if (!ids.contains(id.getId())) return false;
 			}
 
 			return true;

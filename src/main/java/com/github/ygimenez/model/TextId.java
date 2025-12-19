@@ -65,6 +65,12 @@ public class TextId implements ButtonId<String> {
 
 	@NotNull
 	@Override
+	public String getContent() {
+		return label;
+	}
+
+	@NotNull
+	@Override
 	public String getLabel() {
 		return label;
 	}

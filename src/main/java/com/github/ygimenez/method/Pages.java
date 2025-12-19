@@ -854,7 +854,7 @@ public abstract class Pages {
 
 			for (ButtonId<?> k : cats.keySet()) {
 				if (k instanceof EmojiId) {
-					msg.addReaction(((EmojiId) k).getId()).submit();
+					msg.addReaction(((EmojiId) k).getContent()).submit();
 				}
 			}
 
@@ -919,11 +919,11 @@ public abstract class Pages {
 						if (pg != null) {
 							if (currCat != null) {
 								modifyButtons(m, pg, Map.of(
-										currCat.extractId(), Button::asEnabled,
-										(currCat = id).extractId(), Button::asDisabled
+										currCat.getId(), Button::asEnabled,
+										(currCat = id).getId(), Button::asDisabled
 								));
 							} else {
-								modifyButtons(m, pg, Map.of((currCat = id).extractId(), Button::asDisabled));
+								modifyButtons(m, pg, Map.of((currCat = id).getId(), Button::asDisabled));
 							}
 						}
 					}
@@ -1171,11 +1171,11 @@ public abstract class Pages {
 
 			for (ButtonId<?> k : btns.keySet()) {
 				if (k instanceof EmojiId) {
-					msg.addReaction(((EmojiId) k).getId()).submit();
+					msg.addReaction(((EmojiId) k).getContent()).submit();
 				}
 			}
 
-			boolean hasCancel = btns.keySet().stream().anyMatch(b -> Objects.equals(b.getId(), Pages.getPaginator().getEmoji(CANCEL)));
+			boolean hasCancel = btns.keySet().stream().anyMatch(b -> Objects.equals(b.getContent(), Pages.getPaginator().getEmoji(CANCEL)));
 			if (!hasCancel && helper.isCancellable()) {
 				msg.addReaction(paginator.getEmoji(CANCEL)).submit();
 			}
@@ -1226,7 +1226,7 @@ public abstract class Pages {
 						}
 					}
 
-					boolean hasCancel = btns.keySet().stream().anyMatch(b -> Objects.equals(b.getId(), Pages.getPaginator().getEmoji(CANCEL)));
+					boolean hasCancel = btns.keySet().stream().anyMatch(b -> Objects.equals(b.getContent(), Pages.getPaginator().getEmoji(CANCEL)));
 					if ((!hasCancel && helper.isCancellable()) && emt == CANCEL) {
 						if (m.isEphemeral() && wrapper.getHook() != null) {
 							finalizeEvent(wrapper.getHook(), success);
