@@ -44,16 +44,6 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	}
 
 	/**
-	 * Creates a new categorize event helper with the supplied mapping. Utility constructor for {@link String}-mapped categories.
-	 *
-	 * @param categories A {@link ButtonMapping} containing the initial categories.
-	 * @param useButtons Whether to use interaction buttons or legacy reaction-based buttons.
-	 */
-	public CategorizeHelper(ButtonMapping<Page> categories, boolean useButtons) {
-		this(categories.toMap(), useButtons);
-	}
-
-	/**
 	 * Adds a new category to the map.
 	 *
 	 * @param emoji The emoji representing this category.
