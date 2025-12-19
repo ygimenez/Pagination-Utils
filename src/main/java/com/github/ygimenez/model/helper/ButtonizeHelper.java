@@ -147,11 +147,9 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 			}
 
 			if (k instanceof TextId) {
-				String id = k.getId();
-				row.add(Button.of(k.getStyle(), id, id));
+				row.add(Button.of(k.getStyle(), k.getId(), ((TextId) k).getContent()));
 			} else {
-				Emoji id = ((EmojiId) k).getContent();
-				row.add(Button.of(k.getStyle(), k.getId(), id));
+				row.add(Button.of(k.getStyle(), k.getId(), ((EmojiId) k).getContent()));
 			}
 		}
 
