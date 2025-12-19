@@ -10,11 +10,16 @@ import java.util.Objects;
  * @param <T> The type of the cursor
  */
 class IdCursor<T> implements ButtonId<T> {
-	private T id;
+	private String id;
 
 	@Override
-	public T getId() {
+	public String getId() {
 		return id;
+	}
+
+	@Override
+	public T getContent() {
+		return null;
 	}
 
 	@Nullable
@@ -28,7 +33,7 @@ class IdCursor<T> implements ButtonId<T> {
 		return ButtonStyle.SECONDARY;
 	}
 
-	public void setId(T id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

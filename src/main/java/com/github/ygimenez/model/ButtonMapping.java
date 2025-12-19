@@ -9,14 +9,14 @@ import java.util.*;
  * Effectively a {@link HashMap} with {@link String} key and {@link Page} values, with built-in conversion.
  * @param <V> The type of the values stored in this mapping.
  */
-public class TextMapping<V> implements Mapping<V> {
+public class ButtonMapping<V> implements Mapping<V> {
 	private final Map<ButtonId<?>, V> mapping;
 	private final IdCursor<String> cursor = new IdCursor<>();
 
 	/**
 	 * Creates a new instance, with default map implementation.
 	 */
-	public TextMapping() {
+	public ButtonMapping() {
 		this(new LinkedHashMap<>());
 	}
 
@@ -25,7 +25,7 @@ public class TextMapping<V> implements Mapping<V> {
 	 *
 	 * @param mapping The map to be used internally to store mappings.
 	 */
-	public TextMapping(Map<ButtonId<?>, V> mapping) {
+	public ButtonMapping(Map<ButtonId<?>, V> mapping) {
 		this.mapping = mapping;
 	}
 
@@ -221,7 +221,7 @@ public class TextMapping<V> implements Mapping<V> {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		TextMapping<?> that = (TextMapping<?>) o;
+		ButtonMapping<?> that = (ButtonMapping<?>) o;
 		return Objects.equals(mapping, that.mapping);
 	}
 
