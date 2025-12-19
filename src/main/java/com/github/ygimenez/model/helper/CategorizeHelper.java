@@ -3,7 +3,6 @@ package com.github.ygimenez.model.helper;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.Action;
-import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
@@ -84,8 +83,7 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	 * @return The {@link CategorizeHelper} instance for chaining convenience.
 	 */
 	public CategorizeHelper addCategory(@NotNull Emoji emoji, @NotNull ButtonStyle style, @NotNull Page page) {
-		getContent().put(new EmojiId(emoji, style), page);
-		return this;
+		return addCategory(new EmojiId(emoji, style), page);
 	}
 
 	/**
@@ -108,7 +106,18 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 	 * @return The {@link CategorizeHelper} instance for chaining convenience.
 	 */
 	public CategorizeHelper addCategory(@NotNull String label, @NotNull ButtonStyle style, @NotNull Page page) {
-		getContent().put(new TextId(label, style), page);
+		return addCategory(new TextId(label, style), page);
+	}
+
+	/**
+	 * Adds a new category to the map with a custom {@link ButtonId}.
+	 *
+	 * @param buttonId The configuration for this button.
+	 * @param page  The page linked to this category.
+	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
+	 */
+	public CategorizeHelper addCategory(@NotNull ButtonId<?> buttonId, @NotNull Page page) {
+		getContent().put(buttonId, page);
 		return this;
 	}
 

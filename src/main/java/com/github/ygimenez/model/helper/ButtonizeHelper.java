@@ -3,9 +3,7 @@ package com.github.ygimenez.model.helper;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.*;
 import com.github.ygimenez.type.Action;
-import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
-import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
@@ -87,8 +85,7 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
 	public ButtonizeHelper addAction(@NotNull Emoji emoji, @NotNull ButtonStyle style, @NotNull ThrowingConsumer<ButtonWrapper> action) {
-		getContent().put(new EmojiId(emoji, style), action);
-		return this;
+		return addAction(new EmojiId(emoji, style), action);
 	}
 
 	/**
@@ -111,7 +108,18 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
 	 */
 	public ButtonizeHelper addAction(@NotNull String label, @NotNull ButtonStyle style, @NotNull ThrowingConsumer<ButtonWrapper> action) {
-		getContent().put(new TextId(label, style), action);
+		return addAction(new TextId(label, style), action);
+	}
+
+	/**
+	 * Adds a new button to the map with a custom {@link ButtonId}.
+	 *
+	 * @param buttonId The configuration for this button.
+	 * @param action The action to be performed on click.
+	 * @return The {@link ButtonizeHelper} instance for chaining convenience.
+	 */
+	public ButtonizeHelper addAction(@NotNull ButtonId<?> buttonId, @NotNull ThrowingConsumer<ButtonWrapper> action) {
+		getContent().put(buttonId, action);
 		return this;
 	}
 
