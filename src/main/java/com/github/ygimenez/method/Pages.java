@@ -902,9 +902,9 @@ public abstract class Pages {
 						}
 
 						if (btn.getEmoji() == null) {
-							id = new TextId(customId, Objects.requireNonNull(btn.getCustomId()), ButtonStyle.SECONDARY);
+							id = new TextId(customId, btn.getLabel(), btn.getStyle());
 						} else {
-							id = new EmojiId(customId, btn.getEmoji(), null, ButtonStyle.SECONDARY);
+							id = new EmojiId(customId, btn.getEmoji(), btn.getLabel(), btn.getStyle());
 						}
 
 						if (btn.getCustomId() != null && Action.isNative(btn)) {
@@ -1227,9 +1227,9 @@ public abstract class Pages {
 						}
 
 						if (btn.getEmoji() == null) {
-							id = new TextId(customId, Objects.requireNonNull(btn.getCustomId()), ButtonStyle.SECONDARY);
+							id = new TextId(customId, btn.getLabel(), btn.getStyle());
 						} else {
-							id = new EmojiId(customId, btn.getEmoji(), null, ButtonStyle.SECONDARY);
+							id = new EmojiId(customId, btn.getEmoji(), btn.getLabel(), btn.getStyle());
 						}
 
 						if (btn.getCustomId() != null && Action.isNative(btn)) {
