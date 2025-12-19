@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
@@ -895,10 +896,15 @@ public abstract class Pages {
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
+						String customId = btn.getCustomId();
+						if (customId == null) {
+							customId = "";
+						}
+
 						if (btn.getEmoji() == null) {
-							id = new TextId(Objects.requireNonNull(btn.getCustomId()));
+							id = new TextId(customId, Objects.requireNonNull(btn.getCustomId()), ButtonStyle.SECONDARY);
 						} else {
-							id = new EmojiId(btn.getEmoji());
+							id = new EmojiId(customId, btn.getEmoji(), null, ButtonStyle.SECONDARY);
 						}
 
 						if (btn.getCustomId() != null && Action.isNative(btn)) {
@@ -1215,10 +1221,15 @@ public abstract class Pages {
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
+						String customId = btn.getCustomId();
+						if (customId == null) {
+							customId = "";
+						}
+
 						if (btn.getEmoji() == null) {
-							id = new TextId(Objects.requireNonNull(btn.getCustomId()));
+							id = new TextId(customId, Objects.requireNonNull(btn.getCustomId()), ButtonStyle.SECONDARY);
 						} else {
-							id = new EmojiId(btn.getEmoji());
+							id = new EmojiId(customId, btn.getEmoji(), null, ButtonStyle.SECONDARY);
 						}
 
 						if (btn.getCustomId() != null && Action.isNative(btn)) {
