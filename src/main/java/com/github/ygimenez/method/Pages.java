@@ -78,7 +78,7 @@ public abstract class Pages {
 		}
 
 		Pages.paginator = paginator;
-		paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Pagination Utils activated successfully");
+		paginator.log(PUtilsConfig.LogLevel.LEVEL_3, "Pagination Utils activated successfully");
 	}
 
 	/**
@@ -96,7 +96,7 @@ public abstract class Pages {
 			((ShardManager) hand).removeEventListener(paginator.getEvtHandler());
 		}
 
-		paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Pagination Utils deactivated successfully");
+		paginator.log(PUtilsConfig.LogLevel.LEVEL_3, "Pagination Utils deactivated successfully");
 		paginator = null;
 	}
 
@@ -1740,7 +1740,7 @@ public abstract class Pages {
 		try {
 			subGet(msg.editMessageComponents());
 		} catch (InsufficientPermissionException | IllegalStateException e) {
-			paginator.log(PUtilsConfig.LogLevel.LEVEL_3, "Not enough permissions to clear message reactions:", e);
+			paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Not enough permissions to clear message reactions:", e);
 		}
 	}
 

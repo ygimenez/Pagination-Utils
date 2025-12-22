@@ -51,7 +51,7 @@ public class EventHandler extends ListenerAdapter {
 	 * is still being processed or was already removed (i.e. garbage collected).
 	 */
 	public ActionReference addEvent(@NotNull String id, @NotNull ThrowingBiConsumer<User, PaginationEventWrapper> act) {
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
 		events.put(id, act);
 
 		return new ActionReference(id);
@@ -63,7 +63,7 @@ public class EventHandler extends ListenerAdapter {
 	 * @param id The event ID.
 	 */
 	public void removeEvent(@NotNull String id) {
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Removed event with ID " + id);
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Removed event with ID " + id);
 		events.remove(id);
 		dropdownValues.remove(id);
 	}
@@ -95,7 +95,7 @@ public class EventHandler extends ListenerAdapter {
 	 * <b>WARNING:</b> This will break <u>all</u> active pagination, use with caution.
 	 */
 	public void clear() {
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_3, "Cleared all active events");
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Cleared all active events");
 		events.clear();
 		dropdownValues.clear();
 	}

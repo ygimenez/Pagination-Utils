@@ -1,12 +1,14 @@
 package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.PUtilsConfig;
 import com.github.ygimenez.model.PaginationEventWrapper;
 import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.jetbrains.annotations.NotNull;
@@ -121,6 +123,10 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 		Button btn = null;
 		if (wrapper.getContent() instanceof Button) {
 			btn = (Button) wrapper.getContent();
+		} else {
+			if (!(wrapper.getContent() instanceof MessageReaction)) {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_2, "Interaction event fired for unhandled type: " + wrapper.getContent().getClass().getName());
+			}
 		}
 
 		return canInteract == null || canInteract.test(user, btn);
