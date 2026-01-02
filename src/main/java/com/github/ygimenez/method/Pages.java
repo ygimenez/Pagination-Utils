@@ -899,9 +899,9 @@ public abstract class Pages {
 						Button btn = (Button) wrapper.getContent();
 
 						String customId = "";
-						Matcher idMatcher = ButtonId.ID_PATTERN.matcher(btn.getCustomId());
-						if (idMatcher.find()) {
-							customId = idMatcher.group(1);
+						String[] idParts = ButtonId.ID_PATTERN.split(btn.getCustomId());
+						if (idParts.length == 2) {
+							customId = idParts[0];
 						}
 
 						if (btn.getEmoji() == null) {
@@ -1226,9 +1226,9 @@ public abstract class Pages {
 						Button btn = (Button) wrapper.getContent();
 
 						String customId = "";
-						Matcher idMatcher = ButtonId.ID_PATTERN.matcher(btn.getCustomId());
-						if (idMatcher.find()) {
-							customId = idMatcher.group(1);
+						String[] idParts = ButtonId.ID_PATTERN.split(btn.getCustomId());
+						if (idParts.length == 2) {
+							customId = idParts[0];
 						}
 
 						if (btn.getEmoji() == null) {

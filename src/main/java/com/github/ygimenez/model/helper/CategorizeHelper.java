@@ -179,6 +179,10 @@ public class CategorizeHelper extends BaseHelper<CategorizeHelper, Map<ButtonId<
 
 		Set<String> ids = Pages.getButtons(msg).stream()
 				.map(Button::getCustomId)
+				.filter(Objects::nonNull)
+				.map(ButtonId.ID_PATTERN::split)
+				.filter(parts -> parts.length == 2)
+				.map(parts -> parts[0])
 				.collect(Collectors.toSet());
 
 		return !checks.test(ids);
