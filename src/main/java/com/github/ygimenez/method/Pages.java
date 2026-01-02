@@ -921,7 +921,7 @@ public abstract class Pages {
 
 						return;
 					} else if (id != null && !Objects.equals(id, currCat)) {
-						Page pg = lookupValue(cats, id);
+						Page pg = cats.get(id);
 						if (pg != null) {
 							if (currCat != null) {
 								modifyButtons(m, pg, Map.of(
@@ -1258,7 +1258,7 @@ public abstract class Pages {
 						hook = null;
 					}
 
-					ThrowingConsumer<ButtonWrapper> act = lookupValue(btns, id);
+					ThrowingConsumer<ButtonWrapper> act = btns.get(id);
 					if (act != null) {
 						act.accept(new ButtonWrapper(
 								wrapper.getUser(), hook, button,
@@ -1699,13 +1699,6 @@ public abstract class Pages {
 
 	private static Emoji toEmoji(EmojiUnion reaction) {
 		return Emoji.fromFormatted(reaction.getFormatted());
-	}
-
-	private static <T> T lookupValue(Map<ButtonId<?>, T> map, ButtonId<?> button) {
-		return map.entrySet().stream()
-				.filter(e -> e.getKey().equals(button))
-				.map(Map.Entry::getValue)
-				.findFirst().orElse(null);
 	}
 
 	/**
