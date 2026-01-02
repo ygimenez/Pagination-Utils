@@ -146,10 +146,11 @@ public class ButtonizeHelper extends BaseHelper<ButtonizeHelper, Map<ButtonId<?>
 				row = new ArrayList<>();
 			}
 
+			String key = k.getId() + "." + (int) (Math.random() * Integer.MAX_VALUE);
 			if (k instanceof TextId) {
-				row.add(Button.of(k.getStyle(), k.getId(), ((TextId) k).getContent()));
+				row.add(Button.of(k.getStyle(), key, ((TextId) k).getContent()));
 			} else {
-				row.add(Button.of(k.getStyle(), k.getId(), ((EmojiId) k).getContent()));
+				row.add(Button.of(k.getStyle(), key, ((EmojiId) k).getContent()));
 			}
 		}
 

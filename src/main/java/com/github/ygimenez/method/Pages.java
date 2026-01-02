@@ -38,6 +38,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static com.github.ygimenez.type.Action.*;
@@ -896,9 +897,11 @@ public abstract class Pages {
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
-						String customId = btn.getCustomId();
-						if (customId == null) {
-							customId = "";
+
+						String customId = "";
+						Matcher idMatcher = ButtonId.ID_PATTERN.matcher(btn.getCustomId());
+						if (idMatcher.find()) {
+							customId = idMatcher.group(1);
 						}
 
 						if (btn.getEmoji() == null) {
@@ -921,19 +924,14 @@ public abstract class Pages {
 
 						return;
 					} else if (id != null && !Objects.equals(id, currCat)) {
-						System.out.println("1");
 						Page pg = cats.get(id);
-						System.out.println("2");
 						if (pg != null) {
-							System.out.println("3");
 							if (currCat != null) {
-								System.out.println("4");
 								modifyButtons(m, pg, Map.of(
 										currCat.getId(), Button::asEnabled,
 										(currCat = id).getId(), Button::asDisabled
 								));
 							} else {
-								System.out.println("5");
 								modifyButtons(m, pg, Map.of((currCat = id).getId(), Button::asDisabled));
 							}
 						}
@@ -1226,9 +1224,11 @@ public abstract class Pages {
 						emt = toEmote(reaction);
 					} else if (wrapper.getContent() instanceof Button) {
 						Button btn = (Button) wrapper.getContent();
-						String customId = btn.getCustomId();
-						if (customId == null) {
-							customId = "";
+
+						String customId = "";
+						Matcher idMatcher = ButtonId.ID_PATTERN.matcher(btn.getCustomId());
+						if (idMatcher.find()) {
+							customId = idMatcher.group(1);
 						}
 
 						if (btn.getEmoji() == null) {
