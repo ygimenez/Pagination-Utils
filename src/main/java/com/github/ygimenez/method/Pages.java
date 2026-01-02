@@ -921,14 +921,19 @@ public abstract class Pages {
 
 						return;
 					} else if (id != null && !Objects.equals(id, currCat)) {
+						System.out.println("1");
 						Page pg = cats.get(id);
+						System.out.println("2");
 						if (pg != null) {
+							System.out.println("3");
 							if (currCat != null) {
+								System.out.println("4");
 								modifyButtons(m, pg, Map.of(
 										currCat.getId(), Button::asEnabled,
 										(currCat = id).getId(), Button::asDisabled
 								));
 							} else {
+								System.out.println("5");
 								modifyButtons(m, pg, Map.of((currCat = id).getId(), Button::asDisabled));
 							}
 						}
