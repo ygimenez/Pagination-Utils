@@ -33,7 +33,6 @@ public class EventHandler extends ListenerAdapter {
 	private final Map<String, ThrowingBiConsumer<User, PaginationEventWrapper>> events = new ConcurrentHashMap<>();
 	private final Map<String, Map<String, List<?>>> dropdownValues = new ConcurrentHashMap<>();
 	private final Set<String> locks = ConcurrentHashMap.newKeySet();
-	private final CRC32 crc = new CRC32();
 
 	/**
 	 * Creates a new {@link EventHandler} instance.
@@ -231,26 +230,14 @@ public class EventHandler extends ListenerAdapter {
 	 * @return The event ID.
 	 */
 	public String getEventId(Message msg) {
-		crc.reset();
-		String rawId = (msg.isFromGuild() ? "GUILD_" : "PRIVATE_") + msg.getChannel().getId() + "_" + msg.getId();
-		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
-
-		return Long.toHexString(crc.getValue());
+		return (msg.isFromGuild() ? "GUILD_" : "PRIVATE_") + msg.getChannel().getId() + "_" + msg.getId();
 	}
 
 	private String getEventId(GenericMessageEvent evt) {
-		crc.reset();
-		String rawId = (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getMessageId();
-		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
-
-		return Long.toHexString(crc.getValue());
+		return (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getMessageId();
 	}
 
 	private String getEventId(ButtonInteractionEvent evt) {
-		crc.reset();
-		String rawId = (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getMessageId();
-		crc.update(rawId.getBytes(StandardCharsets.UTF_8));
-
-		return Long.toHexString(crc.getValue());
+		return (evt.isFromGuild() ? "GUILD_" : "PRIVATE_") + evt.getChannel().getId() + "_" + evt.getMessageId();
 	}
 }
