@@ -129,6 +129,10 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 			}
 		}
 
+		if (useButtons && btn == null) {
+			return false;
+		}
+
 		return canInteract == null || canInteract.test(user, btn);
 	}
 
