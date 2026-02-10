@@ -16,7 +16,7 @@ public class InteractionData {
 	/**
 	 * Constructs a new {@code InteractionData} instance that represents an interaction event.
 	 *
-	 * @param id The unique identifier for the interaction. For reactions, this is the ID of the reaction emoji.
+	 * @param id The unique identifier for the interaction. For reactions, this is the formatted reaction emoji.
 	 * @param message The {@link Message} object associated with the interaction.
 	 * @param user The {@link User} object representing the user who initiated the interaction.
 	 */
@@ -27,7 +27,7 @@ public class InteractionData {
 	}
 
 	/**
-	 * Retrieves the ID for the interaction that triggered this event. For reactions, this is the ID of the reaction emoji.
+	 * Retrieves the ID for the interaction that triggered this event. For reactions, this is the formatted reaction emoji.
 	 * @return The ID of the interaction.
 	 */
 	public String getId() {
