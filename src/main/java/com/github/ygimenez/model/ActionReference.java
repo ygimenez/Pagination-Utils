@@ -27,7 +27,7 @@ public class ActionReference extends WeakReference<String> {
 	/**
 	 * Retrieves the referred action key if it is still active, or null otherwise.
 	 *
-	 * @return They key used to represent the library action in the event map.
+	 * @return The key used to represent the library action in the event map.
 	 */
 	@Nullable
 	@Override

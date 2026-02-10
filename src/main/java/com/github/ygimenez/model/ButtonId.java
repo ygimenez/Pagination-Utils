@@ -31,7 +31,7 @@ public interface ButtonId<T> {
 
 	/**
 	 * Retrieves the label for this instance.
-	 * @return The label for this instance, will be null if not declared during instantiation.
+	 * @return The label for this instance will be null if not declared during instantiation.
 	 */
 	@Nullable
 	String getLabel();

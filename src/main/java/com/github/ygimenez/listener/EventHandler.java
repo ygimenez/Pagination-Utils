@@ -1,11 +1,7 @@
 package com.github.ygimenez.listener;
 
 import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.model.ActionReference;
-import com.github.ygimenez.model.PUtilsConfig;
-import com.github.ygimenez.model.PaginationEventWrapper;
-import com.github.ygimenez.model.ThrowingBiConsumer;
-import net.dv8tion.jda.api.components.selections.SelectMenu;
+import com.github.ygimenez.model.*;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -20,18 +16,17 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.CRC32;
 
 /**
  * Class responsible for handling reaction events sent by the handler.<br>
  * Only one event is added to the handler to prevent cluttering and unnecessary listeners.
  */
 public class EventHandler extends ListenerAdapter {
-	private final Map<String, ThrowingBiConsumer<User, PaginationEventWrapper>> events = new ConcurrentHashMap<>();
-	private final Map<String, Map<String, List<?>>> dropdownValues = new ConcurrentHashMap<>();
+	private final Map<String, EventData<?, ?>> events = new ConcurrentHashMap<>();
 	private final Set<String> locks = ConcurrentHashMap.newKeySet();
 
 	/**
@@ -44,14 +39,14 @@ public class EventHandler extends ListenerAdapter {
 	 * Adds an event to the handler, which will be executed whenever a button with the same
 	 * ID is pressed.
 	 *
-	 * @param id The event ID.
-	 * @param act The action to be executed when the button is pressed.
+	 * @param id  The event ID.
+	 * @param evt The event data containing the action to be executed when the button is pressed.
 	 * @return An {@link ActionReference} pointing to this event. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 */
-	public ActionReference addEvent(@NotNull String id, @NotNull ThrowingBiConsumer<User, PaginationEventWrapper> act) {
-		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Added event with ID " + id + " and Consumer hash " + Integer.toHexString(act.hashCode()));
-		events.put(id, act);
+	public ActionReference addEvent(@NotNull String id, @NotNull EventData<?, ?> evt) {
+		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Added event with ID " + id);
+		events.put(id, evt);
 
 		return new ActionReference(id);
 	}
@@ -64,7 +59,6 @@ public class EventHandler extends ListenerAdapter {
 	public void removeEvent(@NotNull String id) {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Removed event with ID " + id);
 		events.remove(id);
-		dropdownValues.remove(id);
 	}
 
 	/**
@@ -84,19 +78,18 @@ public class EventHandler extends ListenerAdapter {
 	 *
 	 * @return An unmodifiable {@link Map} containing events handled by the library.
 	 */
-	public Map<String, ThrowingBiConsumer<User, PaginationEventWrapper>> getEventMap() {
+	public Map<String, EventData<?, ?>> getEventMap() {
 		return Collections.unmodifiableMap(events);
 	}
 
 	/**
 	 * Purge events map.<br>
 	 * <br>
-	 * <b>WARNING:</b> This will break <u>all</u> active pagination, use with caution.
+	 * <b>WARNING:</b> This will break <u>all</u> active pagination, use it with caution.
 	 */
 	public void clear() {
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Cleared all active events");
 		events.clear();
-		dropdownValues.clear();
 	}
 
 	private synchronized void lock(@NotNull String id) {
@@ -133,16 +126,27 @@ public class EventHandler extends ListenerAdapter {
 	private void execute(GenericMessageReactionEvent evt) {
 		String id = getEventId(evt);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received reaction event with ID " + id);
-		if (!events.containsKey(id)) {
+
+		EventData<?, ?> act = events.get(id);
+		if (act == null) {
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
 			return;
 		}
 
 		evt.retrieveMessage().submit().whenComplete((m, t) ->
-				evt.retrieveUser().submit().whenComplete((u, thr) -> processEvent(
-						t, id, u,
-						new PaginationEventWrapper(evt, u, evt.getChannel(), m, evt.getReaction(), evt.isFromGuild())
-				))
+				evt.retrieveUser().submit().whenComplete((u, thr) -> {
+					InteractionData data = new InteractionData(evt.getReaction().getEmoji().getFormatted(), m, evt.getUser());
+					if (u.isBot() || !act.getHelper().canInteract(data)) {
+						Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Interaction not allowed by canInteract, skipping");
+						return;
+					}
+
+					processEvent(
+							t, id, u, new PaginationEventWrapper(
+									evt, u, evt.getChannel(), m, evt.getReaction(), evt.isFromGuild()
+							)
+					);
+				})
 		);
 	}
 
@@ -150,18 +154,25 @@ public class EventHandler extends ListenerAdapter {
 	public void onButtonInteraction(@NotNull ButtonInteractionEvent evt) {
 		String id = getEventId(evt);
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received button event with ID " + id);
-		if (!events.containsKey(id)) {
+
+		EventData<?, ?> act = events.get(id);
+		if (act == null) {
 			evt.deferEdit().submit().whenComplete((hook, t) -> Pages.getPaginator().getOnRemove().accept(evt.getHook()));
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
 			return;
 		}
 
 		evt.deferEdit().submit().whenComplete((hook, t) -> {
+			InteractionData data = new InteractionData(evt.getComponentId(), evt.getMessage(), evt.getUser());
+			if (evt.getUser().isBot() || !act.getHelper().canInteract(data)) {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Interaction not allowed by canInteract, skipping");
+				return;
+			}
+
 			User u = hook.getInteraction().getUser();
-			processEvent(
-					t, id, u,
-					new PaginationEventWrapper(evt, u, evt.getChannel(), evt.getMessage(), evt.getButton(), evt.isFromGuild())
-			);
+			processEvent(t, id, u, new PaginationEventWrapper(
+					evt, u, evt.getChannel(), evt.getMessage(), evt.getButton(), evt.isFromGuild()
+			));
 		});
 	}
 
@@ -180,11 +191,11 @@ public class EventHandler extends ListenerAdapter {
 			if (Pages.getPaginator().isEventLocked()) lock(id);
 
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Searching for action for event with ID " + id);
-			ThrowingBiConsumer<User, PaginationEventWrapper> act = events.get(id);
+			EventData<?, ?> act = events.get(id);
 
 			if (act != null) {
 				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action found");
-				act.accept(u, evt);
+				act.getAction().accept(u, evt);
 			} else {
 				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Action not found");
 			}
@@ -199,27 +210,23 @@ public class EventHandler extends ListenerAdapter {
 	public void onGenericSelectMenuInteraction(@NotNull GenericSelectMenuInteractionEvent evt) {
 		String id = getEventId(evt.getMessage());
 		Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Received dropdown values for event with ID " + id);
-		if (!events.containsKey(id)) {
+
+		EventData<?, ?> act = events.get(id);
+		if (act == null) {
 			evt.deferEdit().submit().whenComplete((hook, t) -> Pages.getPaginator().getOnRemove().accept(evt.getHook()));
 			Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Event not mapped, skipping");
 			return;
 		}
 
-		evt.deferEdit().submit().whenComplete((hook, t) ->
-				dropdownValues.computeIfAbsent(id, k -> new HashMap<>())
-						.put(evt.getComponentId(), evt.getValues())
-		);
-	}
+		evt.deferEdit().submit().whenComplete((hook, t) -> {
+			InteractionData data = new InteractionData(evt.getComponentId(), evt.getMessage(), evt.getUser());
+			if (evt.getUser().isBot() || !act.getHelper().canInteract(data)) {
+				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_4, "Interaction not allowed by canInteract, skipping");
+				return;
+			}
 
-	/**
-	 * Retrieves the {@link SelectMenu} values for the supplied event ID.
-	 *
-	 * @param eventId The event ID.
-	 * @return The {@link Map} containing the values for this event, or null if the event doesn't exist.
-	 */
-	public Map<String, List<?>> getDropdownValues(String eventId) {
-		if (!events.containsKey(eventId)) return null;
-		return dropdownValues.computeIfAbsent(eventId, k -> new HashMap<>());
+			act.getHelper().getDropdownValues().put(data.getId(), evt.getValues());
+		});
 	}
 
 	/**

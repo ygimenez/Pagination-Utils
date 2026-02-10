@@ -6,7 +6,6 @@ import com.github.ygimenez.model.InteractPage;
 import com.github.ygimenez.model.Page;
 import com.github.ygimenez.model.ThrowingFunction;
 import com.github.ygimenez.type.Action;
-import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.Message;

@@ -220,7 +220,7 @@ public class Paginator {
 	/**
 	 *
 	 * Utility method to log an error at the supplied {@link LogLevel}.
-	 * <strong>For better maintenance, do not use this outside of the library.</strong>.
+	 * <strong>For better maintenance, do not use this outside the library.</strong>
 	 *
 	 * @param level The {@link LogLevel} to be used.
 	 * @param msg The message to be logged.
@@ -235,7 +235,7 @@ public class Paginator {
 	/**
 	 *
 	 * Utility method to log an error at the supplied {@link LogLevel}.
-	 * <strong>For better maintenance, do not use this outside of the library.</strong>.
+	 * <strong>For better maintenance, do not use this outside the library.</strong>
 	 *
 	 * @param level The {@link LogLevel} to be used.
 	 * @param msg The message to be logged.

@@ -220,7 +220,7 @@ public class PaginatorBuilder {
 	}
 
 	/**
-	 * Modify an {@link Action}'s code from the {@link Map}. Beware, the code must be either unicode or
+	 * Modify an {@link Action}'s code from the {@link Map}. Beware, the code must be either Unicode or
 	 * {@link CustomEmoji}'s mention,
 	 * else the buttons <strong>WILL NOT BE ADDED</strong> and will lead to errors.
 	 *

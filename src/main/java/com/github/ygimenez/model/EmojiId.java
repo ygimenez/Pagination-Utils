@@ -54,8 +54,9 @@ public class EmojiId implements ButtonId<Emoji> {
 	}
 
 	/**
-	 * Creates a new instance with a specific id, label and chosen style.
-	 * @param id The {@link Emoji} to be used.
+	 * Creates a new instance with a specific id, label, and chosen style.
+	 * @param id The ID to represent this button.
+	 * @param content The {@link Emoji} to be used.
 	 * @param label The label to be used, can be null.
 	 * @param style The {@link ButtonStyle} to be used.
 	 */

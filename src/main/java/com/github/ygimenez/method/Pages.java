@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
@@ -38,7 +37,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static com.github.ygimenez.type.Action.*;
@@ -147,7 +145,7 @@ public abstract class Pages {
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -162,7 +160,7 @@ public abstract class Pages {
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages. You can specify
-	 * how long the listener will stay active before shutting down itself after a
+	 * how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
@@ -175,7 +173,7 @@ public abstract class Pages {
 	 * @param unit       The time's {@link TimeUnit} (recommended:
 	 *                   {@link TimeUnit#SECONDS}).
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -196,10 +194,9 @@ public abstract class Pages {
 	 *                    define the order of the pages.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -207,14 +204,14 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, pages, useButtons, 0, null, 0, false, canInteract);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages. You can specify
-	 * how long the listener will stay active before shutting down itself after a
+	 * how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
@@ -226,10 +223,9 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -237,7 +233,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, pages, useButtons, time, unit, 0, false, canInteract);
 	}
 
@@ -252,7 +248,7 @@ public abstract class Pages {
 	 *                    {@link Message} was not sent by the bot.
 	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -267,7 +263,7 @@ public abstract class Pages {
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages. You can specify
-	 * how long the listener will stay active before shutting down itself after a
+	 * how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
@@ -281,7 +277,7 @@ public abstract class Pages {
 	 *                    {@link TimeUnit#SECONDS}).
 	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -303,10 +299,9 @@ public abstract class Pages {
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
 	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -314,14 +309,14 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, boolean fastForward, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, pages, useButtons, 0, null, 0, fastForward, canInteract);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages. You can specify
-	 * how long the listener will stay active before shutting down itself after a
+	 * how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
@@ -334,10 +329,9 @@ public abstract class Pages {
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
 	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -345,7 +339,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, boolean fastForward, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, pages, useButtons, time, unit, 0, fastForward, canInteract);
 	}
 
@@ -361,7 +355,7 @@ public abstract class Pages {
 	 * @param skipAmount The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
 	 *                   and {@link Action#SKIP_FORWARD} buttons.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -376,7 +370,7 @@ public abstract class Pages {
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages. You can specify
-	 * how long the listener will stay active before shutting down itself after a
+	 * how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
@@ -391,7 +385,7 @@ public abstract class Pages {
 	 * @param skipAmount The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
 	 *                   and {@link Action#SKIP_FORWARD} buttons.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -414,10 +408,9 @@ public abstract class Pages {
 	 *                    {@link Message} was not sent by the bot.
 	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
 	 *                    and {@link Action#SKIP_FORWARD} buttons.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -425,14 +418,14 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int skipAmount, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, pages, useButtons, 0, null, skipAmount, false, canInteract);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages. You can specify
-	 * how long the listener will stay active before shutting down itself after a
+	 * how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
@@ -446,10 +439,9 @@ public abstract class Pages {
 	 *                    {@link TimeUnit#SECONDS}).
 	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
 	 *                    and {@link Action#SKIP_FORWARD} buttons.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -457,7 +449,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, pages, useButtons, time, unit, skipAmount, false, canInteract);
 	}
 
@@ -473,10 +465,9 @@ public abstract class Pages {
 	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
 	 *                    and {@link Action#SKIP_FORWARD} buttons.
 	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -484,14 +475,14 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int skipAmount, boolean fastForward, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, pages, useButtons, 0, null, skipAmount, fastForward, canInteract);
 	}
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages. You can specify
-	 * how long the listener will stay active before shutting down itself after a
+	 * how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
@@ -507,7 +498,7 @@ public abstract class Pages {
 	 *                    and {@link Action#SKIP_FORWARD} buttons.
 	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -522,7 +513,7 @@ public abstract class Pages {
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will navigate through a given {@link List} of pages. You can specify
-	 * how long the listener will stay active before shutting down itself after a
+	 * how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
@@ -537,10 +528,9 @@ public abstract class Pages {
 	 * @param skipAmount  The number of pages to be skipped when clicking {@link Action#SKIP_BACKWARD}
 	 *                    and {@link Action#SKIP_FORWARD} buttons.
 	 * @param fastForward Whether the {@link Action#GOTO_FIRST} and {@link Action#GOTO_LAST} buttons should be shown.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -548,7 +538,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated or the page list is empty.
 	 */
-	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference paginate(@NotNull Message msg, @NotNull List<Page> pages, boolean useButtons, int time, TimeUnit unit, int skipAmount, boolean fastForward, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return paginate(msg, new PaginateHelper(pages, useButtons)
 				.setTimeout(time, unit)
 				.setSkipAmount(skipAmount)
@@ -559,13 +549,13 @@ public abstract class Pages {
 
 	/**
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
-	 * which will navigate through a given {@link List} of pages. This versions uses a helper class
-	 * to aid customization and allow reusage of configurations.
+	 * which will navigate through a given {@link List} of pages. This version uses a helper class
+	 * to aid customization and allow usage of configurations.
 	 *
 	 * @param msg    The {@link Message} sent which will be paginated.
 	 * @param helper A {@link PaginateHelper} holding desired pagination settings.
 	 * @return An {@link ActionReference} pointing to this action. This is useful if you need to track whether an event
-	 * is still being processed or was already removed (i.e. garbage collected).
+	 * is still being processed or was already removed (i.e., garbage collected).
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
 	 *                                         or cannot be accessed when triggering a
 	 *                                         {@link GenericMessageReactionEvent}.
@@ -587,7 +577,7 @@ public abstract class Pages {
 		}
 
 		String evt = getHandler().getEventId(msg);
-		return getHandler().addEvent(evt, new ThrowingBiConsumer<>() {
+		return getHandler().addEvent(evt, new EventData<>(helper, new ThrowingBiConsumer<>() {
 			private final int maxP = pgs.size() - 1;
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
@@ -612,103 +602,100 @@ public abstract class Pages {
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message msg = wrapper.retrieveMessage();
+				if (msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
-				if (helper.canInteract(u, wrapper)) {
-					if (u.isBot() || msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
+				Action emt = NONE;
+				if (wrapper.getContent() instanceof MessageReaction) {
+					EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
+					emt = toEmote(reaction);
+				} else if (wrapper.getContent() instanceof Button) {
+					Button btn = (Button) wrapper.getContent();
 
-					Action emt = NONE;
-					if (wrapper.getContent() instanceof MessageReaction) {
-						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
-						emt = toEmote(reaction);
-					} else if (wrapper.getContent() instanceof Button) {
-						Button btn = (Button) wrapper.getContent();
-
-						if (btn.getCustomId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getCustomId())[0]);
-						}
-					}
-
-					Page pg;
-					boolean update = false;
-					switch (emt) {
-						case PREVIOUS:
-							if (p > 0) {
-								p--;
-								update = true;
-							}
-							break;
-						case NEXT:
-							if (p < maxP) {
-								p++;
-								update = true;
-							}
-							break;
-						case SKIP_BACKWARD:
-							if (p > 0) {
-								p -= (p - helper.getSkipAmount() < 0 ? p : helper.getSkipAmount());
-								update = true;
-							}
-							break;
-						case SKIP_FORWARD:
-							if (p < maxP) {
-								p += (p + helper.getSkipAmount() > maxP ? maxP - p : helper.getSkipAmount());
-								update = true;
-							}
-							break;
-						case GOTO_FIRST:
-							if (p > 0) {
-								p = 0;
-								update = true;
-							}
-							break;
-						case GOTO_LAST:
-							if (p < maxP) {
-								p = maxP;
-								update = true;
-							}
-							break;
-						case CANCEL:
-							if (msg.isEphemeral() && wrapper.getHook() != null) {
-								finalizeEvent(wrapper.getHook(), success);
-							} else {
-								finalizeEvent(msg, success);
-							}
-
-							return;
-					}
-
-					if (update) {
-						pg = pgs.get(p);
-						modifyButtons(msg, pg, Map.of(
-								PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
-								SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
-								GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
-
-								NEXT.name(), UPPER_BOUNDARY_CHECK,
-								SKIP_FORWARD.name(), UPPER_BOUNDARY_CHECK,
-								GOTO_LAST.name(), UPPER_BOUNDARY_CHECK
-						));
-					}
-
-					if (timeout != null) {
-						timeout.cancel(true);
-					}
-					if (helper.getTimeout() > 0) {
-						timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
-					}
-
-					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+					if (btn.getCustomId() != null && Action.isNative(btn)) {
+						emt = Action.valueOf(ButtonId.ID_PATTERN.split(btn.getCustomId())[0]);
 					}
 				}
+
+				Page pg;
+				boolean update = false;
+				switch (emt) {
+					case PREVIOUS:
+						if (p > 0) {
+							p--;
+							update = true;
+						}
+						break;
+					case NEXT:
+						if (p < maxP) {
+							p++;
+							update = true;
+						}
+						break;
+					case SKIP_BACKWARD:
+						if (p > 0) {
+							p -= (p - helper.getSkipAmount() < 0 ? p : helper.getSkipAmount());
+							update = true;
+						}
+						break;
+					case SKIP_FORWARD:
+						if (p < maxP) {
+							p += (p + helper.getSkipAmount() > maxP ? maxP - p : helper.getSkipAmount());
+							update = true;
+						}
+						break;
+					case GOTO_FIRST:
+						if (p > 0) {
+							p = 0;
+							update = true;
+						}
+						break;
+					case GOTO_LAST:
+						if (p < maxP) {
+							p = maxP;
+							update = true;
+						}
+						break;
+					case CANCEL:
+						if (msg.isEphemeral() && wrapper.getHook() != null) {
+							finalizeEvent(wrapper.getHook(), success);
+						} else {
+							finalizeEvent(msg, success);
+						}
+
+						return;
+				}
+
+				if (update) {
+					pg = pgs.get(p);
+					modifyButtons(msg, pg, Map.of(
+							PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
+							SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
+							GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
+
+							NEXT.name(), UPPER_BOUNDARY_CHECK,
+							SKIP_FORWARD.name(), UPPER_BOUNDARY_CHECK,
+							GOTO_LAST.name(), UPPER_BOUNDARY_CHECK
+					));
+				}
+
+				if (timeout != null) {
+					timeout.cancel(true);
+				}
+				if (helper.getTimeout() > 0) {
+					timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+				}
+
+				if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+				}
 			}
-		});
+		}));
 	}
 
 	/**
 	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will browse through a given {@link Map} of pages. You may only specify
-	 * one {@link Page} per button, adding another button with an existing unicode
+	 * one {@link Page} per button, adding another button with an existing Unicode
 	 * will overwrite the current button's {@link Page}.
 	 *
 	 * @param msg        The {@link Message} sent which will be categorized.
@@ -733,9 +720,9 @@ public abstract class Pages {
 	/**
 	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will browse through a given {@link Map} of pages. You may only specify
-	 * one {@link Page} per button, adding another button with an existing unicode
+	 * one {@link Page} per button, adding another button with an existing Unicode
 	 * will overwrite the current button's {@link Page}. You can specify how long
-	 * the listener will stay active before shutting down itself after a no-activity
+	 * the listener will stay active before shutting itself down after a no-activity
 	 * interval.
 	 *
 	 * @param msg        The {@link Message} sent which will be categorized.
@@ -764,7 +751,7 @@ public abstract class Pages {
 	/**
 	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will browse through a given {@link Map} of pages. You may only specify
-	 * one {@link Page} per button, adding another button with an existing unicode
+	 * one {@link Page} per button, adding another button with an existing Unicode
 	 * will overwrite the current button's {@link Page}.
 	 *
 	 * @param msg         The {@link Message} sent which will be categorized.
@@ -773,8 +760,7 @@ public abstract class Pages {
 	 *                    {@link Pages} as values.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
 	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -784,16 +770,16 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<ButtonId<?>, Page> categories, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<ButtonId<?>, Page> categories, boolean useButtons, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return categorize(msg, categories, useButtons, 0, null, canInteract);
 	}
 
 	/**
 	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will browse through a given {@link Map} of pages. You may only specify
-	 * one {@link Page} per button, adding another button with an existing unicode
+	 * one {@link Page} per button, adding another button with an existing Unicode
 	 * will overwrite the current button's {@link Page}. You can specify how long
-	 * the listener will stay active before shutting down itself after a no-activity
+	 * the listener will stay active before shutting itself down after a no-activity
 	 * interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be categorized.
@@ -806,8 +792,7 @@ public abstract class Pages {
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
 	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -817,7 +802,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<ButtonId<?>, Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference categorize(@NotNull Message msg, @NotNull Map<ButtonId<?>, Page> categories, boolean useButtons, int time, TimeUnit unit, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return categorize(msg, new CategorizeHelper(categories, useButtons)
 				.setTimeout(time, unit)
 				.setCanInteract(canInteract)
@@ -827,9 +812,9 @@ public abstract class Pages {
 	/**
 	 * Adds menu-like buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will browse through a given {@link Map} of pages. You may only specify
-	 * one {@link Page} per button, adding another button with an existing unicode
-	 * will overwrite the current button's {@link Page}. This versions uses a helper class
-	 * to aid customization and allow reusage of configurations.
+	 * one {@link Page} per button, adding another button with an existing Unicode
+	 * will overwrite the current button's {@link Page}. This version uses a helper class
+	 * to aid customization and allow usage of configurations.
 	 *
 	 * @param msg    The {@link Message} sent which will be categorized.
 	 * @param helper A {@link CategorizeHelper} holding desired categorization settings.
@@ -864,7 +849,7 @@ public abstract class Pages {
 		}
 
 		String evt = getHandler().getEventId(msg);
-		return getHandler().addEvent(evt, new ThrowingBiConsumer<>() {
+		return getHandler().addEvent(evt, new EventData<>(helper, new ThrowingBiConsumer<>() {
 			private ButtonId<?> currCat = null;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -885,77 +870,74 @@ public abstract class Pages {
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message m = wrapper.retrieveMessage();
+				if (m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
-				if (helper.canInteract(u, wrapper)) {
-					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
+				ButtonId<?> id = null;
+				Action emt = NONE;
+				if (wrapper.getContent() instanceof MessageReaction) {
+					EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
+					id = new EmojiId(toEmoji(reaction));
+					emt = toEmote(reaction);
+				} else if (wrapper.getContent() instanceof Button) {
+					Button btn = (Button) wrapper.getContent();
 
-					ButtonId<?> id = null;
-					Action emt = NONE;
-					if (wrapper.getContent() instanceof MessageReaction) {
-						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
-						id = new EmojiId(toEmoji(reaction));
-						emt = toEmote(reaction);
-					} else if (wrapper.getContent() instanceof Button) {
-						Button btn = (Button) wrapper.getContent();
-
-						String customId = "";
-						String[] idParts = ButtonId.ID_PATTERN.split(btn.getCustomId());
-						if (idParts.length == 2) {
-							customId = idParts[0];
-						}
-
-						if (btn.getEmoji() == null) {
-							id = new TextId(customId, btn.getLabel(), btn.getStyle());
-						} else {
-							id = new EmojiId(customId, btn.getEmoji(), btn.getLabel(), btn.getStyle());
-						}
-
-						if (btn.getCustomId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getCustomId())[0]);
-						}
+					String customId = "";
+					String[] idParts = ButtonId.ID_PATTERN.split(btn.getCustomId());
+					if (idParts.length == 2) {
+						customId = idParts[0];
 					}
 
-					if (emt == CANCEL) {
-						if (m.isEphemeral() && wrapper.getHook() != null) {
-							finalizeEvent(wrapper.getHook(), success);
-						} else {
-							finalizeEvent(m, success);
-						}
-
-						return;
-					} else if (id != null && !Objects.equals(id, currCat)) {
-						Page pg = cats.get(id);
-						if (pg != null) {
-							if (currCat != null) {
-								modifyButtons(m, pg, Map.of(
-										currCat.getId(), Button::asEnabled,
-										(currCat = id).getId(), Button::asDisabled
-								));
-							} else {
-								modifyButtons(m, pg, Map.of((currCat = id).getId(), Button::asDisabled));
-							}
-						}
+					if (btn.getEmoji() == null) {
+						id = new TextId(customId, btn.getLabel(), btn.getStyle());
+					} else {
+						id = new EmojiId(customId, btn.getEmoji(), btn.getLabel(), btn.getStyle());
 					}
 
-					if (timeout != null) {
-						timeout.cancel(true);
-					}
-					if (helper.getTimeout() > 0) {
-						timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
-					}
-
-					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+					if (btn.getCustomId() != null && Action.isNative(btn)) {
+						emt = Action.valueOf(ButtonId.ID_PATTERN.split(btn.getCustomId())[0]);
 					}
 				}
+
+				if (emt == CANCEL) {
+					if (m.isEphemeral() && wrapper.getHook() != null) {
+						finalizeEvent(wrapper.getHook(), success);
+					} else {
+						finalizeEvent(m, success);
+					}
+
+					return;
+				} else if (id != null && !Objects.equals(id, currCat)) {
+					Page pg = cats.get(id);
+					if (pg != null) {
+						if (currCat != null) {
+							modifyButtons(m, pg, Map.of(
+									currCat.getId(), Button::asEnabled,
+									(currCat = id).getId(), Button::asDisabled
+							));
+						} else {
+							modifyButtons(m, pg, Map.of((currCat = id).getId(), Button::asDisabled));
+						}
+					}
+				}
+
+				if (timeout != null) {
+					timeout.cancel(true);
+				}
+				if (helper.getTimeout() > 0) {
+					timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+				}
+
+				if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+				}
 			}
-		});
+		}));
 	}
 
 	/**
 	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
 	 * executing a specific task on click. You may only specify one {@link Runnable}
-	 * per button, adding another button with an existing unicode will overwrite the
+	 * per button, adding another button with an existing Unicode will overwrite the
 	 * current button's {@link Runnable}.
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
@@ -982,7 +964,7 @@ public abstract class Pages {
 	/**
 	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
 	 * executing a specific task on click. You may only specify one {@link Runnable}
-	 * per button, adding another button with an existing unicode will overwrite the
+	 * per button, adding another button with an existing Unicode will overwrite the
 	 * current button's {@link Runnable}. You can specify the time in which the
 	 * listener will automatically stop itself after a no-activity interval.
 	 *
@@ -1014,7 +996,7 @@ public abstract class Pages {
 	/**
 	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
 	 * executing a specific task on click. You may only specify one {@link Runnable}
-	 * per button, adding another button with an existing unicode will overwrite the
+	 * per button, adding another button with an existing Unicode will overwrite the
 	 * current button's {@link Runnable}.
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
@@ -1037,14 +1019,14 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, null);
 	}
 
 	/**
 	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
 	 * executing a specific task on click. You may only specify one {@link Runnable}
-	 * per button, adding another button with an existing unicode will overwrite the
+	 * per button, adding another button with an existing Unicode will overwrite the
 	 * current button's {@link Runnable}. You can specify the time in which the
 	 * listener will automatically stop itself after a no-activity interval.
 	 *
@@ -1072,14 +1054,14 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, int time, TimeUnit unit, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, buttons, useButtons, showCancelButton, time, unit, canInteract, null);
 	}
 
 	/**
 	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
 	 * executing a specific task on click. You may only specify one {@link Runnable}
-	 * per button, adding another button with an existing unicode will overwrite the
+	 * per button, adding another button with an existing Unicode will overwrite the
 	 * current button's {@link Runnable}.
 	 *
 	 * @param msg              The {@link Message} sent which will be buttoned.
@@ -1103,14 +1085,14 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean showCancelButton, Predicate<InteractionData> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, buttons, useButtons, showCancelButton, 0, null, canInteract, onCancel);
 	}
 
 	/**
 	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
 	 * executing a specific task on click. You may only specify one {@link Runnable}
-	 * per button, adding another button with an existing unicode will overwrite the
+	 * per button, adding another button with an existing Unicode will overwrite the
 	 * current button's {@link Runnable}. You can specify the time in which the
 	 * listener will automatically stop itself after a no-activity interval.
 	 *
@@ -1126,9 +1108,7 @@ public abstract class Pages {
 	 *                    listening for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param canInteract {@link Predicate} to determine whether the
-	 *                    {@link User} that pressed the button can interact
-	 *                    with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @param onCancel    Action to be run after the listener is removed.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
 	 * disposed of.
@@ -1139,7 +1119,7 @@ public abstract class Pages {
 	 *                                         due to lack of bot permission.
 	 * @throws InvalidStateException           Thrown if the library wasn't activated.
 	 */
-	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean cancellable, int time, TimeUnit unit, Predicate<User> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference buttonize(@NotNull Message msg, @NotNull Map<ButtonId<?>, ThrowingConsumer<ButtonWrapper>> buttons, boolean useButtons, boolean cancellable, int time, TimeUnit unit, Predicate<InteractionData> canInteract, Consumer<Message> onCancel) throws ErrorResponseException, InsufficientPermissionException {
 		return buttonize(msg, new ButtonizeHelper(buttons, useButtons)
 				.setCancellable(cancellable)
 				.setTimeout(time, unit)
@@ -1151,9 +1131,9 @@ public abstract class Pages {
 	/**
 	 * Adds buttons to the specified {@link Message}/{@link MessageEmbed}, with each
 	 * executing a specific task on click. You may only specify one {@link Runnable}
-	 * per button, adding another button with an existing unicode will overwrite the
-	 * current button's {@link Runnable}. This versions uses a helper class
-	 * to aid customization and allow reusage of configurations.
+	 * per button, adding another button with an existing Unicode will overwrite the
+	 * current button's {@link Runnable}. This version uses a helper class
+	 * to aid customization and allow usage of configurations.
 	 *
 	 * @param msg    The {@link Message} sent which will be buttoned.
 	 * @param helper A {@link ButtonizeHelper} holding desired buttonization settings.
@@ -1191,7 +1171,7 @@ public abstract class Pages {
 		}
 
 		String evt = getHandler().getEventId(msg);
-		return getHandler().addEvent(evt, new ThrowingBiConsumer<>() {
+		return getHandler().addEvent(evt, new EventData<>(helper, new ThrowingBiConsumer<>() {
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
 				if (timeout != null) {
@@ -1212,79 +1192,72 @@ public abstract class Pages {
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message m = wrapper.retrieveMessage();
+				if (m == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
-				if (helper.canInteract(u, wrapper)) {
-					if (u.isBot() || m == null || !wrapper.getMessageId().equals(msg.getId())) return;
+				ButtonId<?> id = null;
+				Action emt = NONE;
+				if (wrapper.getContent() instanceof MessageReaction) {
+					EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
+					id = new EmojiId(toEmoji(reaction));
+					emt = toEmote(reaction);
+				} else if (wrapper.getContent() instanceof Button) {
+					Button btn = (Button) wrapper.getContent();
 
-					ButtonId<?> id = null;
-					Action emt = NONE;
-					if (wrapper.getContent() instanceof MessageReaction) {
-						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
-						id = new EmojiId(toEmoji(reaction));
-						emt = toEmote(reaction);
-					} else if (wrapper.getContent() instanceof Button) {
-						Button btn = (Button) wrapper.getContent();
-
-						String customId = "";
-						String[] idParts = ButtonId.ID_PATTERN.split(btn.getCustomId());
-						if (idParts.length == 2) {
-							customId = idParts[0];
-						}
-
-						if (btn.getEmoji() == null) {
-							id = new TextId(customId, btn.getLabel(), btn.getStyle());
-						} else {
-							id = new EmojiId(customId, btn.getEmoji(), btn.getLabel(), btn.getStyle());
-						}
-
-						if (btn.getCustomId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getCustomId())[0]);
-						}
+					String customId = "";
+					String[] idParts = ButtonId.ID_PATTERN.split(btn.getCustomId());
+					if (idParts.length == 2) {
+						customId = idParts[0];
 					}
 
-					boolean hasCancel = btns.keySet().stream().anyMatch(b -> Objects.equals(b.getContent(), Pages.getPaginator().getEmoji(CANCEL)));
-					if ((!hasCancel && helper.isCancellable()) && emt == CANCEL) {
-						if (m.isEphemeral() && wrapper.getHook() != null) {
-							finalizeEvent(wrapper.getHook(), success);
-						} else {
-							finalizeEvent(m, success);
-						}
-
-						return;
-					}
-
-					Button button;
-					InteractionHook hook;
-					if (wrapper.getSource() instanceof ButtonInteractionEvent) {
-						button = (Button) wrapper.getContent();
-						hook = ((ButtonInteractionEvent) wrapper.getSource()).getHook();
+					if (btn.getEmoji() == null) {
+						id = new TextId(customId, btn.getLabel(), btn.getStyle());
 					} else {
-						button = null;
-						hook = null;
+						id = new EmojiId(customId, btn.getEmoji(), btn.getLabel(), btn.getStyle());
 					}
 
-					ThrowingConsumer<ButtonWrapper> act = btns.get(id);
-					if (act != null) {
-						act.accept(new ButtonWrapper(
-								wrapper.getUser(), hook, button,
-								getHandler().getDropdownValues(getHandler().getEventId(m)),
-								m
-						));
-					}
-
-					if (timeout != null) {
-						timeout.cancel(true);
-					}
-					if (helper.getTimeout() > 0) {
-						timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
-					}
-
-					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+					if (btn.getCustomId() != null && Action.isNative(btn)) {
+						emt = Action.valueOf(ButtonId.ID_PATTERN.split(btn.getCustomId())[0]);
 					}
 				}
+
+				boolean hasCancel = btns.keySet().stream().anyMatch(b -> Objects.equals(b.getContent(), Pages.getPaginator().getEmoji(CANCEL)));
+				if ((!hasCancel && helper.isCancellable()) && emt == CANCEL) {
+					if (m.isEphemeral() && wrapper.getHook() != null) {
+						finalizeEvent(wrapper.getHook(), success);
+					} else {
+						finalizeEvent(m, success);
+					}
+
+					return;
+				}
+
+				Button button;
+				InteractionHook hook;
+				if (wrapper.getSource() instanceof ButtonInteractionEvent) {
+					button = (Button) wrapper.getContent();
+					hook = ((ButtonInteractionEvent) wrapper.getSource()).getHook();
+				} else {
+					button = null;
+					hook = null;
+				}
+
+				ThrowingConsumer<ButtonWrapper> act = btns.get(id);
+				if (act != null) {
+					act.accept(new ButtonWrapper(wrapper.getUser(), hook, button, helper.getDropdownValues(), m));
+				}
+
+				if (timeout != null) {
+					timeout.cancel(true);
+				}
+				if (helper.getTimeout() > 0) {
+					timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+				}
+
+				if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+				}
 			}
-		});
+		}));
 	}
 
 	/**
@@ -1294,7 +1267,7 @@ public abstract class Pages {
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
+	 *                   returns null, the method will treat it as the last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
@@ -1304,7 +1277,7 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
 	public static ActionReference lazyPaginate(@NotNull Message msg, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, null, pageLoader, useButtons, 0, null, null);
@@ -1314,12 +1287,12 @@ public abstract class Pages {
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit
-	 * You can specify how long the listener will stay active before shutting down itself after a
+	 * You can specify how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
+	 *                   returns null, the method will treat it as the last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
 	 * @param time       The time before the listener automatically stop listening
@@ -1333,7 +1306,7 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
 	public static ActionReference lazyPaginate(@NotNull Message msg, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, null, pageLoader, useButtons, time, unit, null);
@@ -1346,11 +1319,10 @@ public abstract class Pages {
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 *                    returns null, the method will treat it as the last page, preventing unnecessary updates.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
 	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -1358,9 +1330,9 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
-	public static ActionReference lazyPaginate(@NotNull Message msg, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference lazyPaginate(@NotNull Message msg, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, null, pageLoader, useButtons, 0, null, canInteract);
 	}
 
@@ -1368,20 +1340,19 @@ public abstract class Pages {
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
-	 * You can specify how long the listener will stay active before shutting down itself after a
+	 * You can specify how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 *                    returns null, the method will treat it as the last page, preventing unnecessary updates.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param time        The time before the listener automatically stop listening.
+	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
 	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -1389,9 +1360,9 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
-	public static ActionReference lazyPaginate(@NotNull Message msg, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference lazyPaginate(@NotNull Message msg, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, null, pageLoader, useButtons, time, unit, canInteract);
 	}
 
@@ -1403,7 +1374,7 @@ public abstract class Pages {
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageCache  The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
+	 *                   returns null, the method will treat it as the last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
@@ -1413,7 +1384,7 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
 	public static ActionReference lazyPaginate(@NotNull Message msg, List<Page> pageCache, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, pageCache, pageLoader, useButtons, 0, null, null);
@@ -1423,13 +1394,13 @@ public abstract class Pages {
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
-	 * You can specify how long the listener will stay active before shutting down itself after a
+	 * You can specify how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg        The {@link Message} sent which will be paginated.
 	 * @param pageCache  The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                   returns null the method will treat it as last page, preventing unnecessary updates.
+	 *                   returns null, the method will treat it as the last page, preventing unnecessary updates.
 	 * @param useButtons Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                   {@link Message} was not sent by the bot.
 	 * @param time       The time before the listener automatically stop listening
@@ -1443,7 +1414,7 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
 	public static ActionReference lazyPaginate(@NotNull Message msg, List<Page> pageCache, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, pageCache, pageLoader, useButtons, time, unit, null);
@@ -1457,11 +1428,10 @@ public abstract class Pages {
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageCache   The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 *                    returns null, the method will treat it as the last page, preventing unnecessary updates.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
 	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -1469,9 +1439,9 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
-	public static ActionReference lazyPaginate(@NotNull Message msg, List<Page> pageCache, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference lazyPaginate(@NotNull Message msg, List<Page> pageCache, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, pageCache, pageLoader, useButtons, 0, null, canInteract);
 	}
 
@@ -1479,21 +1449,20 @@ public abstract class Pages {
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
-	 * You can specify how long the listener will stay active before shutting down itself after a
+	 * You can specify how long the listener will stay active before shutting itself down after a
 	 * no-activity interval.
 	 *
 	 * @param msg         The {@link Message} sent which will be paginated.
 	 * @param pageCache   The {@link List} that'll hold previously visited pages (can be pre-filled or edited anytime).
 	 * @param pageLoader  {@link ThrowingFunction}&lt;{@link Integer}, {@link Page}&gt; to generate the next page. If this
-	 *                    returns null the method will treat it as last page, preventing unnecessary updates.
+	 *                    returns null, the method will treat it as the last page, preventing unnecessary updates.
 	 * @param useButtons  Whether to use interaction {@link Button} or reactions. Will fall back to false if the supplied
 	 *                    {@link Message} was not sent by the bot.
 	 * @param time        The time before the listener automatically stop listening
 	 *                    for further events (recommended: 60).
 	 * @param unit        The time's {@link TimeUnit} (recommended:
 	 *                    {@link TimeUnit#SECONDS}).
-	 * @param canInteract {@link Predicate} to determine whether the {@link User}
-	 *                    that pressed the button can interact with it or not.
+	 * @param canInteract {@link Predicate} to determine whether the interaction is to be allowed.
 	 * @return an {@link ActionReference} pointing to the newly created event, can be used for checking when it gets
 	 * disposed of.
 	 * @throws ErrorResponseException          Thrown if the {@link Message} no longer exists
@@ -1501,9 +1470,9 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
-	public static ActionReference lazyPaginate(@NotNull Message msg, List<Page> pageCache, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<User> canInteract) throws ErrorResponseException, InsufficientPermissionException {
+	public static ActionReference lazyPaginate(@NotNull Message msg, List<Page> pageCache, @NotNull ThrowingFunction<Integer, Page> pageLoader, boolean useButtons, int time, TimeUnit unit, Predicate<InteractionData> canInteract) throws ErrorResponseException, InsufficientPermissionException {
 		return lazyPaginate(msg, new LazyPaginateHelper(pageLoader, pageCache, useButtons)
 				.setTimeout(time, unit)
 				.setCanInteract(canInteract)
@@ -1514,7 +1483,7 @@ public abstract class Pages {
 	 * Adds navigation buttons to the specified {@link Message}/{@link MessageEmbed}
 	 * which will lazily load content by using supplied {@link ThrowingFunction}. For this reason,
 	 * this pagination type cannot have skip nor fast-forward buttons given the unknown page limit.
-	 * This versions uses a helper class to aid customization and allow reusage of configurations.
+	 * This version uses a helper class to aid customization and allow usage of configurations.
 	 *
 	 * @param msg    The {@link Message} sent which will be paginated.
 	 * @param helper A {@link LazyPaginateHelper} holding desired lazy pagination settings.
@@ -1525,7 +1494,7 @@ public abstract class Pages {
 	 *                                         {@link GenericMessageReactionEvent}.
 	 * @throws InsufficientPermissionException Thrown if this library cannot remove reactions
 	 *                                         due to lack of bot permission.
-	 * @throws InvalidStateException           Thrown if the library wasn't activated or first page cannot be generated.
+	 * @throws InvalidStateException           Thrown if the library wasn't activated or the first page cannot be generated.
 	 */
 	public static ActionReference lazyPaginate(@NotNull Message msg, @NotNull LazyPaginateHelper helper) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated()) throw new InvalidStateException();
@@ -1541,7 +1510,7 @@ public abstract class Pages {
 		}
 
 		String evt = getHandler().getEventId(msg);
-		return getHandler().addEvent(evt, new ThrowingBiConsumer<>() {
+		return getHandler().addEvent(evt, new EventData<>(helper, new ThrowingBiConsumer<>() {
 			private int p = 0;
 			private ScheduledFuture<?> timeout;
 			private final Consumer<Void> success = s -> {
@@ -1564,91 +1533,88 @@ public abstract class Pages {
 			@Override
 			public void acceptThrows(@NotNull User u, @NotNull PaginationEventWrapper wrapper) {
 				Message msg = wrapper.retrieveMessage();
+				if (msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
 
-				if (helper.canInteract(u, wrapper)) {
-					if (u.isBot() || msg == null || !wrapper.getMessageId().equals(msg.getId())) return;
+				Action emt = NONE;
+				if (wrapper.getContent() instanceof MessageReaction) {
+					EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
+					emt = toEmote(reaction);
+				} else if (wrapper.getContent() instanceof Button) {
+					Button btn = (Button) wrapper.getContent();
 
-					Action emt = NONE;
-					if (wrapper.getContent() instanceof MessageReaction) {
-						EmojiUnion reaction = ((MessageReaction) wrapper.getContent()).getEmoji();
-						emt = toEmote(reaction);
-					} else if (wrapper.getContent() instanceof Button) {
-						Button btn = (Button) wrapper.getContent();
-
-						if (btn.getCustomId() != null && Action.isNative(btn)) {
-							emt = Action.valueOf(TextId.ID_PATTERN.split(btn.getCustomId())[0]);
-						}
+					if (btn.getCustomId() != null && Action.isNative(btn)) {
+						emt = Action.valueOf(ButtonId.ID_PATTERN.split(btn.getCustomId())[0]);
 					}
+				}
 
-					Page pg = null;
-					boolean update = false;
-					boolean end = false;
-					switch (emt) {
-						case PREVIOUS:
-							if (p > 0) {
-								p--;
-								update = true;
-								pg = cache ? helper.getContent().get(p) : helper.getPageLoader().apply(p);
-							}
-							break;
-						case NEXT:
-							p++;
+				Page pg = null;
+				boolean update = false;
+				boolean end = false;
+				switch (emt) {
+					case PREVIOUS:
+						if (p > 0) {
+							p--;
 							update = true;
+							pg = cache ? helper.getContent().get(p) : helper.getPageLoader().apply(p);
+						}
+						break;
+					case NEXT:
+						p++;
+						update = true;
 
-							if (cache && helper.getContent().size() > p) {
-								pg = helper.getContent().get(p);
-								if (pg == null) {
-									pg = helper.getPageLoader().apply(p);
-									if (pg == null) {
-										p--;
-										end = true;
-									}
-								}
-							} else {
+						if (cache && helper.getContent().size() > p) {
+							pg = helper.getContent().get(p);
+							if (pg == null) {
 								pg = helper.getPageLoader().apply(p);
 								if (pg == null) {
 									p--;
 									end = true;
 								}
 							}
-
-							if (cache && pg != null) {
-								helper.getContent().add(pg);
+						} else {
+							pg = helper.getPageLoader().apply(p);
+							if (pg == null) {
+								p--;
+								end = true;
 							}
-							break;
-						case CANCEL:
-							if (msg.isEphemeral() && wrapper.getHook() != null) {
-								finalizeEvent(wrapper.getHook(), success);
-							} else {
-								finalizeEvent(msg, success);
-							}
+						}
 
-							return;
-					}
+						if (cache && pg != null) {
+							helper.getContent().add(pg);
+						}
+						break;
+					case CANCEL:
+						if (msg.isEphemeral() && wrapper.getHook() != null) {
+							finalizeEvent(wrapper.getHook(), success);
+						} else {
+							finalizeEvent(msg, success);
+						}
 
-					if (update) {
-						boolean reachedEnd = end;
-						modifyButtons(msg, pg, Map.of(
-								PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
-								SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
-								GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
-								NEXT.name(), b -> b.withDisabled(reachedEnd)
-						));
-					}
+						return;
+				}
 
-					if (timeout != null) {
-						timeout.cancel(true);
-					}
-					if (helper.getTimeout() > 0) {
-						timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
-					}
+				if (update) {
+					boolean reachedEnd = end;
+					modifyButtons(msg, pg, Map.of(
+							PREVIOUS.name(), LOWER_BOUNDARY_CHECK,
+							SKIP_BACKWARD.name(), LOWER_BOUNDARY_CHECK,
+							GOTO_FIRST.name(), LOWER_BOUNDARY_CHECK,
+							NEXT.name(), b -> b.withDisabled(reachedEnd)
+					));
+				}
 
-					if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-						subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
-					}
+				if (timeout != null) {
+					timeout.cancel(true);
+				}
+				if (helper.getTimeout() > 0) {
+					timeout = getScheduler().schedule(evt, () -> finalizeEvent(msg, success), helper.getTimeout(), TimeUnit.MILLISECONDS);
+				}
+
+				if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
+					subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
 				}
 			}
-		});
+		}));
 	}
 
 	/**
@@ -1793,7 +1759,7 @@ public abstract class Pages {
 		act.setComponents(msg.getComponentTree().replace(c -> {
 			if (c instanceof Button) {
 				Button btn = (Button) c;
-				String id = TextId.ID_PATTERN.split(btn.getCustomId())[0];
+				String id = ButtonId.ID_PATTERN.split(btn.getCustomId())[0];
 
 				if (changes.containsKey(id)) {
 					return changes.get(id).apply(btn);
@@ -1830,6 +1796,7 @@ public abstract class Pages {
 
 	/**
 	 * Utility method for extracting a {@link Message}'s {@link Button}s.
+	 *
 	 * @param msg The {@link Message} to extract buttons from.
 	 * @return The {@link Message}'s {@link Button}s.
 	 */

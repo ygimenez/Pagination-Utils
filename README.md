@@ -63,7 +63,7 @@ JDA bot = ... // Creation of bot client
 Pages.activate(PaginatorBuilder.createSimplePaginator(bot));
 ```
 
-But if you want some customization of the library's behaviour, you can opt to use the full builder:
+But if you want some customization of the library's behavior, you can opt to use the full builder:
 
 ```java
 JDA bot = ... // Creation of bot client
@@ -79,7 +79,7 @@ Paginator paginator = PaginatorBuilder.createPaginator(bot)
         .activate();
 ```
 
-If you want to go even further and change the default buttons' actions, don't worry, we got you covered:
+If you want to go even further and change the default buttons' actions, don't worry; we got you covered:
 
 ```java
 JDA bot = ... // Creation of bot client
@@ -142,7 +142,7 @@ exampleChannel.sendMessage((Message) pages.get(0).getContent()).queue(success ->
   <figcaption><i style="color: gray">Wait, that's it?</i></figcaption>
 </figure>
 
-That's everything you have to do, the library will automatically add the navigation buttons to the target message, which
+That's everything you have to do; the library will automatically add the navigation buttons to the target message, which
 will change its content based on the list's order.
 
 ## How do I categorize?
@@ -179,7 +179,7 @@ exampleChannel.sendMessage("This is the main menu").queue(success -> {
 
 ## How do I buttonize?
 
-To do it, you first need to setup a few things:
+To do it, you first need to set up a few things:
 
 ```java
 // A Consumer is a callback function that uses one arguments and returns nothing
@@ -232,7 +232,7 @@ exampleChannel.sendMessage((String) pages.get(0).getContent()).queue(success -> 
 
 ## Is it really that easy?
 
-Yes, you can focus on creating epic menus, ranking, lists, games, *et cetera* and leave the boring part for the library to do its job, isn't that awesome?
+Yes, you can focus on creating epic menus, ranking, lists, games, *et cetera* and leave the boring part for the library to do its job; isn't that awesome?
 
 ## How do I get it?
 
@@ -274,4 +274,4 @@ Maven:
 
 ## Feedback
 
-If you have any issues using this library feel free to create a new issue, I'll review it as soon as possible!
+If you have any issues using this library, feel free to create a new issue; I'll review it as soon as possible!

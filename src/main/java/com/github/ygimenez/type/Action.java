@@ -1,6 +1,7 @@
 package com.github.ygimenez.type;
 
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.ButtonId;
 import com.github.ygimenez.model.TextId;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
@@ -107,7 +108,7 @@ public enum Action {
 	 */
 	public static boolean isNative(@NotNull Button btn) {
 		if (btn.getCustomId() == null) return false;
-		String id = TextId.ID_PATTERN.split(btn.getCustomId())[0];
+		String id = ButtonId.ID_PATTERN.split(btn.getCustomId())[0];
 
 		for (Action emt : values()) {
 			if (emt.name().equals(id)) return true;

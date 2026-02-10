@@ -1,22 +1,20 @@
 package com.github.ygimenez.model.helper;
 
 import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.model.PUtilsConfig;
-import com.github.ygimenez.model.PaginationEventWrapper;
+import com.github.ygimenez.model.InteractionData;
 import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
-import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -28,13 +26,14 @@ import java.util.function.Predicate;
  */
 public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implements Cloneable {
 	private final Class<Helper> subClass;
+	private final Map<String, List<?>> dropdownValues = new HashMap<>();
 
 	private final T content;
 	private final boolean useButtons;
 
 	private boolean cancellable = true;
 	private long time = 0;
-	private BiPredicate<User, Button> canInteract = null;
+	private Predicate<InteractionData> canInteract = null;
 
 	/**
 	 * Constructor for {@link BaseHelper}.
@@ -47,6 +46,15 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 		this.subClass = subClass;
 		this.content = content;
 		this.useButtons = useButtons;
+	}
+
+	/**
+	 * Retrieves the dropdown values associated with this helper. Manually editing it might lead to unexpected behavior.
+	 *
+	 * @return A map containing dropdown values.
+	 */
+	public Map<String, List<?>> getDropdownValues() {
+		return dropdownValues;
 	}
 
 	/**
@@ -79,7 +87,7 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 	/**
 	 * Set whether the event is cancellable through {@link Action#CANCEL}.
 	 *
-	 * @param cancellable Whether the event can be cancelled or not (default: true).
+	 * @param cancellable Whether the event can be canceled or not (default: true).
 	 * @return The {@link Helper} instance for chaining convenience.
 	 */
 	public Helper setCancellable(boolean cancellable) {
@@ -115,46 +123,20 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 	/**
 	 * Checks whether the supplied {@link User} can interact with the event.
 	 *
-	 * @param user    The {@link User} to check.
-	 * @param wrapper The click event.
-	 * @return Whether the suppied user can interact with the event.
+	 * @param data The interaction data.
+	 * @return Whether the supplied user can interact with the event.
 	 */
-	public boolean canInteract(User user, PaginationEventWrapper wrapper) {
-		Button btn = null;
-		if (wrapper.getContent() instanceof Button) {
-			btn = (Button) wrapper.getContent();
-		} else {
-			if (!(wrapper.getContent() instanceof MessageReaction)) {
-				Pages.getPaginator().log(PUtilsConfig.LogLevel.LEVEL_2, "Interaction event fired for unhandled type: " + wrapper.getContent().getClass().getName());
-			}
-		}
-
-		if (useButtons && btn == null) {
-			return false;
-		}
-
-		return canInteract == null || canInteract.test(user, btn);
+	public boolean canInteract(InteractionData data) {
+		return canInteract == null || canInteract.test(data);
 	}
 
 	/**
 	 * Set the condition used to check if a given user can interact with the event buttons.
 	 *
-	 * @param canInteract A {@link Predicate} for checking if a given user can interact with the buttons (default: null).
+	 * @param canInteract A {@link Predicate} for checking if an interaction is to be allowed (default: null).
 	 * @return The {@link Helper} instance for chaining convenience.
 	 */
-	public Helper setCanInteract(@Nullable Predicate<User> canInteract) {
-		this.canInteract = canInteract == null ? null : (u, b) -> canInteract.test(u);
-		return subClass.cast(this);
-	}
-
-	/**
-	 * Set the condition used to check if a given user can interact with the event buttons.
-	 *
-	 * @param canInteract A {@link BiPredicate} for checking if a given user can interact with the buttons, also giving
-	 *                    which {@link Button} was pressed (will be null if using reaction buttons). (default: null).
-	 * @return The {@link Helper} instance for chaining convenience.
-	 */
-	public Helper setCanInteract(@Nullable BiPredicate<User, Button> canInteract) {
+	public Helper setCanInteract(@Nullable Predicate<InteractionData> canInteract) {
 		this.canInteract = canInteract;
 		return subClass.cast(this);
 	}
@@ -172,7 +154,7 @@ public abstract class BaseHelper<Helper extends BaseHelper<Helper, T>, T> implem
 	 * Prepares the message for being used by the library. This doesn't need to be called manually, this will
 	 * be called during normal flow.
 	 * <br>
-	 * This is no-op when using reaction buttons.
+	 * This is a no-op when using reaction buttons.
 	 * <br><br>
 	 * Example:
 	 * <pre>{@code helper.apply(channel.sendMessage("Hello world!")).queue();}</pre>
