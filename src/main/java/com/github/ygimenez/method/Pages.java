@@ -11,10 +11,12 @@ import com.github.ygimenez.model.helper.LazyPaginateHelper;
 import com.github.ygimenez.model.helper.PaginateHelper;
 import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -585,9 +587,6 @@ public abstract class Pages {
 				if (timeout != null) {
 					timeout.cancel(true);
 				}
-
-				getHandler().removeEvent(evt);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			private final Function<Button, Button> LOWER_BOUNDARY_CHECK = b -> b.withDisabled(p == 0);
@@ -656,12 +655,7 @@ public abstract class Pages {
 						}
 						break;
 					case CANCEL:
-						if (msg.isEphemeral() && wrapper.getHook() != null) {
-							finalizeEvent(wrapper.getHook(), success);
-						} else {
-							finalizeEvent(msg, success);
-						}
-
+						finalizeEvent(msg, wrapper.getHook(), success);
 						return;
 				}
 
@@ -686,7 +680,7 @@ public abstract class Pages {
 				}
 
 				if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-					subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+					((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
 				}
 			}
 		}));
@@ -856,9 +850,6 @@ public abstract class Pages {
 				if (timeout != null) {
 					timeout.cancel(true);
 				}
-
-				getHandler().removeEvent(evt);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
@@ -899,12 +890,7 @@ public abstract class Pages {
 				}
 
 				if (emt == CANCEL) {
-					if (m.isEphemeral() && wrapper.getHook() != null) {
-						finalizeEvent(wrapper.getHook(), success);
-					} else {
-						finalizeEvent(m, success);
-					}
-
+					finalizeEvent(m, wrapper.getHook(), success);
 					return;
 				} else if (id != null && !Objects.equals(id, currCat)) {
 					Page pg = cats.get(id);
@@ -928,7 +914,7 @@ public abstract class Pages {
 				}
 
 				if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-					subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+					((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
 				}
 			}
 		}));
@@ -1178,9 +1164,7 @@ public abstract class Pages {
 					timeout.cancel(true);
 				}
 
-				getHandler().removeEvent(evt);
 				if (helper.getOnFinalization() != null) helper.getOnFinalization().accept(msg);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			{
@@ -1222,12 +1206,7 @@ public abstract class Pages {
 
 				boolean hasCancel = btns.keySet().stream().anyMatch(b -> Objects.equals(b.getContent(), Pages.getPaginator().getEmoji(CANCEL)));
 				if ((!hasCancel && helper.isCancellable()) && emt == CANCEL) {
-					if (m.isEphemeral() && wrapper.getHook() != null) {
-						finalizeEvent(wrapper.getHook(), success);
-					} else {
-						finalizeEvent(m, success);
-					}
-
+					finalizeEvent(m, wrapper.getHook(), success);
 					return;
 				}
 
@@ -1254,7 +1233,7 @@ public abstract class Pages {
 				}
 
 				if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-					subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+					((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
 				}
 			}
 		}));
@@ -1517,9 +1496,6 @@ public abstract class Pages {
 				if (timeout != null) {
 					timeout.cancel(true);
 				}
-
-				getHandler().removeEvent(evt);
-				if (paginator.isDeleteOnCancel()) msg.delete().submit();
 			};
 
 			private final Function<Button, Button> LOWER_BOUNDARY_CHECK = b -> b.withDisabled(p == 0);
@@ -1584,12 +1560,7 @@ public abstract class Pages {
 						}
 						break;
 					case CANCEL:
-						if (msg.isEphemeral() && wrapper.getHook() != null) {
-							finalizeEvent(wrapper.getHook(), success);
-						} else {
-							finalizeEvent(msg, success);
-						}
-
+						finalizeEvent(msg, wrapper.getHook(), success);
 						return;
 				}
 
@@ -1611,7 +1582,7 @@ public abstract class Pages {
 				}
 
 				if (wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent && paginator.isRemoveOnReact()) {
-					subGet(((MessageReaction) wrapper.getContent()).removeReaction(u));
+					((MessageReaction) wrapper.getContent()).removeReaction(u).submit();
 				}
 			}
 		}));
@@ -1678,18 +1649,24 @@ public abstract class Pages {
 	 * @param msg The {@link Message} to have reactions/buttons removed from.
 	 */
 	public static void clearReactions(Message msg) {
-		if (msg.getReactions().isEmpty()) return;
+		User self = msg.getJDA().getSelfUser();
+		if (!msg.getAuthor().equals(self) || msg.getReactions().isEmpty()) return;
 
 		try {
 			if (msg.getChannel().getType().isGuild()) {
-				msg.clearReactions().submit();
-			} else for (MessageReaction r : msg.getReactions()) {
-				r.removeReaction().submit();
+				Guild guild = msg.getGuild();
+				GuildMessageChannel channel = msg.getGuildChannel();
+				if (guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE)) {
+					subGet(msg.clearReactions());
+					return;
+				}
+			}
+
+			for (MessageReaction r : msg.getReactions()) {
+				subGet(r.removeReaction());
 			}
 		} catch (InsufficientPermissionException | IllegalStateException e) {
-			for (MessageReaction r : msg.getReactions()) {
-				r.removeReaction().submit();
-			}
+			paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Not enough permissions to clear message reactions:", e);
 		}
 	}
 
@@ -1699,13 +1676,10 @@ public abstract class Pages {
 	 * @param msg The {@link Message} to have reactions/buttons removed from.
 	 */
 	public static void clearButtons(Message msg) {
-		if (Pages.getButtons(msg).isEmpty()) return;
+		User self = msg.getJDA().getSelfUser();
+		if (!msg.getAuthor().equals(self) || Pages.getButtons(msg).isEmpty()) return;
 
-		try {
-			subGet(msg.editMessageComponents());
-		} catch (InsufficientPermissionException | IllegalStateException e) {
-			paginator.log(PUtilsConfig.LogLevel.LEVEL_2, "Not enough permissions to clear message reactions:", e);
-		}
+		subGet(msg.editMessageComponents());
 	}
 
 	/**
@@ -1715,25 +1689,30 @@ public abstract class Pages {
 	 * @param callback Action to be executed after finalizing.
 	 */
 	public static void finalizeEvent(Message msg, Consumer<Void> callback) {
-		if (!msg.isEphemeral()) {
-			msg = reloadMessage(msg);
-
-			clearButtons(msg);
-			clearReactions(msg);
-		}
-
-		callback.accept(null);
+		finalizeEvent(msg, null, callback);
 	}
 
 	/**
 	 * Utility method to properly finalize a pagination event.
 	 *
+	 * @param msg      The source {@link Message} of the event.
 	 * @param hook     The source {@link InteractionHook} of the event.
 	 * @param callback Action to be executed after finalizing.
 	 */
-	public static void finalizeEvent(InteractionHook hook, Consumer<Void> callback) {
-		hook.deleteOriginal().queue();
+	public static void finalizeEvent(Message msg, InteractionHook hook, Consumer<Void> callback) {
+		if (!msg.isEphemeral()) {
+			msg = reloadMessage(msg);
+
+			clearButtons(msg);
+			clearReactions(msg);
+		} else if (hook != null) {
+			hook.deleteOriginal().queue();
+		}
+
 		callback.accept(null);
+
+		getHandler().removeEvent(getHandler().getEventId(msg));
+		if (paginator.isDeleteOnCancel()) msg.delete().submit();
 	}
 
 	/**
