@@ -30,6 +30,8 @@
 
 With this library you will be using pages, categories and buttons in your bot in no time!
 
+This branch targets **JDA 6.7.0**.
+
 ## What is a page/category/button?
 
 ![Pagination Example](https://i.imgur.com/k5zA0ix.gif)
@@ -199,6 +201,75 @@ exampleChannel.sendMessage("Click to get role").queue(success -> {
   <figcaption><i style="color: gray">Useful for self-assigned roles.</i></figcaption>
 </figure>
 
+## How do I combine pagination and custom actions?
+
+Add the actions to a `PaginateHelper` and register it with **one** `Pages.paginate(message, helper)` call.
+Navigation and custom actions then share the same interaction filter, inactivity timeout, and cancel button.
+This addresses [issue #13](https://github.com/ygimenez/Pagination-Utils/issues/13).
+
+`addAction` adds an action available on every page. Its two-argument callback receives a `ButtonWrapper` and the
+**zero-based current page index**:
+
+```java
+PaginateHelper helper = new PaginateHelper(pages, true)
+        .addAction(new TextId("select", "Select this page"), (button, pageIndex) -> {
+            button.getChannel().sendMessage("Selected page " + (pageIndex + 1)).queue();
+        })
+        .setTimeout(60, TimeUnit.SECONDS);
+
+exampleChannel.sendMessage((String) pages.get(0).getContent())
+        .queue(message -> Pages.paginate(message, helper));
+```
+
+The example above assumes string-backed `InteractPage` entries. For embed pages, send the first page with
+`sendMessageEmbeds` instead. The one-argument callback overload is available when the action does not need the page index.
+
+### Different options on each page
+
+Use `addPageAction` for actions that should only appear on a particular page. Here is the twelve-option example
+from the issue, with five, five, and two options respectively:
+
+```java
+List<Page> pages = List.of(
+        InteractPage.of("Options 1–5"),
+        InteractPage.of("Options 6–10"),
+        InteractPage.of("Options 11–12")
+);
+
+PaginateHelper helper = new PaginateHelper(pages, true)
+        .setTimeout(60, TimeUnit.SECONDS);
+
+for (int option = 0; option < 12; option++) {
+    final int selectedOption = option + 1;
+    int pageIndex = option / 5;
+    int slot = option % 5 + 1;
+
+    helper.addPageAction(pageIndex, new TextId("option-" + slot, "Option " + slot),
+            (button, currentPage) -> button.getChannel()
+                    .sendMessage("Selected option " + selectedOption).queue());
+}
+
+exampleChannel.sendMessage((String) pages.get(0).getContent())
+        .queue(message -> Pages.paginate(message, helper));
+```
+
+Relevant imports are `com.github.ygimenez.model.helper.PaginateHelper`, `com.github.ygimenez.model.TextId`,
+`com.github.ygimenez.model.Page`, and `com.github.ygimenez.model.InteractPage`.
+
+A page-specific action overrides a global action with the same ID on that page. Buttons are rebuilt when navigating,
+and outdated custom buttons are ignored. Reusing a helper for another message gives that message independent page state.
+
+For reaction controls, pass `false` to the helper constructor and use `Emoji` or `EmojiId` actions. Text-only actions
+cannot be represented as reactions and are rejected, including when pagination falls back to reactions on another user's
+message. Removing other users' obsolete reactions requires `MESSAGE_MANAGE`; without it the bot removes its own reactions,
+and actions not available on the current page are ignored.
+
+Navigation IDs and navigation reaction emojis are reserved. The combined controls must fit within five action rows of
+five buttons, or twenty distinct reactions. Invalid combinations are rejected before modifying the message.
+
+Calling `Pages.paginate` and `Pages.buttonize` separately still replaces the message's registered handler. Migrate those
+two calls to the combined helper above.
+
 ## I have low memory, what about me?
 
 Yet again, don't worry, Pagination Utils to the rescue!
@@ -271,6 +342,18 @@ Maven:
 
 * Replace `VERSION` with the one shown here (without "v"): [ ![mvncentral-shield][] ][mvncentral]
 * Done!
+
+## Building and testing
+
+Use JDK 17 or newer for the test toolchain. The library's compilation target remains Java 9.
+
+```sh
+mvn -B test
+mvn -B -Dgpg.skip=true verify
+```
+
+The tests simulate Discord messages, component interactions, reactions, and timeout callbacks locally; they do not require
+a bot token. The `verify` command also builds the main, source, and Javadoc JARs. GPG signing is skipped for local verification.
 
 ## Feedback
 

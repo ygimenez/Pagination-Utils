@@ -12,6 +12,7 @@ import com.github.ygimenez.model.helper.PaginateHelper;
 import com.github.ygimenez.type.Action;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -568,6 +570,7 @@ public abstract class Pages {
 	public static ActionReference paginate(@NotNull Message msg, @NotNull PaginateHelper helper) throws ErrorResponseException, InsufficientPermissionException {
 		if (!isActivated() || helper.getContent().isEmpty()) throw new InvalidStateException();
 		boolean useBtns = helper.isUsingButtons() && msg.getAuthor().getId().equals(msg.getJDA().getSelfUser().getId());
+		if (helper.hasActions()) return paginateWithActions(msg, helper, useBtns);
 		List<Page> pgs = Collections.unmodifiableList(helper.getContent());
 
 		if (useBtns && helper.shouldUpdate(msg)) {
@@ -684,6 +687,253 @@ public abstract class Pages {
 				}
 			}
 		}));
+	}
+
+	private static ActionReference paginateWithActions(Message msg, PaginateHelper helper, boolean useButtons) {
+		PaginateHelper session = helper.clone();
+		session.validateActions(useButtons);
+		CombinedPagination action = new CombinedPagination(msg, session, useButtons);
+		ActionReference reference = getHandler().addEvent(action.eventId, new EventData<>(session, action));
+		try {
+			action.start();
+		} catch (RuntimeException error) {
+			if (action.isCurrent()) getHandler().removeEvent(action.eventId);
+			throw error;
+		}
+		return reference;
+	}
+
+	/** One registration owns navigation, custom actions and their shared lifetime. */
+	private static final class CombinedPagination implements ThrowingBiConsumer<User, PaginationEventWrapper> {
+		private final Message original;
+		private final PaginateHelper helper;
+		private final boolean useButtons;
+		private final String eventId;
+		private final Map<String, Action> navigationButtons = new HashMap<>();
+		private final Map<String, ThrowingBiConsumer<ButtonWrapper, Integer>> actionButtons = new HashMap<>();
+		private final Map<Emoji, Action> navigationReactions = new LinkedHashMap<>();
+		private final Map<Emoji, ThrowingBiConsumer<ButtonWrapper, Integer>> actionReactions = new LinkedHashMap<>();
+		private int page;
+		private boolean finished;
+		private boolean rendering;
+		private ScheduledFuture<?> timeout;
+		private long timeoutVersion;
+
+		private CombinedPagination(Message original, PaginateHelper helper, boolean useButtons) {
+			this.original = original;
+			this.helper = helper;
+			this.useButtons = useButtons;
+			this.eventId = getHandler().getEventId(original);
+			if (helper.isFastForward()) navigationReactions.put(paginator.getEmoji(GOTO_FIRST), GOTO_FIRST);
+			if (helper.getSkipAmount() > 1) navigationReactions.put(paginator.getEmoji(SKIP_BACKWARD), SKIP_BACKWARD);
+			navigationReactions.put(paginator.getEmoji(PREVIOUS), PREVIOUS);
+			if (helper.isCancellable()) navigationReactions.put(paginator.getEmoji(CANCEL), CANCEL);
+			navigationReactions.put(paginator.getEmoji(NEXT), NEXT);
+			if (helper.getSkipAmount() > 1) navigationReactions.put(paginator.getEmoji(SKIP_FORWARD), SKIP_FORWARD);
+			if (helper.isFastForward()) navigationReactions.put(paginator.getEmoji(GOTO_LAST), GOTO_LAST);
+		}
+
+		private synchronized void start() {
+			if (!useButtons) clearButtons(original);
+			render(original, 0, false);
+		}
+
+		private boolean isCurrent() {
+			if (finished || !isActivated()) return false;
+			EventData<?, ?> data = getHandler().getEventMap().get(eventId);
+			return data != null && data.getAction() == this;
+		}
+
+		private void refreshTimeout() {
+			long version = ++timeoutVersion;
+			if (timeout != null) timeout.cancel(false);
+			if (helper.getTimeout() > 0 && isCurrent()) {
+				timeout = getScheduler().schedule(eventId, () -> expire(version),
+						helper.getTimeout(), TimeUnit.MILLISECONDS);
+			}
+		}
+
+		private synchronized void expire(long version) {
+			if (version == timeoutVersion) finish(original, null);
+		}
+
+		private synchronized void finish(Message message, InteractionHook hook) {
+			if (!isCurrent()) return;
+			finished = true;
+			if (timeout != null) timeout.cancel(false);
+			finalizeEvent(message, hook, ignored -> { });
+		}
+
+		@Override
+		public synchronized void acceptThrows(User user, PaginationEventWrapper wrapper) {
+			if (!isCurrent() || rendering || !original.getId().equals(wrapper.getMessageId())) return;
+			Action navigation;
+			ThrowingBiConsumer<ButtonWrapper, Integer> callback;
+			Button button = null;
+			if (useButtons && wrapper.getContent() instanceof Button) {
+				button = (Button) wrapper.getContent();
+				navigation = navigationButtons.get(button.getCustomId());
+				callback = actionButtons.get(button.getCustomId());
+			} else if (!useButtons && wrapper.getContent() instanceof MessageReaction) {
+				Emoji emoji = toEmoji(((MessageReaction) wrapper.getContent()).getEmoji());
+				navigation = navigationReactions.get(emoji);
+				callback = actionReactions.get(emoji);
+			} else {
+				return;
+			}
+			// Full component IDs are scoped to the last rendering. Unknown or obsolete input does nothing.
+			if (navigation == null && callback == null) return;
+			Message message = wrapper.retrieveMessage();
+			if (message == null) return;
+			if (navigation == CANCEL && helper.isCancellable()) {
+				finish(message, wrapper.getHook());
+				return;
+			}
+
+			int targetPage = page;
+			int last = helper.getContent().size() - 1;
+			if (navigation != null) {
+				switch (navigation) {
+					case PREVIOUS: targetPage = Math.max(0, page - 1); break;
+					case NEXT: targetPage = Math.min(last, page + 1); break;
+					case SKIP_BACKWARD: targetPage = Math.max(0, page - helper.getSkipAmount()); break;
+					case SKIP_FORWARD: targetPage = (int) Math.min(last, (long) page + helper.getSkipAmount()); break;
+					case GOTO_FIRST: targetPage = 0; break;
+					case GOTO_LAST: targetPage = last; break;
+					default: return;
+				}
+			}
+			if (targetPage != page) {
+				render(message, targetPage, true);
+				removeUserReaction(user, wrapper);
+				return;
+			}
+			try {
+				if (callback != null) {
+					callback.acceptThrows(new ButtonWrapper(user, wrapper.getHook(), button,
+							helper.getDropdownValues(), message), page);
+				}
+			} finally {
+				refreshTimeout();
+				removeUserReaction(user, wrapper);
+			}
+		}
+
+		private void removeUserReaction(User user, PaginationEventWrapper wrapper) {
+			Paginator currentPaginator = getPaginator();
+			if (currentPaginator != null && wrapper.isFromGuild() && wrapper.getSource() instanceof MessageReactionAddEvent
+					&& currentPaginator.isRemoveOnReact()) {
+				((MessageReaction) wrapper.getContent()).removeReaction(user).submit();
+			}
+		}
+
+		private void render(Message message, int targetPage, boolean updateContent) {
+			Map<ButtonId<?>, ThrowingBiConsumer<ButtonWrapper, Integer>> actions = helper.getActions(targetPage);
+			Map<String, Action> nextNavigation = new HashMap<>();
+			Map<String, ThrowingBiConsumer<ButtonWrapper, Integer>> nextButtons = new HashMap<>();
+			Map<Emoji, ThrowingBiConsumer<ButtonWrapper, Integer>> nextReactions = new LinkedHashMap<>();
+			MessageEditAction edit = null;
+			if (useButtons) {
+				List<MessageTopLevelComponent> components = helper.getComponents(targetPage);
+				Iterator<ThrowingBiConsumer<ButtonWrapper, Integer>> callbacks = actions.values().iterator();
+				for (MessageTopLevelComponent component : components) {
+					for (Button button : ((ActionRow) component).getButtons()) {
+						if (button.getCustomId().startsWith("PU_ACTION_")) {
+							nextButtons.put(button.getCustomId(), callbacks.next());
+						} else if (!button.isDisabled() && Action.isNative(button)) {
+							nextNavigation.put(button.getCustomId(), Action.valueOf(ButtonId.ID_PATTERN.split(button.getCustomId())[0]));
+						}
+					}
+				}
+				edit = updateContent ? editPage(message, targetPage) : message.editMessageComponents();
+				edit.setComponents(components);
+			} else {
+				for (Map.Entry<ButtonId<?>, ThrowingBiConsumer<ButtonWrapper, Integer>> entry : actions.entrySet()) {
+					nextReactions.put(((EmojiId) entry.getKey()).getContent(), entry.getValue());
+				}
+				if (updateContent) edit = editPage(message, targetPage);
+			}
+			rendering = true;
+			// A valid navigation request suspends expiry until its REST result arrives.
+			// A timer already waiting for this monitor must not remove the pending session.
+			timeoutVersion++;
+			if (timeout != null) {
+				timeout.cancel(false);
+				timeout = null;
+			}
+			try {
+				CompletableFuture<Message> request = edit == null ? CompletableFuture.completedFuture(message) : edit.submit();
+				request.whenComplete((updated, error) -> {
+					synchronized (this) {
+						if (!isCurrent()) return;
+						if (error != null) {
+							renderFailed(error, updateContent);
+							return;
+						}
+						page = targetPage;
+						navigationButtons.clear();
+						navigationButtons.putAll(nextNavigation);
+						actionButtons.clear();
+						actionButtons.putAll(nextButtons);
+						Set<Emoji> previous = new LinkedHashSet<>(actionReactions.keySet());
+						actionReactions.clear();
+						actionReactions.putAll(nextReactions);
+						try {
+							if (!useButtons) syncReactions(message, previous);
+						} catch (RuntimeException reactionError) {
+							paginator.log(PUtilsConfig.LogLevel.LEVEL_1, "Could not update pagination reactions", reactionError);
+						} finally {
+							rendering = false;
+							refreshTimeout();
+						}
+					}
+				});
+			} catch (RuntimeException error) {
+				renderFailed(error, updateContent);
+			}
+		}
+
+		private void renderFailed(Throwable error, boolean updateContent) {
+			if (!isCurrent()) return;
+			rendering = false;
+			paginator.log(PUtilsConfig.LogLevel.LEVEL_1, "Could not render pagination controls", error);
+			if (updateContent) {
+				// The old page and full component IDs remain valid, so the user can retry.
+				refreshTimeout();
+			} else {
+				finished = true;
+				if (timeout != null) timeout.cancel(false);
+				getHandler().removeEvent(eventId);
+			}
+		}
+
+		private MessageEditAction editPage(Message message, int pageIndex) {
+			Object content = helper.getContent().get(pageIndex).getContent();
+			if (content instanceof String) return message.editMessage((String) content);
+			if (content instanceof MessageEmbed) return message.editMessageEmbeds((MessageEmbed) content);
+			return message.editMessageEmbeds(((EmbedCluster) content).getEmbeds());
+		}
+
+		private void syncReactions(Message message, Set<Emoji> previous) {
+			Set<Emoji> desired = new LinkedHashSet<>(navigationReactions.keySet());
+			desired.addAll(actionReactions.keySet());
+			boolean canManage = message.isFromGuild() && message.getGuild().getSelfMember()
+					.hasPermission(message.getGuildChannel(), Permission.MESSAGE_MANAGE);
+			for (MessageReaction reaction : message.getReactions()) {
+				if (canManage || reaction.isSelf()) previous.add(toEmoji(reaction.getEmoji()));
+			}
+			previous.removeAll(desired);
+			for (Emoji obsolete : previous) {
+				try {
+					// Await removal before adding controls, preserving reaction slots at Discord's limit.
+					subGet(canManage ? message.clearReactions(obsolete) : message.removeReaction(obsolete));
+				} catch (InsufficientPermissionException error) {
+					// Removing only the bot's own reaction does not require MESSAGE_MANAGE.
+					subGet(message.removeReaction(obsolete));
+				}
+			}
+			for (Emoji emoji : desired) message.addReaction(emoji).submit();
+		}
 	}
 
 	/**
